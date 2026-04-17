@@ -23,14 +23,12 @@ def creer_reservation(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    # Seuls les voyageurs peuvent réserver
     if current_user.role not in [models.UserRole.voyageur, models.UserRole.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Seuls les voyageurs peuvent réserver"
         )
 
-    # Vérifier que le trajet existe
     trip = db.query(models.Trip).filter(
         models.Trip.id == booking_data.trip_id
     ).first()
@@ -38,39 +36,33 @@ def creer_reservation(
     if not trip:
         raise HTTPException(status_code=404, detail="Trajet introuvable")
 
-    # Vérifier que le trajet est actif
     if trip.status != models.TripStatus.actif:
         raise HTTPException(
             status_code=400,
             detail="Ce trajet n'est plus disponible"
         )
 
-    # Vérifier les places disponibles
     if trip.available_seats < booking_data.seats_booked:
         raise HTTPException(
             status_code=400,
             detail=f"Pas assez de places. Disponibles: {trip.available_seats}"
         )
 
-    # Vérifier que le voyageur ne réserve pas son propre trajet
     if trip.driver_id == current_user.id:
         raise HTTPException(
             status_code=400,
             detail="Vous ne pouvez pas réserver votre propre trajet"
         )
 
-    # Calculer le prix et la commission
     total_price = trip.price_per_seat * booking_data.seats_booked
     commission = total_price * COMMISSION_RATE
 
-    # Générer un code de référence unique
     reference = generate_reference()
     while db.query(models.Booking).filter(
         models.Booking.reference_code == reference
     ).first():
         reference = generate_reference()
 
-    # Créer la réservation
     new_booking = models.Booking(
         trip_id=booking_data.trip_id,
         passenger_id=current_user.id,
@@ -81,15 +73,27 @@ def creer_reservation(
     )
     db.add(new_booking)
 
-    # Mettre à jour les places disponibles
     trip.available_seats -= booking_data.seats_booked
-
-    # Si plus de places, marquer le trajet comme complet
     if trip.available_seats == 0:
         trip.status = models.TripStatus.complet
 
     db.commit()
     db.refresh(new_booking)
+
+    # Envoyer SMS de confirmation
+    try:
+        from app.sms import send_booking_confirmation
+        send_booking_confirmation(current_user.phone, {
+            "reference_code": new_booking.reference_code,
+            "from_city": trip.from_city,
+            "to_city": trip.to_city,
+            "date": trip.departure_date,
+            "time": trip.departure_time,
+            "seats": new_booking.seats_booked,
+            "total_price": new_booking.total_price
+        })
+    except Exception as e:
+        print(f"SMS non envoyé: {e}")
 
     return new_booking
 
@@ -118,7 +122,6 @@ def get_reservation(
     if not booking:
         raise HTTPException(status_code=404, detail="Réservation introuvable")
 
-    # Seul le passager ou l'admin peut voir la réservation
     if booking.passenger_id != current_user.id and current_user.role != models.UserRole.admin:
         raise HTTPException(status_code=403, detail="Non autorisé")
 
@@ -144,7 +147,6 @@ def annuler_reservation(
     if booking.status == models.BookingStatus.annule:
         raise HTTPException(status_code=400, detail="Réservation déjà annulée")
 
-    # Remettre les places disponibles
     trip = db.query(models.Trip).filter(
         models.Trip.id == booking.trip_id
     ).first()
@@ -156,6 +158,13 @@ def annuler_reservation(
     booking.status = models.BookingStatus.annule
     db.commit()
     db.refresh(booking)
+
+    # Envoyer SMS d annulation
+    try:
+        from app.sms import send_cancellation
+        send_cancellation(current_user.phone, booking.reference_code)
+    except Exception as e:
+        print(f"SMS non envoyé: {e}")
 
     return booking
 
