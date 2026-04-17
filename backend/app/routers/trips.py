@@ -9,7 +9,7 @@ router = APIRouter(prefix="/trips", tags=["Trajets"])
 
 VILLES = [
     "Nouakchott", "Nouadhibou", "Atar", "Kiffa",
-    "Kaédi", "Néma", "Rosso", "Zouerate", "Tidjikja", "Aleg"
+    "Kaédi", "Néma", "Rosso", "Zouerate", "Tidjikja", "Aleg", "Dakar"
 ]
 
 
