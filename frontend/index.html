@@ -6,425 +6,158 @@
   <title>SafarWay - Transport Mauritanie</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     :root {
-      --primary: #E07B2A;
-      --primary-dark: #C46820;
-      --secondary: #1A5276;
-      --bg: #F5F5F0;
-      --white: #FFFFFF;
-      --gray: #888;
-      --light: #F0EDE8;
-      --text: #222;
-      --success: #1E8449;
-      --danger: #C0392B;
-      --radius: 12px;
+      --primary: #E07B2A; --secondary: #1A5276; --bg: #F5F5F0;
+      --white: #FFFFFF; --gray: #888; --light: #F0EDE8; --text: #222;
+      --success: #1E8449; --danger: #C0392B; --radius: 12px;
       --shadow: 0 2px 12px rgba(0,0,0,0.1);
     }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-
-    /* NAV */
-    .nav {
-      background: var(--secondary);
-      color: white;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+    .nav { background: var(--secondary); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .nav-logo { font-size: 22px; font-weight: 700; color: var(--primary); }
     .nav-user { font-size: 13px; color: #ccc; cursor: pointer; }
-
-    /* PAGES */
     .page { display: none; padding: 20px; }
     .page.active { display: block; }
-
-    /* HERO */
-    .hero {
-      background: linear-gradient(135deg, var(--secondary), #2E86C1);
-      color: white;
-      padding: 30px 20px;
-      text-align: center;
-      margin: -20px -20px 20px;
-    }
+    .hero { background: linear-gradient(135deg, var(--secondary), #2E86C1); color: white; padding: 30px 20px; text-align: center; margin: -20px -20px 20px; }
     .hero h1 { font-size: 24px; margin-bottom: 6px; }
     .hero p { font-size: 14px; opacity: 0.85; }
-
-    /* CARDS */
-    .card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 18px;
-      margin-bottom: 14px;
-      box-shadow: var(--shadow);
-    }
-    .card-title {
-      font-size: 15px;
-      font-weight: 600;
-      margin-bottom: 14px;
-      color: var(--secondary);
-    }
-
-    /* FORM */
+    .card { background: var(--white); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--secondary); }
     .form-group { margin-bottom: 12px; }
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      color: var(--gray);
-      margin-bottom: 4px;
-      font-weight: 500;
-    }
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 8px;
-      font-size: 15px;
-      background: var(--white);
-      transition: border 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* BUTTONS */
-    .btn {
-      width: 100%;
-      padding: 13px;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
+    .form-group label { display: block; font-size: 12px; color: var(--gray); margin-bottom: 4px; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 15px; background: var(--white); transition: border 0.2s; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
+    .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .btn:active { opacity: 0.8; }
     .btn-primary { background: var(--primary); color: white; }
     .btn-secondary { background: var(--secondary); color: white; }
-    .btn-outline {
-      background: transparent;
-      border: 1.5px solid var(--primary);
-      color: var(--primary);
-    }
+    .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
     .btn-danger { background: var(--danger); color: white; }
-    .btn-sm {
-      width: auto;
-      padding: 7px 14px;
-      font-size: 13px;
-    }
-
-    /* TRIP CARD */
-    .trip-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: var(--shadow);
-      cursor: pointer;
-      border-left: 4px solid var(--primary);
-      transition: transform 0.1s;
-    }
+    .btn-sm { width: auto; padding: 7px 14px; font-size: 13px; }
+    .trip-card { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; border-left: 4px solid var(--primary); transition: transform 0.1s; }
     .trip-card:active { transform: scale(0.98); }
-    .trip-route {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 17px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    .trip-route { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
     .trip-arrow { color: var(--primary); }
-    .trip-info {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      color: var(--gray);
-    }
-    .trip-price {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary);
-      margin-top: 8px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-    }
+    .trip-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); }
+    .trip-price { font-size: 18px; font-weight: 700; color: var(--primary); margin-top: 8px; }
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
     .badge-green { background: #D5F5E3; color: var(--success); }
     .badge-orange { background: #FDEBD0; color: var(--primary); }
     .badge-red { background: #FADBD8; color: var(--danger); }
-
-    /* TABS */
-    .tabs {
-      display: flex;
-      background: var(--light);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 16px;
-    }
-    .tab {
-      flex: 1;
-      text-align: center;
-      padding: 9px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--gray);
-      transition: all 0.2s;
-    }
+    .tabs { display: flex; background: var(--light); border-radius: 10px; padding: 4px; margin-bottom: 16px; }
+    .tab { flex: 1; text-align: center; padding: 9px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--gray); transition: all 0.2s; }
     .tab.active { background: var(--white); color: var(--secondary); box-shadow: var(--shadow); }
-
-    /* BOTTOM NAV */
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      background: var(--white);
-      border-top: 1px solid #eee;
-      display: flex;
-      z-index: 100;
-    }
-    .bottom-nav-item {
-      flex: 1;
-      text-align: center;
-      padding: 10px 0;
-      cursor: pointer;
-      font-size: 11px;
-      color: var(--gray);
-      transition: color 0.2s;
-    }
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid #eee; display: flex; z-index: 100; }
+    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 11px; color: var(--gray); transition: color 0.2s; }
     .bottom-nav-item.active { color: var(--primary); }
     .bottom-nav-item .icon { font-size: 22px; display: block; }
-
-    /* ALERT */
-    .alert {
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 14px;
-      font-size: 14px;
-    }
+    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
     .alert-success { background: #D5F5E3; color: var(--success); }
     .alert-error { background: #FADBD8; color: var(--danger); }
-
-    /* STAT CARDS */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .stat-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 14px;
-      text-align: center;
-      box-shadow: var(--shadow);
-    }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .stat-card { background: var(--white); border-radius: var(--radius); padding: 14px; text-align: center; box-shadow: var(--shadow); }
     .stat-number { font-size: 26px; font-weight: 700; color: var(--primary); }
     .stat-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
-
     .divider { height: 1px; background: #eee; margin: 12px 0; }
-    .text-center { text-align: center; }
-    .text-gray { color: var(--gray); font-size: 13px; }
     .mt-10 { margin-top: 10px; }
     .mb-60 { margin-bottom: 60px; }
-
-    .loading {
-      text-align: center;
-      padding: 30px;
-      color: var(--gray);
-      font-size: 14px;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--gray);
-    }
+    .loading { text-align: center; padding: 30px; color: var(--gray); font-size: 14px; }
+    .empty { text-align: center; padding: 40px 20px; color: var(--gray); }
     .empty .icon { font-size: 48px; margin-bottom: 10px; }
+    .text-gray { color: var(--gray); font-size: 13px; }
   </style>
 </head>
 <body>
 
-<!-- NAV -->
 <div class="nav">
   <div class="nav-logo">🚌 SafarWay</div>
   <div class="nav-user" id="nav-user" onclick="showPage('profile')">Connexion</div>
 </div>
 
-<!-- PAGE: ACCUEIL -->
 <div class="page active" id="page-home">
   <div class="hero">
     <h1>Où voulez-vous aller ?</h1>
     <p>Trouvez votre trajet en Mauritanie</p>
   </div>
-
   <div class="card">
     <div class="card-title">🔍 Rechercher un trajet</div>
-    <div class="form-group">
-      <label>Ville de départ</label>
-      <select id="search-from">
-        <option value="">Choisir...</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Ville d'arrivée</label>
-      <select id="search-to">
-        <option value="">Choisir...</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label>Date</label>
-      <input type="date" id="search-date">
-    </div>
+    <div class="form-group"><label>Ville de départ</label><select id="search-from"><option value="">Choisir...</option></select></div>
+    <div class="form-group"><label>Ville d'arrivée</label><select id="search-to"><option value="">Choisir...</option></select></div>
+    <div class="form-group"><label>Date</label><input type="date" id="search-date"></div>
     <button class="btn btn-primary" onclick="searchTrips()">Rechercher</button>
   </div>
-
   <div id="search-results"></div>
   <div class="mb-60"></div>
 </div>
 
-<!-- PAGE: MES RESERVATIONS -->
 <div class="page" id="page-bookings">
   <div class="card-title" style="padding:0 0 10px">🎫 Mes Réservations</div>
   <div id="bookings-list"><div class="loading">Chargement...</div></div>
   <div class="mb-60"></div>
 </div>
 
-<!-- PAGE: CHAUFFEUR -->
 <div class="page" id="page-driver">
   <div class="tabs">
     <div class="tab active" onclick="switchDriverTab('publish')">Publier</div>
     <div class="tab" onclick="switchDriverTab('mytrips')">Mes Trajets</div>
   </div>
-
-  <!-- Tab publier -->
   <div id="driver-publish">
     <div class="card">
       <div class="card-title">🚗 Publier un trajet</div>
-      <div class="form-group">
-        <label>Ville de départ</label>
-        <select id="trip-from"><option value="">Choisir...</option></select>
-      </div>
-      <div class="form-group">
-        <label>Ville d'arrivée</label>
-        <select id="trip-to"><option value="">Choisir...</option></select>
-      </div>
-      <div class="form-group">
-        <label>Date de départ</label>
-        <input type="date" id="trip-date">
-      </div>
-      <div class="form-group">
-        <label>Heure de départ</label>
-        <input type="time" id="trip-time">
-      </div>
-      <div class="form-group">
-        <label>Nombre de places</label>
-        <input type="number" id="trip-seats" min="1" max="50" placeholder="7">
-      </div>
-      <div class="form-group">
-        <label>Prix par place (MRU)</label>
-        <input type="number" id="trip-price" min="1" placeholder="800">
-      </div>
+      <div class="form-group"><label>Ville de départ</label><select id="trip-from"><option value="">Choisir...</option></select></div>
+      <div class="form-group"><label>Ville d'arrivée</label><select id="trip-to"><option value="">Choisir...</option></select></div>
+      <div class="form-group"><label>Date de départ</label><input type="date" id="trip-date"></div>
+      <div class="form-group"><label>Heure de départ</label><input type="time" id="trip-time"></div>
+      <div class="form-group"><label>Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
+      <div class="form-group"><label>Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
       <div class="form-group">
         <label>Type de véhicule</label>
         <select id="trip-vehicle">
           <option value="">Choisir...</option>
-          <option>Peugeot 504</option>
-          <option>Minibus</option>
-          <option>4x4</option>
-          <option>Bus climatisé</option>
-          <option>Toyota Hilux</option>
+          <option>Peugeot 504</option><option>Minibus</option>
+          <option>4x4</option><option>Bus climatisé</option><option>Toyota Hilux</option>
         </select>
       </div>
       <div id="publish-alert"></div>
       <button class="btn btn-primary mt-10" onclick="publishTrip()">Publier le trajet</button>
     </div>
   </div>
-
-  <!-- Tab mes trajets -->
   <div id="driver-mytrips" style="display:none">
     <div id="driver-trips-list"><div class="loading">Chargement...</div></div>
   </div>
   <div class="mb-60"></div>
 </div>
 
-<!-- PAGE: PROFIL / AUTH -->
 <div class="page" id="page-profile">
   <div id="auth-section">
     <div class="tabs">
       <div class="tab active" onclick="switchAuthTab('login')">Connexion</div>
       <div class="tab" onclick="switchAuthTab('register')">Inscription</div>
     </div>
-
-    <!-- Login -->
     <div id="login-form">
       <div class="card">
         <div class="card-title">👤 Connexion</div>
-        <div class="form-group">
-          <label>Numéro de téléphone</label>
-          <input type="tel" id="login-phone" placeholder="222XXXXXXXX">
-        </div>
-        <div class="form-group">
-          <label>Mot de passe</label>
-          <input type="password" id="login-password" placeholder="••••••••">
-        </div>
+        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="login-phone" placeholder="222XXXXXXXX"></div>
+        <div class="form-group"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••"></div>
         <div id="login-alert"></div>
         <button class="btn btn-primary mt-10" onclick="login()">Se connecter</button>
       </div>
     </div>
-
-    <!-- Register -->
     <div id="register-form" style="display:none">
       <div class="card">
         <div class="card-title">✍️ Inscription</div>
-        <div class="form-group">
-          <label>Nom complet</label>
-          <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed">
-        </div>
-        <div class="form-group">
-          <label>Numéro de téléphone</label>
-          <input type="tel" id="reg-phone" placeholder="222XXXXXXXX">
-        </div>
-        <div class="form-group">
-          <label>Mot de passe</label>
-          <input type="password" id="reg-password" placeholder="••••••••">
-        </div>
+        <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
+        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="reg-phone" placeholder="222XXXXXXXX"></div>
+        <div class="form-group"><label>Mot de passe</label><input type="password" id="reg-password" placeholder="••••••••"></div>
         <div class="form-group">
           <label>Je suis</label>
-          <select id="reg-role">
-            <option value="voyageur">Voyageur</option>
-            <option value="chauffeur">Chauffeur / Agence</option>
-          </select>
+          <select id="reg-role"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
         </div>
         <div id="reg-alert"></div>
         <button class="btn btn-secondary mt-10" onclick="register()">Créer mon compte</button>
       </div>
     </div>
   </div>
-
-  <!-- Profil connecté -->
   <div id="profile-section" style="display:none">
     <div class="card">
       <div class="card-title">👤 Mon Profil</div>
@@ -439,7 +172,6 @@
   <div class="mb-60"></div>
 </div>
 
-<!-- PAGE: ADMIN -->
 <div class="page" id="page-admin">
   <div class="card-title" style="padding:0 0 10px">⚙️ Tableau de bord Admin</div>
   <div class="stats-grid" id="admin-stats"></div>
@@ -450,23 +182,12 @@
   <div class="mb-60"></div>
 </div>
 
-<!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottom-nav">
-  <div class="bottom-nav-item active" onclick="showPage('home')">
-    <span class="icon">🏠</span>Accueil
-  </div>
-  <div class="bottom-nav-item" onclick="showPage('bookings')" id="nav-bookings">
-    <span class="icon">🎫</span>Réservations
-  </div>
-  <div class="bottom-nav-item" id="nav-driver" style="display:none" onclick="showPage('driver')">
-    <span class="icon">🚗</span>Chauffeur
-  </div>
-  <div class="bottom-nav-item" id="nav-admin" style="display:none" onclick="showPage('admin')">
-    <span class="icon">⚙️</span>Admin
-  </div>
-  <div class="bottom-nav-item" onclick="showPage('profile')">
-    <span class="icon">👤</span>Profil
-  </div>
+<div class="bottom-nav">
+  <div class="bottom-nav-item active" onclick="showPage('home')"><span class="icon">🏠</span>Accueil</div>
+  <div class="bottom-nav-item" onclick="showPage('bookings')"><span class="icon">🎫</span>Réservations</div>
+  <div class="bottom-nav-item" id="nav-driver" style="display:none" onclick="showPage('driver')"><span class="icon">🚗</span>Chauffeur</div>
+  <div class="bottom-nav-item" id="nav-admin" style="display:none" onclick="showPage('admin')"><span class="icon">⚙️</span>Admin</div>
+  <div class="bottom-nav-item" onclick="showPage('profile')"><span class="icon">👤</span>Profil</div>
 </div>
 
 <script>
@@ -474,14 +195,10 @@ const API = "https://safarway.onrender.com";
 let currentUser = null;
 let token = null;
 
-// ─── INIT ───────────────────────────────────────────
 window.onload = () => {
   token = localStorage.getItem("sw_token");
   const savedUser = localStorage.getItem("sw_user");
-  if (token && savedUser) {
-    currentUser = JSON.parse(savedUser);
-    updateUI();
-  }
+  if (token && savedUser) { currentUser = JSON.parse(savedUser); updateUI(); }
   loadVilles();
   setTodayDate();
 };
@@ -492,54 +209,46 @@ function setTodayDate() {
   document.getElementById("trip-date").value = today;
 }
 
-// ─── NAVIGATION ─────────────────────────────────────
 function showPage(page) {
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".bottom-nav-item").forEach(n => n.classList.remove("active"));
   document.getElementById("page-" + page).classList.add("active");
-
   if (page === "bookings") loadBookings();
   if (page === "driver") loadDriverTrips();
   if (page === "admin") loadAdminStats();
   if (page === "profile") updateProfileSection();
 }
 
-// ─── VILLES ─────────────────────────────────────────
 async function loadVilles() {
-  const res = await fetch(`${API}/trips/villes/liste`);
-  const data = await res.json();
-  const selects = ["search-from", "search-to", "trip-from", "trip-to"];
-  selects.forEach(id => {
-    const sel = document.getElementById(id);
-    data.villes.forEach(v => {
-      const opt = document.createElement("option");
-      opt.value = v; opt.textContent = v;
-      sel.appendChild(opt);
+  try {
+    const res = await fetch(`${API}/trips/villes/liste`);
+    const data = await res.json();
+    ["search-from","search-to","trip-from","trip-to"].forEach(id => {
+      const sel = document.getElementById(id);
+      data.villes.forEach(v => {
+        const opt = document.createElement("option");
+        opt.value = v; opt.textContent = v; sel.appendChild(opt);
+      });
     });
-  });
+  } catch(e) { console.error("Erreur villes:", e); }
 }
 
-// ─── AUTH ────────────────────────────────────────────
 async function login() {
   const phone = document.getElementById("login-phone").value;
   const password = document.getElementById("login-password").value;
+  if (!phone || !password) { showAlert("login-alert", "Remplissez tous les champs", "error"); return; }
   try {
     const res = await fetch(`${API}/users/login`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
+      method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify({phone, password})
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail);
-    token = data.access_token;
-    currentUser = data.user;
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : "Erreur de connexion");
+    token = data.access_token; currentUser = data.user;
     localStorage.setItem("sw_token", token);
     localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    updateUI();
-    showPage("home");
-  } catch(e) {
-    showAlert("login-alert", e.message, "error");
-  }
+    updateUI(); showPage("home");
+  } catch(e) { showAlert("login-alert", e.message, "error"); }
 }
 
 async function register() {
@@ -547,46 +256,38 @@ async function register() {
   const phone = document.getElementById("reg-phone").value;
   const password = document.getElementById("reg-password").value;
   const role = document.getElementById("reg-role").value;
+  if (!name || !phone || !password) { showAlert("reg-alert", "Remplissez tous les champs", "error"); return; }
   try {
     const res = await fetch(`${API}/users/inscription`, {
-      method: "POST",
-      headers: {"Content-Type": "application/json"},
+      method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify({name, phone, password, role})
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail);
-    token = data.access_token;
-    currentUser = data.user;
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : "Erreur inscription");
+    token = data.access_token; currentUser = data.user;
     localStorage.setItem("sw_token", token);
     localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    updateUI();
-    showPage("home");
-  } catch(e) {
-    showAlert("reg-alert", e.message, "error");
-  }
+    updateUI(); showPage("home");
+  } catch(e) { showAlert("reg-alert", e.message, "error"); }
 }
 
 function logout() {
   token = null; currentUser = null;
-  localStorage.removeItem("sw_token");
-  localStorage.removeItem("sw_user");
-  updateUI();
-  showPage("home");
+  localStorage.removeItem("sw_token"); localStorage.removeItem("sw_user");
+  updateUI(); showPage("home");
 }
 
 function updateUI() {
-  const navUser = document.getElementById("nav-user");
   const navDriver = document.getElementById("nav-driver");
   const navAdmin = document.getElementById("nav-admin");
-
+  const navUser = document.getElementById("nav-user");
   if (currentUser) {
     navUser.textContent = currentUser.name.split(" ")[0];
     navDriver.style.display = currentUser.role === "chauffeur" ? "block" : "none";
     navAdmin.style.display = currentUser.role === "admin" ? "block" : "none";
   } else {
     navUser.textContent = "Connexion";
-    navDriver.style.display = "none";
-    navAdmin.style.display = "none";
+    navDriver.style.display = "none"; navAdmin.style.display = "none";
   }
 }
 
@@ -603,65 +304,38 @@ function updateProfileSection() {
   }
 }
 
-// ─── SEARCH ─────────────────────────────────────────
 async function searchTrips() {
   const from = document.getElementById("search-from").value;
   const to = document.getElementById("search-to").value;
   const date = document.getElementById("search-date").value;
   const container = document.getElementById("search-results");
   container.innerHTML = '<div class="loading">Recherche en cours...</div>';
-
   let url = `${API}/trips/?`;
   if (from) url += `from_city=${encodeURIComponent(from)}&`;
   if (to) url += `to_city=${encodeURIComponent(to)}&`;
   if (date) url += `date=${date}`;
-
-  const res = await fetch(url);
-  const trips = await res.json();
-
-  if (!trips.length) {
-    container.innerHTML = `<div class="empty"><div class="icon">🚌</div><p>Aucun trajet trouvé</p></div>`;
-    return;
-  }
-
-  container.innerHTML = `<div class="card-title">${trips.length} trajet(s) trouvé(s)</div>` +
-    trips.map(t => `
-      <div class="trip-card" onclick="bookTrip(${t.id}, '${t.from_city}', '${t.to_city}', ${t.price_per_seat}, ${t.available_seats})">
-        <div class="trip-route">
-          <span>${t.from_city}</span>
-          <span class="trip-arrow">→</span>
-          <span>${t.to_city}</span>
-        </div>
-        <div class="trip-info">
-          <span>🕐 ${t.departure_time} — ${t.departure_date}</span>
-          <span>🚗 ${t.vehicle_type}</span>
-        </div>
-        <div class="trip-info mt-10">
-          <span>👤 ${t.driver_name}</span>
-          <span class="badge badge-green">💺 ${t.available_seats} places</span>
-        </div>
-        <div class="trip-price">${t.price_per_seat.toLocaleString()} MRU / place</div>
-      </div>
-    `).join("");
+  try {
+    const res = await fetch(url);
+    const trips = await res.json();
+    if (!trips.length) { container.innerHTML = `<div class="empty"><div class="icon">🚌</div><p>Aucun trajet trouvé</p></div>`; return; }
+    container.innerHTML = `<div class="card-title">${trips.length} trajet(s) trouvé(s)</div>` +
+      trips.map(t => `
+        <div class="trip-card" onclick="bookTrip(${t.id},'${t.from_city}','${t.to_city}',${t.price_per_seat},${t.available_seats})">
+          <div class="trip-route"><span>${t.from_city}</span><span class="trip-arrow">→</span><span>${t.to_city}</span></div>
+          <div class="trip-info"><span>🕐 ${t.departure_time} — ${t.departure_date}</span><span>🚗 ${t.vehicle_type}</span></div>
+          <div class="trip-info mt-10"><span>👤 ${t.driver_name}</span><span class="badge badge-green">💺 ${t.available_seats} places</span></div>
+          <div class="trip-price">${t.price_per_seat.toLocaleString()} MRU / place</div>
+        </div>`).join("");
+  } catch(e) { container.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
-// ─── BOOK ────────────────────────────────────────────
 function bookTrip(tripId, from, to, price, available) {
-  if (!currentUser) {
-    alert("Connectez-vous pour réserver");
-    showPage("profile");
-    return;
-  }
+  if (!currentUser) { alert("Connectez-vous pour réserver"); showPage("profile"); return; }
   const seats = prompt(`Réserver ${from} → ${to}\nPrix: ${price} MRU/place\nPlaces disponibles: ${available}\n\nCombien de places ?`, "1");
   if (!seats) return;
   const n = parseInt(seats);
-  if (isNaN(n) || n < 1 || n > available) {
-    alert("Nombre de places invalide");
-    return;
-  }
-  const total = n * price;
-  const confirm = window.confirm(`Confirmer la réservation ?\n\n${from} → ${to}\n${n} place(s) × ${price} MRU = ${total} MRU\n\nPaiement en espèces au chauffeur`);
-  if (!confirm) return;
+  if (isNaN(n) || n < 1 || n > available) { alert("Nombre de places invalide"); return; }
+  if (!window.confirm(`Confirmer ?\n\n${from} → ${to}\n${n} place(s) × ${price} MRU = ${n*price} MRU\n\nPaiement en espèces au chauffeur`)) return;
   confirmBooking(tripId, n);
 }
 
@@ -669,159 +343,127 @@ async function confirmBooking(tripId, seats) {
   try {
     const res = await fetch(`${API}/bookings/`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      },
+      headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`},
       body: JSON.stringify({trip_id: tripId, seats_booked: seats})
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail);
+    if (!res.ok) throw new Error(typeof data.detail === 'string' ? data.detail : "Erreur réservation");
     alert(`✅ Réservation confirmée !\nCode: ${data.reference_code}\nTotal: ${data.total_price} MRU`);
     showPage("bookings");
-  } catch(e) {
-    alert("Erreur: " + e.message);
-  }
+  } catch(e) { alert("Erreur: " + e.message); }
 }
 
-// ─── BOOKINGS ────────────────────────────────────────
 async function loadBookings() {
-  if (!currentUser) {
-    document.getElementById("bookings-list").innerHTML =
-      '<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>';
-    return;
-  }
-  const res = await fetch(`${API}/bookings/mes-reservations`, {
-    headers: {"Authorization": `Bearer ${token}`}
-  });
-  const bookings = await res.json();
-  const container = document.getElementById("bookings-list");
-  if (!bookings.length) {
-    container.innerHTML = '<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';
-    return;
-  }
-  container.innerHTML = bookings.map(b => `
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>${b.reference_code}</strong>
-        <span class="badge ${b.status === 'confirme' ? 'badge-green' : 'badge-red'}">${b.status}</span>
-      </div>
-      <div class="divider"></div>
-      <p>💺 ${b.seats_booked} place(s)</p>
-      <p>💰 ${b.total_price} MRU</p>
-      <p class="text-gray">${new Date(b.created_at).toLocaleDateString("fr-FR")}</p>
-      ${b.status === 'confirme' ? `<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking(${b.id})">Annuler</button>` : ''}
-    </div>
-  `).join("");
+  if (!currentUser) { document.getElementById("bookings-list").innerHTML = '<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>'; return; }
+  try {
+    const res = await fetch(`${API}/bookings/mes-reservations`, {headers: {"Authorization": `Bearer ${token}`}});
+    const bookings = await res.json();
+    const container = document.getElementById("bookings-list");
+    if (!bookings.length) { container.innerHTML = '<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>'; return; }
+    container.innerHTML = bookings.map(b => `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>${b.reference_code}</strong>
+          <span class="badge ${b.status==='confirme'?'badge-green':'badge-red'}">${b.status}</span>
+        </div>
+        <div class="divider"></div>
+        <p>💺 ${b.seats_booked} place(s)</p>
+        <p>💰 ${b.total_price} MRU</p>
+        <p class="text-gray">${new Date(b.created_at).toLocaleDateString("fr-FR")}</p>
+        ${b.status==='confirme'?`<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking(${b.id})">Annuler</button>`:''}
+      </div>`).join("");
+  } catch(e) { document.getElementById("bookings-list").innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
 async function cancelBooking(id) {
   if (!confirm("Annuler cette réservation ?")) return;
-  await fetch(`${API}/bookings/${id}/annuler`, {
-    method: "PATCH",
-    headers: {"Authorization": `Bearer ${token}`}
-  });
+  await fetch(`${API}/bookings/${id}/annuler`, {method:"PATCH", headers:{"Authorization":`Bearer ${token}`}});
   loadBookings();
 }
 
-// ─── DRIVER ──────────────────────────────────────────
 function switchDriverTab(tab) {
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll("#page-driver .tab").forEach(t => t.classList.remove("active"));
   event.target.classList.add("active");
-  document.getElementById("driver-publish").style.display = tab === "publish" ? "block" : "none";
-  document.getElementById("driver-mytrips").style.display = tab === "mytrips" ? "block" : "none";
-  if (tab === "mytrips") loadDriverTrips();
+  document.getElementById("driver-publish").style.display = tab==="publish"?"block":"none";
+  document.getElementById("driver-mytrips").style.display = tab==="mytrips"?"block":"none";
+  if (tab==="mytrips") loadDriverTrips();
 }
 
 async function publishTrip() {
-  const body = {
-    from_city: document.getElementById("trip-from").value,
-    to_city: document.getElementById("trip-to").value,
-    departure_date: document.getElementById("trip-date").value,
-    departure_time: document.getElementById("trip-time").value,
-    total_seats: parseInt(document.getElementById("trip-seats").value),
-    price_per_seat: parseFloat(document.getElementById("trip-price").value),
-    vehicle_type: document.getElementById("trip-vehicle").value,
-  };
+  const from = document.getElementById("trip-from").value;
+  const to = document.getElementById("trip-to").value;
+  const date = document.getElementById("trip-date").value;
+  const time = document.getElementById("trip-time").value;
+  const seats = document.getElementById("trip-seats").value;
+  const price = document.getElementById("trip-price").value;
+  const vehicle = document.getElementById("trip-vehicle").value;
+
+  if (!from || !to || !date || !time || !seats || !price || !vehicle) {
+    showAlert("publish-alert", "Veuillez remplir tous les champs", "error");
+    return;
+  }
+
   try {
     const res = await fetch(`${API}/trips/`, {
       method: "POST",
       headers: {"Content-Type": "application/json", "Authorization": `Bearer ${token}`},
-      body: JSON.stringify(body)
+      body: JSON.stringify({
+        from_city: from, to_city: to, departure_date: date,
+        departure_time: time, total_seats: parseInt(seats),
+        price_per_seat: parseFloat(price), vehicle_type: vehicle
+      })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.detail);
+    if (!res.ok) throw new Error(typeof data.detail==='string' ? data.detail : JSON.stringify(data.detail));
     showAlert("publish-alert", `✅ Trajet publié ! ${data.from_city} → ${data.to_city}`, "success");
-  } catch(e) {
-    showAlert("publish-alert", typeof e.message === 'string' ? e.message : JSON.stringify(e.message), "error");
-  }
+  } catch(e) { showAlert("publish-alert", e.message, "error"); }
 }
 
 async function loadDriverTrips() {
   if (!currentUser) return;
-  const res = await fetch(`${API}/trips/mes-trajets`, {
-    headers: {"Authorization": `Bearer ${token}`}
-  });
-  const trips = await res.json();
-  const container = document.getElementById("driver-trips-list");
-  if (!trips.length) {
-    container.innerHTML = '<div class="empty"><div class="icon">🚗</div><p>Aucun trajet publié</p></div>';
-    return;
-  }
-  container.innerHTML = trips.map(t => `
-    <div class="trip-card">
-      <div class="trip-route">
-        <span>${t.from_city}</span><span class="trip-arrow">→</span><span>${t.to_city}</span>
-      </div>
-      <div class="trip-info">
-        <span>🕐 ${t.departure_time} — ${t.departure_date}</span>
-        <span class="badge ${t.status === 'actif' ? 'badge-green' : 'badge-red'}">${t.status}</span>
-      </div>
-      <div class="trip-info mt-10">
-        <span>💺 ${t.available_seats}/${t.total_seats} places</span>
-        <span>💰 ${t.price_per_seat} MRU</span>
-      </div>
-    </div>
-  `).join("");
+  try {
+    const res = await fetch(`${API}/trips/mes-trajets`, {headers: {"Authorization": `Bearer ${token}`}});
+    const trips = await res.json();
+    const container = document.getElementById("driver-trips-list");
+    if (!trips.length) { container.innerHTML = '<div class="empty"><div class="icon">🚗</div><p>Aucun trajet publié</p></div>'; return; }
+    container.innerHTML = trips.map(t => `
+      <div class="trip-card">
+        <div class="trip-route"><span>${t.from_city}</span><span class="trip-arrow">→</span><span>${t.to_city}</span></div>
+        <div class="trip-info">
+          <span>🕐 ${t.departure_time} — ${t.departure_date}</span>
+          <span class="badge ${t.status==='actif'?'badge-green':'badge-red'}">${t.status}</span>
+        </div>
+        <div class="trip-info mt-10"><span>💺 ${t.available_seats}/${t.total_seats} places</span><span>💰 ${t.price_per_seat} MRU</span></div>
+      </div>`).join("");
+  } catch(e) { document.getElementById("driver-trips-list").innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
-// ─── ADMIN ───────────────────────────────────────────
 async function loadAdminStats() {
-  const res = await fetch(`${API}/admin/stats`, {
-    headers: {"Authorization": `Bearer ${token}`}
-  });
-  const data = await res.json();
-  document.getElementById("admin-stats").innerHTML = `
-    <div class="stat-card"><div class="stat-number">${data.utilisateurs.total}</div><div class="stat-label">Utilisateurs</div></div>
-    <div class="stat-card"><div class="stat-number">${data.trajets.total}</div><div class="stat-label">Trajets</div></div>
-    <div class="stat-card"><div class="stat-number">${data.reservations.confirmees}</div><div class="stat-label">Réservations</div></div>
-    <div class="stat-card"><div class="stat-number">${Math.round(data.finances.commission_totale_MRU)}</div><div class="stat-label">Commission MRU</div></div>
-  `;
-
-  const usersRes = await fetch(`${API}/admin/users`, {
-    headers: {"Authorization": `Bearer ${token}`}
-  });
-  const users = await usersRes.json();
-  document.getElementById("admin-users-list").innerHTML = users.slice(0, 10).map(u => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
-      <div>
-        <div style="font-weight:600;font-size:14px">${u.name}</div>
-        <div class="text-gray">${u.phone}</div>
-      </div>
-      <span class="badge ${u.role === 'chauffeur' ? 'badge-orange' : u.role === 'admin' ? 'badge-red' : 'badge-green'}">${u.role}</span>
-    </div>
-  `).join("");
+  try {
+    const res = await fetch(`${API}/admin/stats`, {headers: {"Authorization": `Bearer ${token}`}});
+    const data = await res.json();
+    document.getElementById("admin-stats").innerHTML = `
+      <div class="stat-card"><div class="stat-number">${data.utilisateurs.total}</div><div class="stat-label">Utilisateurs</div></div>
+      <div class="stat-card"><div class="stat-number">${data.trajets.total}</div><div class="stat-label">Trajets</div></div>
+      <div class="stat-card"><div class="stat-number">${data.reservations.confirmees}</div><div class="stat-label">Réservations</div></div>
+      <div class="stat-card"><div class="stat-number">${Math.round(data.finances.commission_totale_MRU)}</div><div class="stat-label">Commission MRU</div></div>`;
+    const usersRes = await fetch(`${API}/admin/users`, {headers: {"Authorization": `Bearer ${token}`}});
+    const users = await usersRes.json();
+    document.getElementById("admin-users-list").innerHTML = users.slice(0,10).map(u => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee">
+        <div><div style="font-weight:600;font-size:14px">${u.name}</div><div class="text-gray">${u.phone}</div></div>
+        <span class="badge ${u.role==='chauffeur'?'badge-orange':u.role==='admin'?'badge-red':'badge-green'}">${u.role}</span>
+      </div>`).join("");
+  } catch(e) { console.error("Erreur admin:", e); }
 }
 
-// ─── AUTH TABS ───────────────────────────────────────
 function switchAuthTab(tab) {
   document.querySelectorAll("#page-profile .tab").forEach(t => t.classList.remove("active"));
   event.target.classList.add("active");
-  document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
-  document.getElementById("register-form").style.display = tab === "register" ? "block" : "none";
+  document.getElementById("login-form").style.display = tab==="login"?"block":"none";
+  document.getElementById("register-form").style.display = tab==="register"?"block":"none";
 }
 
-// ─── UTILS ───────────────────────────────────────────
 function showAlert(id, msg, type) {
   const el = document.getElementById(id);
   el.innerHTML = `<div class="alert alert-${type}">${msg}</div>`;
