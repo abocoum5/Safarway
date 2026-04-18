@@ -753,7 +753,7 @@ async function publishTrip() {
     if (!res.ok) throw new Error(data.detail);
     showAlert("publish-alert", `✅ Trajet publié ! ${data.from_city} → ${data.to_city}`, "success");
   } catch(e) {
-    showAlert("publish-alert", e.message, "error");
+    showAlert("publish-alert", typeof e.message === 'string' ? e.message : JSON.stringify(e.message), "error");
   }
 }
 
