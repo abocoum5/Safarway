@@ -18,16 +18,12 @@ def generate_reference():
     return "SW-" + "".join(random.choices(chars, k=8))
 
 
-# =========================
-# CREER RESERVATION
-# =========================
 @router.post("/", response_model=schemas.BookingResponse)
 def creer_reservation(
     booking_data: schemas.BookingCreate,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     if current_user.role not in [models.UserRole.voyageur, models.UserRole.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -78,7 +74,7 @@ def creer_reservation(
     db.refresh(new_booking)
 
     # =========================
-    # AJOUT DRIVER INFO
+    # AJOUT DEMANDÉ (DRIVER INFO)
     # =========================
     new_booking.driver_phone = trip.driver.phone
     new_booking.driver_name = trip.driver.name
@@ -102,18 +98,15 @@ def creer_reservation(
     except Exception as e:
         print(f"SMS non envoyé: {e}")
 
+
     return new_booking
 
 
-# =========================
-# MES RESERVATIONS
-# =========================
 @router.get("/mes-reservations", response_model=List[schemas.BookingResponse])
 def mes_reservations(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     bookings = db.query(models.Booking).filter(
         models.Booking.passenger_id == current_user.id
     ).order_by(models.Booking.created_at.desc()).all()
@@ -122,23 +115,18 @@ def mes_reservations(
     # AJOUT DEMANDÉ
     # =========================
     for booking in bookings:
-        if booking.trip and booking.trip.driver:
-            booking.driver_phone = booking.trip.driver.phone
-            booking.driver_name = booking.trip.driver.name
+        booking.driver_phone = booking.trip.driver.phone
+        booking.driver_name = booking.trip.driver.name
 
     return bookings
 
 
-# =========================
-# UNE RESERVATION
-# =========================
 @router.get("/{booking_id}", response_model=schemas.BookingResponse)
 def get_reservation(
     booking_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -152,16 +140,12 @@ def get_reservation(
     return booking
 
 
-# =========================
-# ANNULER RESERVATION
-# =========================
 @router.patch("/{booking_id}/annuler", response_model=schemas.BookingResponse)
 def annuler_reservation(
     booking_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -188,7 +172,6 @@ def annuler_reservation(
     db.commit()
     db.refresh(booking)
 
-    # SMS annulation
     try:
         from app.sms import send_cancellation
         send_cancellation(current_user.phone, booking.reference_code)
@@ -198,16 +181,12 @@ def annuler_reservation(
     return booking
 
 
-# =========================
-# RESERVATIONS D'UN TRAJET
-# =========================
 @router.get("/trajet/{trip_id}", response_model=List[schemas.BookingResponse])
 def reservations_du_trajet(
     trip_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-
     trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
 
     if not trip:
