@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List
 import random
 import string
@@ -13,10 +13,18 @@ router = APIRouter(prefix="/bookings", tags=["Réservations"])
 COMMISSION_RATE = 10  # 10 MRU par place
 
 
+# ─────────────────────────────────────────────
+# UTILITAIRE
+# ─────────────────────────────────────────────
+
 def generate_reference():
     chars = string.ascii_uppercase + string.digits
     return "SW-" + "".join(random.choices(chars, k=8))
 
+
+# ─────────────────────────────────────────────
+# CREER RESERVATION
+# ─────────────────────────────────────────────
 
 @router.post("/", response_model=schemas.BookingResponse)
 def creer_reservation(
@@ -24,6 +32,7 @@ def creer_reservation(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     if current_user.role not in [models.UserRole.voyageur, models.UserRole.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -38,13 +47,19 @@ def creer_reservation(
         raise HTTPException(status_code=404, detail="Trajet introuvable")
 
     if trip.status != models.TripStatus.actif:
-        raise HTTPException(status_code=400, detail="Ce trajet n'est plus disponible")
+        raise HTTPException(status_code=400, detail="Trajet indisponible")
 
     if trip.available_seats < booking_data.seats_booked:
-        raise HTTPException(status_code=400, detail="Pas assez de places disponibles")
+        raise HTTPException(
+            status_code=400,
+            detail=f"Places insuffisantes ({trip.available_seats})"
+        )
 
     if trip.driver_id == current_user.id:
-        raise HTTPException(status_code=400, detail="Vous ne pouvez pas réserver votre propre trajet")
+        raise HTTPException(
+            status_code=400,
+            detail="Impossible de réserver votre propre trajet"
+        )
 
     total_price = trip.price_per_seat * booking_data.seats_booked
     commission = booking_data.seats_booked * COMMISSION_RATE
@@ -73,17 +88,10 @@ def creer_reservation(
     db.commit()
     db.refresh(new_booking)
 
-    # =========================
-    # AJOUT DEMANDÉ (DRIVER INFO)
-    # =========================
-    new_booking.driver_phone = trip.driver.phone
-    new_booking.driver_name = trip.driver.name
-
-    # =========================
-    # SMS CONFIRMATION
-    # =========================
+    # ─── SMS (sécurisé)
     try:
         from app.sms import send_booking_confirmation
+
         send_booking_confirmation(current_user.phone, {
             "reference_code": new_booking.reference_code,
             "from_city": trip.from_city,
@@ -92,34 +100,59 @@ def creer_reservation(
             "time": trip.departure_time,
             "seats": new_booking.seats_booked,
             "total_price": new_booking.total_price,
-            "driver_phone": trip.driver.phone,
-            "driver_name": trip.driver.name
+            "driver_phone": trip.driver.phone if trip.driver else None,
+            "driver_name": trip.driver.name if trip.driver else None
         })
+
     except Exception as e:
         print(f"SMS non envoyé: {e}")
 
-
     return new_booking
 
+
+# ─────────────────────────────────────────────
+# MES RESERVATIONS (VERSION PROPRE)
+# ─────────────────────────────────────────────
 
 @router.get("/mes-reservations", response_model=List[schemas.BookingResponse])
 def mes_reservations(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    bookings = db.query(models.Booking).filter(
-        models.Booking.passenger_id == current_user.id
-    ).order_by(models.Booking.created_at.desc()).all()
 
-    # =========================
-    # AJOUT DEMANDÉ
-    # =========================
-    for booking in bookings:
-        booking.driver_phone = booking.trip.driver.phone
-        booking.driver_name = booking.trip.driver.name
+    bookings = db.query(models.Booking)\
+        .options(
+            joinedload(models.Booking.trip).joinedload(models.Trip.driver)
+        )\
+        .filter(models.Booking.passenger_id == current_user.id)\
+        .order_by(models.Booking.created_at.desc())\
+        .all()
 
-    return bookings
+    result = []
 
+    for b in bookings:
+        result.append({
+            "id": b.id,
+            "trip_id": b.trip_id,
+            "passenger_id": b.passenger_id,
+            "seats_booked": b.seats_booked,
+            "total_price": b.total_price,
+            "commission": b.commission,
+            "status": b.status,
+            "reference_code": b.reference_code,
+            "created_at": b.created_at,
+
+            # ✅ infos chauffeur propres
+            "driver_phone": b.trip.driver.phone if b.trip and b.trip.driver else None,
+            "driver_name": b.trip.driver.name if b.trip and b.trip.driver else None,
+        })
+
+    return result
+
+
+# ─────────────────────────────────────────────
+# UNE RESERVATION
+# ─────────────────────────────────────────────
 
 @router.get("/{booking_id}", response_model=schemas.BookingResponse)
 def get_reservation(
@@ -127,6 +160,7 @@ def get_reservation(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -140,12 +174,17 @@ def get_reservation(
     return booking
 
 
+# ─────────────────────────────────────────────
+# ANNULER RESERVATION
+# ─────────────────────────────────────────────
+
 @router.patch("/{booking_id}/annuler", response_model=schemas.BookingResponse)
 def annuler_reservation(
     booking_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -181,12 +220,17 @@ def annuler_reservation(
     return booking
 
 
+# ─────────────────────────────────────────────
+# RESERVATIONS D'UN TRAJET
+# ─────────────────────────────────────────────
+
 @router.get("/trajet/{trip_id}", response_model=List[schemas.BookingResponse])
 def reservations_du_trajet(
     trip_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
 
     if not trip:
@@ -195,6 +239,8 @@ def reservations_du_trajet(
     if trip.driver_id != current_user.id and current_user.role != models.UserRole.admin:
         raise HTTPException(status_code=403, detail="Non autorisé")
 
-    return db.query(models.Booking).filter(
+    bookings = db.query(models.Booking).filter(
         models.Booking.trip_id == trip_id
     ).all()
+
+    return bookings
