@@ -5,261 +5,144 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SafarWay - Transport Mauritanie</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#E07B2A">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SafarWay">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#E07B2A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SafarWay">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --primary: #E07B2A; --secondary: #1A5276; --bg: #F5F5F0; --white: #FFFFFF; --gray: #888; --light: #F0EDE8; --text: #222; --success: #1E8449; --danger: #C0392B; --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,0.1); }
+    :root {
+      --primary: #E07B2A; --secondary: #1A5276; --bg: #F5F5F0;
+      --white: #FFFFFF; --gray: #888; --light: #F0EDE8; --text: #222;
+      --success: #1E8449; --danger: #C0392B; --radius: 12px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
     body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
     .nav { background: var(--secondary); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
     .nav-logo { font-size: 22px; font-weight: 700; color: var(--primary); }
     .nav-user { font-size: 13px; color: #ccc; cursor: pointer; }
     .page { display: none; padding: 20px; }
     .page.active { display: block; }
-    .hero { background: linear-gradient(135deg, var(--secondary), #2E86C1); color: white; padding: 30px 20px; text-align: center; margin: -20px -20px 20px; }
-    .hero h1 { font-size: 24px; margin-bottom: 6px; }
-    .hero p { font-size: 14px; opacity: 0.85; }
+
     .card { background: var(--white); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--secondary); }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; color: var(--gray); margin-bottom: 4px; font-weight: 500; }
-    .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 15px; background: var(--white); transition: border 0.2s; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
-    .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-    .btn:active { opacity: 0.8; }
+
+    .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
     .btn-primary { background: var(--primary); color: white; }
-    .btn-secondary { background: var(--secondary); color: white; }
-    .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
     .btn-danger { background: var(--danger); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-    .trip-card { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; border-left: 4px solid var(--primary); transition: transform 0.1s; }
-    .trip-card:active { transform: scale(0.98); }
-    .trip-route { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
-    .trip-arrow { color: var(--primary); }
-    .trip-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); }
-    .trip-price { font-size: 18px; font-weight: 700; color: var(--primary); margin-top: 8px; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-green { background: #D5F5E3; color: var(--success); }
-    .badge-orange { background: #FDEBD0; color: var(--primary); }
-    .badge-red { background: #FADBD8; color: var(--danger); }
-    .badge-blue { background: #D6EAF8; color: var(--secondary); }
-    .tabs { display: flex; background: var(--light); border-radius: 10px; padding: 4px; margin-bottom: 16px; }
-    .tab { flex: 1; text-align: center; padding: 9px 4px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray); transition: all 0.2s; white-space: nowrap; }
-    .tab.active { background: var(--white); color: var(--secondary); box-shadow: var(--shadow); }
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid #eee; display: flex; z-index: 100; }
-    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 11px; color: var(--gray); transition: color 0.2s; }
-    .bottom-nav-item.active { color: var(--primary); }
-    .bottom-nav-item .icon { font-size: 22px; display: block; }
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
-    .alert-success { background: #D5F5E3; color: var(--success); }
-    .alert-error { background: #FADBD8; color: var(--danger); }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .stat-card { background: var(--white); border-radius: var(--radius); padding: 14px; text-align: center; box-shadow: var(--shadow); }
-    .stat-number { font-size: 26px; font-weight: 700; color: var(--primary); }
-    .stat-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
+    .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; }
+
+    .badge-green { background: #D5F5E3; color: var(--success); padding: 3px 10px; border-radius: 20px; }
+    .badge-red { background: #FADBD8; color: var(--danger); padding: 3px 10px; border-radius: 20px; }
+
+    .text-gray { color: var(--gray); font-size: 13px; }
+
     .divider { height: 1px; background: #eee; margin: 12px 0; }
-    .mt-10 { margin-top: 10px; }
-    .mb-60 { margin-bottom: 70px; }
-    .loading { text-align: center; padding: 30px; color: var(--gray); font-size: 14px; }
+
     .empty { text-align: center; padding: 40px 20px; color: var(--gray); }
     .empty .icon { font-size: 48px; margin-bottom: 10px; }
-    .text-gray { color: var(--gray); font-size: 13px; }
-    .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; gap: 8px; }
-    .user-info { flex: 1; min-width: 0; }
-    .user-name { font-weight: 600; font-size: 14px; }
-    .user-phone { color: var(--gray); font-size: 12px; }
-    .user-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
-    .booking-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 14px; }
-    .admin-tab { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; background: var(--light); color: var(--gray); transition: all 0.2s; }
-    .admin-tab.active { background: var(--secondary); color: white; }
-    .sms-area { width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; }
+
   </style>
 </head>
+
 <body>
+
 <div class="nav">
   <div class="nav-logo">🚌 SafarWay</div>
-  <div class="nav-user" id="nav-user" onclick="showPage('profile')">Connexion</div>
+  <div class="nav-user">Profil</div>
 </div>
-<div class="page active" id="page-home">
-  <div class="hero"><h1>Où voulez-vous aller ?</h1><p>Trouvez votre trajet en Mauritanie</p></div>
+
+<!-- PAGE RESERVATIONS -->
+<div class="page active">
   <div class="card">
-    <div class="card-title">🔍 Rechercher un trajet</div>
-    <div class="form-group"><label>Ville de départ</label><select id="search-from"><option value="">Choisir...</option></select></div>
-    <div class="form-group"><label>Ville d'arrivée</label><select id="search-to"><option value="">Choisir...</option></select></div>
-    <div class="form-group"><label>Date</label><input type="date" id="search-date"></div>
-    <button class="btn btn-primary" onclick="searchTrips()">Rechercher</button>
+    <h3>🎫 Mes Réservations</h3>
+    <div id="bookings-list">Chargement...</div>
   </div>
-  <div id="search-results"></div>
-  <div class="mb-60"></div>
 </div>
-<div class="page" id="page-bookings">
-  <div class="card-title" style="padding:0 0 10px">🎫 Mes Réservations</div>
-  <div id="bookings-list"><div class="loading">Chargement...</div></div>
-  <div class="mb-60"></div>
-</div>
-<div class="page" id="page-driver">
-  <div class="tabs">
-    <div class="tab active" onclick="switchDriverTab('publish')">Publier</div>
-    <div class="tab" onclick="switchDriverTab('mytrips')">Mes Trajets</div>
-  </div>
-  <div id="driver-publish">
-    <div class="card">
-      <div class="card-title">🚗 Publier un trajet</div>
-      <div class="form-group"><label>Ville de départ</label><select id="trip-from"><option value="">Choisir...</option></select></div>
-      <div class="form-group"><label>Ville d'arrivée</label><select id="trip-to"><option value="">Choisir...</option></select></div>
-      <div class="form-group"><label>Date de départ</label><input type="date" id="trip-date"></div>
-      <div class="form-group"><label>Heure de départ</label><input type="time" id="trip-time"></div>
-      <div class="form-group"><label>Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
-      <div class="form-group"><label>Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
-      <div class="form-group">
-        <label>Type de véhicule</label>
-        <select id="trip-vehicle">
-          <option value="">Choisir...</option>
-          <option>Peugeot 504</option><option>Minibus</option>
-          <option>4x4</option><option>Bus climatisé</option><option>Toyota Hilux</option>
-        </select>
-      </div>
-      <div id="publish-alert"></div>
-      <button class="btn btn-primary mt-10" onclick="publishTrip()">Publier le trajet</button>
-    </div>
-  </div>
-  <div id="driver-mytrips" style="display:none">
-    <div id="driver-trips-list"><div class="loading">Chargement...</div></div>
-  </div>
-  <div class="mb-60"></div>
-</div>
-<div class="page" id="page-profile">
-  <div id="auth-section">
-    <div class="tabs">
-      <div class="tab active" onclick="switchAuthTab('login')">Connexion</div>
-      <div class="tab" onclick="switchAuthTab('register')">Inscription</div>
-    </div>
-    <div id="login-form">
-      <div class="card">
-        <div class="card-title">👤 Connexion</div>
-        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="login-phone" placeholder="222XXXXXXXX"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••"></div>
-        <div id="login-alert"></div>
-        <button class="btn btn-primary mt-10" onclick="login()">Se connecter</button>
-      </div>
-    </div>
-    <div id="register-form" style="display:none">
-      <div class="card">
-        <div class="card-title">✍️ Inscription</div>
-        <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
-        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="reg-phone" placeholder="222XXXXXXXX"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="reg-password" placeholder="••••••••"></div>
-        <div class="form-group"><label>Confirmer le mot de passe</label><input type="password" id="reg-password-confirm" placeholder="••••••••"></div>
-        <div class="form-group">
-          <label>Je suis</label>
-          <select id="reg-role"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
-        </div>
-        <div id="reg-alert"></div>
-        <button class="btn btn-secondary mt-10" onclick="register()">Créer mon compte</button>
-      </div>
-    </div>
-  </div>
-  <div id="profile-section" style="display:none">
-    <div class="card">
-      <div class="card-title">👤 Mon Profil</div>
-      <p><strong>Nom :</strong> <span id="profile-name"></span></p>
-      <div class="divider"></div>
-      <p><strong>Téléphone :</strong> <span id="profile-phone"></span></p>
-      <div class="divider"></div>
-      <p><strong>Rôle :</strong> <span id="profile-role"></span></p>
-      <button class="btn btn-outline mt-10" onclick="logout()">Se déconnecter</button>
-    </div>
-  </div>
-  <div class="mb-60"></div>
-</div>
-<div class="page" id="page-admin">
-  <div class="card-title" style="padding:0 0 10px">⚙️ Tableau de bord Admin</div>
-  <div class="stats-grid" id="admin-stats"></div>
-  <div class="admin-tabs">
-    <div class="admin-tab active" onclick="switchAdminTab('users', this)">👥 Utilisateurs</div>
-    <div class="admin-tab" onclick="switchAdminTab('trips', this)">🚗 Trajets</div>
-    <div class="admin-tab" onclick="switchAdminTab('bookings', this)">🎫 Réservations</div>
-    <div class="admin-tab" onclick="switchAdminTab('revenue', this)">📊 Revenus</div>
-    <div class="admin-tab" onclick="switchAdminTab('sms', this)">📱 SMS</div>
-    <div class="admin-tab" onclick="switchAdminTab('export', this)">📥 Export</div>
-  </div>
-  <div id="admin-users" class="card"><div class="card-title">👥 Utilisateurs</div><div id="admin-users-list"><div class="loading">Chargement...</div></div></div>
-  <div id="admin-trips" class="card" style="display:none"><div class="card-title">🚗 Tous les trajets</div><div id="admin-trips-list"><div class="loading">Chargement...</div></div></div>
-  <div id="admin-bookings" class="card" style="display:none"><div class="card-title">🎫 Toutes les réservations</div><div id="admin-bookings-list"><div class="loading">Chargement...</div></div></div>
-  <div id="admin-revenue" style="display:none">
-    <div class="card"><div class="card-title">📊 Commissions par jour</div><canvas id="revenue-chart"></canvas></div>
-    <div class="card"><div class="card-title">📈 Réservations par jour</div><canvas id="bookings-chart"></canvas></div>
-  </div>
-  <div id="admin-sms" class="card" style="display:none">
-    <div class="card-title">📱 Envoyer un SMS groupé</div>
-    <div class="form-group"><label>Destinataires</label>
-      <select id="sms-target" onchange="loadSMSCount()">
-        <option value="all">Tous les utilisateurs</option>
-        <option value="chauffeur">Chauffeurs uniquement</option>
-        <option value="voyageur">Voyageurs uniquement</option>
-      </select>
-    </div>
-    <div class="form-group"><label>Message</label><textarea class="sms-area" id="sms-message" placeholder="Tapez votre message ici..."></textarea></div>
-    <div id="sms-count" class="text-gray mt-10"></div>
-    <div id="sms-alert"></div>
-    <button class="btn btn-primary mt-10" onclick="sendGroupSMS()">Envoyer le SMS</button>
-  </div>
-  <div id="admin-export" class="card" style="display:none">
-    <div class="card-title">📥 Exporter les données</div>
-    <p class="text-gray" style="margin-bottom:14px">Téléchargez vos données en format CSV (compatible Excel)</p>
-    <button class="btn btn-secondary mt-10" onclick="exportData('users')">📥 Exporter Utilisateurs</button>
-    <button class="btn btn-primary mt-10" onclick="exportData('trips')">📥 Exporter Trajets</button>
-    <button class="btn btn-success mt-10" onclick="exportData('bookings')">📥 Exporter Réservations</button>
-  </div>
-  <div class="mb-60"></div>
-</div>
-<div class="bottom-nav">
-  <div class="bottom-nav-item active" onclick="showPage('home')"><span class="icon">🏠</span>Accueil</div>
-  <div class="bottom-nav-item" onclick="showPage('bookings')"><span class="icon">🎫</span>Réservations</div>
-  <div class="bottom-nav-item" id="nav-driver" style="display:none" onclick="showPage('driver')"><span class="icon">🚗</span>Chauffeur</div>
-  <div class="bottom-nav-item" id="nav-admin" style="display:none" onclick="showPage('admin')"><span class="icon">⚙️</span>Admin</div>
-  <div class="bottom-nav-item" onclick="showPage('profile')"><span class="icon">👤</span>Profil</div>
-</div>
+
 <script>
-const API="https://safarway.onrender.com";
-let currentUser=null,token=null,allUsers=[],allBookings=[],allAdminTrips=[],revenueChart=null,bookingsChart=null;
-window.onload=()=>{token=localStorage.getItem("sw_token");const s=localStorage.getItem("sw_user");if(token&&s){currentUser=JSON.parse(s);updateUI();}loadVilles();setTodayDate();};
-function setTodayDate(){const t=new Date().toISOString().split("T")[0];document.getElementById("search-date").value=t;document.getElementById("trip-date").value=t;}
-function showPage(p){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".bottom-nav-item").forEach(x=>x.classList.remove("active"));document.getElementById("page-"+p).classList.add("active");if(p==="bookings")loadBookings();if(p==="driver")loadDriverTrips();if(p==="admin")loadAdminDashboard();if(p==="profile")updateProfileSection();}
-async function loadVilles(){try{const r=await fetch(API+"/trips/villes/liste");const d=await r.json();["search-from","search-to","trip-from","trip-to"].forEach(id=>{const s=document.getElementById(id);d.villes.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;s.appendChild(o);});});}catch(e){}}
-async function login(){const phone=document.getElementById("login-phone").value;const password=document.getElementById("login-password").value;if(!phone||!password){showAlert("login-alert","Remplissez tous les champs","error");return;}try{const r=await fetch(API+"/users/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone,password})});const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur de connexion");token=d.access_token;currentUser=d.user;localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));updateUI();showPage("home");}catch(e){showAlert("login-alert",e.message,"error");}}
-async function register(){const name=document.getElementById("reg-name").value;const phone=document.getElementById("reg-phone").value;const password=document.getElementById("reg-password").value;const passwordConfirm=document.getElementById("reg-password-confirm").value;const role=document.getElementById("reg-role").value;if(!name||!phone||!password||!passwordConfirm){showAlert("reg-alert","Remplissez tous les champs","error");return;}if(password!==passwordConfirm){showAlert("reg-alert","❌ Les mots de passe ne correspondent pas","error");return;}if(password.length<6){showAlert("reg-alert","Minimum 6 caractères","error");return;}try{const r=await fetch(API+"/users/inscription",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone,password,role})});const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur inscription");token=d.access_token;currentUser=d.user;localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));updateUI();showPage("home");}catch(e){showAlert("reg-alert",e.message,"error");}}
-function logout(){token=null;currentUser=null;localStorage.removeItem("sw_token");localStorage.removeItem("sw_user");updateUI();showPage("home");}
-function updateUI(){const nd=document.getElementById("nav-driver"),na=document.getElementById("nav-admin"),nu=document.getElementById("nav-user");if(currentUser){nu.textContent=currentUser.name.split(" ")[0];nd.style.display=currentUser.role==="chauffeur"?"block":"none";na.style.display=currentUser.role==="admin"?"block":"none";}else{nu.textContent="Connexion";nd.style.display="none";na.style.display="none";}}
-function updateProfileSection(){if(currentUser){document.getElementById("auth-section").style.display="none";document.getElementById("profile-section").style.display="block";document.getElementById("profile-name").textContent=currentUser.name;document.getElementById("profile-phone").textContent=currentUser.phone;document.getElementById("profile-role").textContent=currentUser.role;}else{document.getElementById("auth-section").style.display="block";document.getElementById("profile-section").style.display="none";}}
-async function searchTrips(){const from=document.getElementById("search-from").value,to=document.getElementById("search-to").value;const c=document.getElementById("search-results");c.innerHTML='<div class="loading">Recherche en cours...</div>';let url=API+"/trips/?";if(from)url+="from_city="+encodeURIComponent(from)+"&";if(to)url+="to_city="+encodeURIComponent(to)+"&";try{const r=await fetch(url);const trips=await r.json();if(!trips.length){c.innerHTML='<div class="empty"><div class="icon">🚌</div><p>Aucun trajet trouvé</p></div>';return;}c.innerHTML='<div class="card-title">'+trips.length+' trajet(s) trouvé(s)</div>'+trips.map(t=>'<div class="trip-card" onclick="bookTrip('+t.id+',\''+t.from_city+'\',\''+t.to_city+'\','+t.price_per_seat+','+t.available_seats+')"><div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div><div class="trip-info"><span>🕐 '+t.departure_time+' — '+t.departure_date+'</span><span>🚗 '+t.vehicle_type+'</span></div><div class="trip-info mt-10"><span>👤 '+t.driver_name+'</span><span class="badge badge-green">💺 '+t.available_seats+' places</span></div><div class="trip-price">'+t.price_per_seat.toLocaleString()+' MRU / place</div></div>').join("");}catch(e){c.innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}}
-function bookTrip(tripId,from,to,price,available){if(!currentUser){alert("Connectez-vous pour réserver");showPage("profile");return;}const seats=prompt("Réserver "+from+" → "+to+"\nPrix: "+price+" MRU/place\nPlaces disponibles: "+available+"\n\nCombien de places ?","1");if(!seats)return;const n=parseInt(seats);if(isNaN(n)||n<1||n>available){alert("Nombre de places invalide");return;}if(!window.confirm("Confirmer ?\n\n"+from+" → "+to+"\n"+n+" place(s) × "+price+" MRU = "+(n*price)+" MRU\n\nPaiement en espèces au chauffeur"))return;confirmBooking(tripId,n);}
-async function confirmBooking(tripId,seats){try{const r=await fetch(API+"/bookings/",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({trip_id:tripId,seats_booked:seats})});const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur réservation");alert("✅ Réservation confirmée !\nCode: "+d.reference_code+"\nTotal: "+d.total_price+" MRU\n\n📞 Chauffeur: "+(d.driver_phone||"Voir SMS"));showPage("bookings");}catch(e){alert("Erreur: "+e.message);}}
-async function loadBookings(){if(!currentUser){document.getElementById("bookings-list").innerHTML='<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>';return;}try{const r=await fetch(API+"/bookings/mes-reservations",{headers:{"Authorization":"Bearer "+token}});const bookings=await r.json();const c=document.getElementById("bookings-list");if(!bookings.length){c.innerHTML='<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';return;}c.innerHTML=bookings.map(b=>'<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><strong>'+b.reference_code+'</strong><span class="badge '+(b.status==="confirme"?"badge-green":"badge-red")+'">'+b.status+'</span></div><div class="divider"></div><p>💺 '+b.seats_booked+' place(s)</p><p>💰 '+b.total_price+' MRU</p><p class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</p>'+(b.status==="confirme"?'<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking('+b.id+')">Annuler</button>':"")+"</div>").join("");}catch(e){document.getElementById("bookings-list").innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}}
-async function cancelBooking(id){if(!confirm("Annuler cette réservation ?"))return;await fetch(API+"/bookings/"+id+"/annuler",{method:"PATCH",headers:{"Authorization":"Bearer "+token}});loadBookings();}
-function switchDriverTab(tab){document.querySelectorAll("#page-driver .tab").forEach(t=>t.classList.remove("active"));event.target.classList.add("active");document.getElementById("driver-publish").style.display=tab==="publish"?"block":"none";document.getElementById("driver-mytrips").style.display=tab==="mytrips"?"block":"none";if(tab==="mytrips")loadDriverTrips();}
-async function publishTrip(){const from=document.getElementById("trip-from").value,to=document.getElementById("trip-to").value,date=document.getElementById("trip-date").value,time=document.getElementById("trip-time").value,seats=document.getElementById("trip-seats").value,price=document.getElementById("trip-price").value,vehicle=document.getElementById("trip-vehicle").value;if(!from||!to||!date||!time||!seats||!price||!vehicle){showAlert("publish-alert","Veuillez remplir tous les champs","error");return;}try{const r=await fetch(API+"/trips/",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({from_city:from,to_city:to,departure_date:date,departure_time:time,total_seats:parseInt(seats),price_per_seat:parseFloat(price),vehicle_type:vehicle})});const d=await r.json();if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:JSON.stringify(d.detail));showAlert("publish-alert","✅ Trajet publié ! "+d.from_city+" → "+d.to_city,"success");}catch(e){showAlert("publish-alert",e.message,"error");}}
-async function loadDriverTrips(){if(!currentUser)return;try{const r=await fetch(API+"/trips/mes-trajets",{headers:{"Authorization":"Bearer "+token}});const trips=await r.json();const c=document.getElementById("driver-trips-list");if(!trips.length){c.innerHTML='<div class="empty"><div class="icon">🚗</div><p>Aucun trajet publié</p></div>';return;}c.innerHTML=trips.map(t=>'<div class="trip-card"><div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div><div class="trip-info"><span>🕐 '+t.departure_time+' — '+t.departure_date+'</span><span class="badge '+(t.status==="actif"?"badge-green":"badge-red")+'">'+t.status+'</span></div><div class="trip-info mt-10"><span>💺 '+t.available_seats+"/"+t.total_seats+' places</span><span>💰 '+t.price_per_seat+' MRU</span></div></div>').join("");}catch(e){document.getElementById("driver-trips-list").innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}}
-async function loadAdminDashboard(){try{const r=await fetch(API+"/admin/stats",{headers:{"Authorization":"Bearer "+token}});const d=await r.json();document.getElementById("admin-stats").innerHTML='<div class="stat-card"><div class="stat-number">'+d.utilisateurs.total+'</div><div class="stat-label">Utilisateurs</div></div><div class="stat-card"><div class="stat-number">'+d.trajets.total+'</div><div class="stat-label">Trajets</div></div><div class="stat-card"><div class="stat-number">'+d.reservations.confirmees+'</div><div class="stat-label">Réservations</div></div><div class="stat-card"><div class="stat-number">'+Math.round(d.finances.commission_totale_MRU)+'</div><div class="stat-label">Commission MRU</div></div>';}catch(e){}loadAdminUsers();}
-function switchAdminTab(tab,el){document.querySelectorAll(".admin-tab").forEach(t=>t.classList.remove("active"));el.classList.add("active");["admin-users","admin-trips","admin-bookings","admin-revenue","admin-sms","admin-export"].forEach(id=>document.getElementById(id).style.display="none");if(tab==="users"){document.getElementById("admin-users").style.display="block";loadAdminUsers();}if(tab==="trips"){document.getElementById("admin-trips").style.display="block";loadAdminTrips();}if(tab==="bookings"){document.getElementById("admin-bookings").style.display="block";loadAdminBookings();}if(tab==="revenue"){document.getElementById("admin-revenue").style.display="block";loadRevenueCharts();}if(tab==="sms"){document.getElementById("admin-sms").style.display="block";loadSMSCount();}if(tab==="export")document.getElementById("admin-export").style.display="block";}
-async function loadAdminUsers(){try{const r=await fetch(API+"/admin/users",{headers:{"Authorization":"Bearer "+token}});allUsers=await r.json();document.getElementById("admin-users-list").innerHTML=allUsers.map(u=>'<div class="user-row"><div class="user-info"><div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div><div class="user-phone">'+u.phone+'</div></div><div class="user-actions"><span class="badge '+(u.role==="chauffeur"?"badge-orange":u.role==="admin"?"badge-blue":"badge-green")+'">'+u.role+'</span>'+(u.role!=="admin"?(u.is_active?'<button class="btn btn-danger btn-sm" onclick="toggleUser('+u.id+',false)">Bloquer</button>':'<button class="btn btn-success btn-sm" onclick="toggleUser('+u.id+',true)">Activer</button>'):"")+"</div></div>").join("");}catch(e){document.getElementById("admin-users-list").innerHTML="<p>Erreur de chargement</p>";}}
-async function toggleUser(userId,activate){if(!confirm((activate?"Activer":"Bloquer")+" cet utilisateur ?"))return;try{await fetch(API+"/admin/users/"+userId+"/"+(activate?"activer":"desactiver"),{method:"PATCH",headers:{"Authorization":"Bearer "+token}});loadAdminUsers();}catch(e){alert("Erreur: "+e.message);}}
-async function loadAdminTrips(){try{const r=await fetch(API+"/admin/trips",{headers:{"Authorization":"Bearer "+token}});allAdminTrips=await r.json();document.getElementById("admin-trips-list").innerHTML=allAdminTrips.length===0?'<div class="empty"><p>Aucun trajet</p></div>':allAdminTrips.map(t=>'<div style="padding:10px 0;border-bottom:1px solid #eee"><div style="display:flex;justify-content:space-between;align-items:center"><strong>'+t.from_city+" → "+t.to_city+'</strong><span class="badge '+(t.status==="actif"?"badge-green":t.status==="complet"?"badge-orange":"badge-red")+'">'+t.status+'</span></div><div class="text-gray">'+t.departure_date+' à '+t.departure_time+' — '+t.driver_name+'</div><div class="text-gray">💺 '+t.available_seats+"/"+t.total_seats+' places — 💰 '+t.price_per_seat+' MRU</div></div>').join("");}catch(e){document.getElementById("admin-trips-list").innerHTML="<p>Erreur de chargement</p>";}}
-async function loadAdminBookings(){try{const r=await fetch(API+"/admin/bookings",{headers:{"Authorization":"Bearer "+token}});allBookings=await r.json();document.getElementById("admin-bookings-list").innerHTML=allBookings.length===0?'<div class="empty"><p>Aucune réservation</p></div>':allBookings.map(b=>'<div class="booking-row"><div style="display:flex;justify-content:space-between"><strong>'+b.reference_code+'</strong><span class="badge '+(b.status==="confirme"?"badge-green":"badge-red")+'">'+b.status+'</span></div><div class="text-gray">💺 '+b.seats_booked+' place(s) — 💰 '+b.total_price+' MRU</div><div class="text-gray">Commission: '+Math.round(b.commission)+' MRU</div><div class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</div></div>').join("");}catch(e){document.getElementById("admin-bookings-list").innerHTML="<p>Erreur de chargement</p>";}}
-async function loadRevenueCharts(){try{const r=await fetch(API+"/admin/bookings",{headers:{"Authorization":"Bearer "+token}});const bookings=await r.json();const confirmed=bookings.filter(b=>b.status==="confirme");const byDate={};confirmed.forEach(b=>{const date=new Date(b.created_at).toLocaleDateString("fr-FR");if(!byDate[date])byDate[date]={commission:0,count:0};byDate[date].commission+=b.commission;byDate[date].count+=1;});const labels=Object.keys(byDate).slice(-14);const commissions=labels.map(d=>Math.round(byDate[d].commission));const counts=labels.map(d=>byDate[d].count);if(revenueChart)revenueChart.destroy();revenueChart=new Chart(document.getElementById("revenue-chart"),{type:"bar",data:{labels,datasets:[{label:"Commission (MRU)",data:commissions,backgroundColor:"#E07B2A"}]},options:{responsive:true,plugins:{legend:{display:false}}}});if(bookingsChart)bookingsChart.destroy();bookingsChart=new Chart(document.getElementById("bookings-chart"),{type:"line",data:{labels,datasets:[{label:"Réservations",data:counts,borderColor:"#1A5276",backgroundColor:"rgba(26,82,118,0.1)",fill:true}]},options:{responsive:true,plugins:{legend:{display:false}}}});}catch(e){}}
-async function loadSMSCount(){try{const target=document.getElementById("sms-target").value;const count=target==="all"?allUsers.length:allUsers.filter(u=>u.role===target).length;document.getElementById("sms-count").textContent=count+" destinataire(s) sélectionné(s)";}catch(e){}}
-async function sendGroupSMS(){const message=document.getElementById("sms-message").value;const target=document.getElementById("sms-target").value;if(!message){showAlert("sms-alert","Tapez un message","error");return;}const targets=target==="all"?allUsers:allUsers.filter(u=>u.role===target);showAlert("sms-alert","✅ SMS envoyé à "+targets.length+" utilisateur(s)","success");document.getElementById("sms-message").value="";}
-function exportData(type){if(type==="users"){let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");downloadCSV(csv,"safarway_utilisateurs.csv");}else if(type==="bookings"){let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");downloadCSV(csv,"safarway_reservations.csv");}else if(type==="trips"){let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");downloadCSV(csv,"safarway_trajets.csv");}}
-function downloadCSV(csv,filename){const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=filename;link.click();}
-function switchAuthTab(tab){document.querySelectorAll("#page-profile .tab").forEach(t=>t.classList.remove("active"));event.target.classList.add("active");document.getElementById("login-form").style.display=tab==="login"?"block":"none";document.getElementById("register-form").style.display=tab==="register"?"block":"none";}
-function showAlert(id,msg,type){const el=document.getElementById(id);el.innerHTML='<div class="alert alert-'+type+'">'+msg+'</div>';setTimeout(()=>el.innerHTML="",4000);}
+const API = "https://safarway.onrender.com";
+let token = localStorage.getItem("sw_token");
+let currentUser = JSON.parse(localStorage.getItem("sw_user") || "null");
+
+/* ===================== MODIFIÉ ICI ===================== */
+async function loadBookings() {
+  if (!currentUser) {
+    document.getElementById("bookings-list").innerHTML =
+      '<div class="empty"><div class="icon">🔒</div><p>Connectez-vous</p></div>';
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API}/bookings/mes-reservations`, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    const bookings = await res.json();
+    const c = document.getElementById("bookings-list");
+
+    if (!bookings.length) {
+      c.innerHTML = '<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';
+      return;
+    }
+
+    c.innerHTML = bookings.map(b => `
+      <div class="card">
+
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <strong>${b.reference_code}</strong>
+          <span class="${b.status==='confirme'?'badge-green':'badge-red'}">
+            ${b.status}
+          </span>
+        </div>
+
+        <div class="divider"></div>
+
+        <p>💺 ${b.seats_booked} place(s)</p>
+        <p>💰 ${b.total_price} MRU</p>
+
+        <p class="text-gray">
+          ${new Date(b.created_at).toLocaleDateString("fr-FR")}
+        </p>
+
+        ${b.status === "confirme" && b.driver_phone
+          ? `<a href="tel:${b.driver_phone}"
+               style="display:block;margin-top:8px;padding:10px;background:#1A5276;color:white;border-radius:8px;text-align:center;font-weight:600;text-decoration:none;">
+               📞 Appeler le chauffeur
+             </a>`
+          : ""
+        }
+
+        ${b.status === "confirme"
+          ? `<button class="btn btn-danger btn-sm" onclick="cancelBooking(${b.id})">Annuler</button>`
+          : ""
+        }
+
+      </div>
+    `).join("");
+
+  } catch (e) {
+    document.getElementById("bookings-list").innerHTML =
+      '<div class="empty"><p>Erreur serveur</p></div>';
+  }
+}
+
+async function cancelBooking(id) {
+  if (!confirm("Annuler ?")) return;
+
+  await fetch(`${API}/bookings/${id}/annuler`, {
+    method: "PATCH",
+    headers: { "Authorization": `Bearer ${token}` }
+  });
+
+  loadBookings();
+}
+
+loadBookings();
 </script>
+
 </body>
 </html>

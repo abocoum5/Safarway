@@ -11,15 +11,20 @@ africastalking.initialize(
 
 sms = africastalking.SMS
 
-def send_booking_confirmation(phone: str, booking_data: dict):
+def def send_booking_confirmation(phone: str, data: dict):
     message = f"""SafarWay ✅
 Réservation confirmée !
-Réf: {booking_data['reference_code']}
-Trajet: {booking_data['from_city']} → {booking_data['to_city']}
-Date: {booking_data['date']} à {booking_data['time']}
-Places: {booking_data['seats']} | Total: {booking_data['total_price']} MRU
-Paiement en espèces au chauffeur."""
-
+Réf: {data['reference_code']}
+Trajet: {data['from_city']} → {data['to_city']}
+Date: {data['date']} à {data['time']}
+Places: {data['seats']} | Total: {data['total_price']} MRU
+Chauffeur: {data['driver_name']}
+Tel chauffeur: {data['driver_phone']}
+Paiement en espèces au départ."""
+    try:
+        sms.send(message, [f"+222{phone}"])
+    except Exception as e:
+        print(f"SMS non envoyé: {e}")
     try:
         sms.send(message, [f"+222{phone}"])
     except Exception as e:

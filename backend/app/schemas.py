@@ -84,6 +84,8 @@ class BookingResponse(BaseModel):
     status: BookingStatus
     reference_code: str
     created_at: datetime
+    driver_phone: Optional[str] = None
+    driver_name: Optional[str] = None
 
     class Config:
         from_attributes = True

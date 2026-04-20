@@ -3,13 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List
 import random
 import string
+
 from app.database import get_db
 from app import models, schemas
 from app.auth import get_current_user
 
 router = APIRouter(prefix="/bookings", tags=["Réservations"])
 
-COMMISSION_RATE = 0.07  # 7% de commission
+COMMISSION_RATE = 10  # 10 MRU par place
 
 
 def generate_reference():
@@ -17,12 +18,16 @@ def generate_reference():
     return "SW-" + "".join(random.choices(chars, k=8))
 
 
+# =========================
+# CREER RESERVATION
+# =========================
 @router.post("/", response_model=schemas.BookingResponse)
 def creer_reservation(
     booking_data: schemas.BookingCreate,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     if current_user.role not in [models.UserRole.voyageur, models.UserRole.admin]:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -37,25 +42,16 @@ def creer_reservation(
         raise HTTPException(status_code=404, detail="Trajet introuvable")
 
     if trip.status != models.TripStatus.actif:
-        raise HTTPException(
-            status_code=400,
-            detail="Ce trajet n'est plus disponible"
-        )
+        raise HTTPException(status_code=400, detail="Ce trajet n'est plus disponible")
 
     if trip.available_seats < booking_data.seats_booked:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Pas assez de places. Disponibles: {trip.available_seats}"
-        )
+        raise HTTPException(status_code=400, detail="Pas assez de places disponibles")
 
     if trip.driver_id == current_user.id:
-        raise HTTPException(
-            status_code=400,
-            detail="Vous ne pouvez pas réserver votre propre trajet"
-        )
+        raise HTTPException(status_code=400, detail="Vous ne pouvez pas réserver votre propre trajet")
 
     total_price = trip.price_per_seat * booking_data.seats_booked
-    commission = total_price * COMMISSION_RATE
+    commission = booking_data.seats_booked * COMMISSION_RATE
 
     reference = generate_reference()
     while db.query(models.Booking).filter(
@@ -71,6 +67,7 @@ def creer_reservation(
         commission=commission,
         reference_code=reference,
     )
+
     db.add(new_booking)
 
     trip.available_seats -= booking_data.seats_booked
@@ -80,7 +77,15 @@ def creer_reservation(
     db.commit()
     db.refresh(new_booking)
 
-    # Envoyer SMS de confirmation
+    # =========================
+    # AJOUT DRIVER INFO
+    # =========================
+    new_booking.driver_phone = trip.driver.phone
+    new_booking.driver_name = trip.driver.name
+
+    # =========================
+    # SMS CONFIRMATION
+    # =========================
     try:
         from app.sms import send_booking_confirmation
         send_booking_confirmation(current_user.phone, {
@@ -90,7 +95,9 @@ def creer_reservation(
             "date": trip.departure_date,
             "time": trip.departure_time,
             "seats": new_booking.seats_booked,
-            "total_price": new_booking.total_price
+            "total_price": new_booking.total_price,
+            "driver_phone": trip.driver.phone,
+            "driver_name": trip.driver.name
         })
     except Exception as e:
         print(f"SMS non envoyé: {e}")
@@ -98,23 +105,40 @@ def creer_reservation(
     return new_booking
 
 
+# =========================
+# MES RESERVATIONS
+# =========================
 @router.get("/mes-reservations", response_model=List[schemas.BookingResponse])
 def mes_reservations(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     bookings = db.query(models.Booking).filter(
         models.Booking.passenger_id == current_user.id
     ).order_by(models.Booking.created_at.desc()).all()
+
+    # =========================
+    # AJOUT DEMANDÉ
+    # =========================
+    for booking in bookings:
+        if booking.trip and booking.trip.driver:
+            booking.driver_phone = booking.trip.driver.phone
+            booking.driver_name = booking.trip.driver.name
+
     return bookings
 
 
+# =========================
+# UNE RESERVATION
+# =========================
 @router.get("/{booking_id}", response_model=schemas.BookingResponse)
 def get_reservation(
     booking_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -128,12 +152,16 @@ def get_reservation(
     return booking
 
 
+# =========================
+# ANNULER RESERVATION
+# =========================
 @router.patch("/{booking_id}/annuler", response_model=schemas.BookingResponse)
 def annuler_reservation(
     booking_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     booking = db.query(models.Booking).filter(
         models.Booking.id == booking_id
     ).first()
@@ -145,7 +173,7 @@ def annuler_reservation(
         raise HTTPException(status_code=403, detail="Non autorisé")
 
     if booking.status == models.BookingStatus.annule:
-        raise HTTPException(status_code=400, detail="Réservation déjà annulée")
+        raise HTTPException(status_code=400, detail="Déjà annulée")
 
     trip = db.query(models.Trip).filter(
         models.Trip.id == booking.trip_id
@@ -156,10 +184,11 @@ def annuler_reservation(
         trip.status = models.TripStatus.actif
 
     booking.status = models.BookingStatus.annule
+
     db.commit()
     db.refresh(booking)
 
-    # Envoyer SMS d annulation
+    # SMS annulation
     try:
         from app.sms import send_cancellation
         send_cancellation(current_user.phone, booking.reference_code)
@@ -169,20 +198,24 @@ def annuler_reservation(
     return booking
 
 
+# =========================
+# RESERVATIONS D'UN TRAJET
+# =========================
 @router.get("/trajet/{trip_id}", response_model=List[schemas.BookingResponse])
 def reservations_du_trajet(
     trip_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
+
     trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+
     if not trip:
         raise HTTPException(status_code=404, detail="Trajet introuvable")
 
     if trip.driver_id != current_user.id and current_user.role != models.UserRole.admin:
         raise HTTPException(status_code=403, detail="Non autorisé")
 
-    bookings = db.query(models.Booking).filter(
+    return db.query(models.Booking).filter(
         models.Booking.trip_id == trip_id
     ).all()
-    return bookings
