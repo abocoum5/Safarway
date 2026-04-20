@@ -84,6 +84,8 @@ class BookingResponse(BaseModel):
     status: BookingStatus
     reference_code: str
     created_at: datetime
+
+    # ✅ AJOUTS DEMANDÉS
     driver_phone: Optional[str] = None
     driver_name: Optional[str] = None
 
