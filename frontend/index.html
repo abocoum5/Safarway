@@ -1,76 +1,25 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafarWay - Transport Mauritanie</title>
-  <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#E07B2A">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="SafarWay">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --primary: #E07B2A; --secondary: #1A5276; --bg: #F5F5F0;
-      --white: #FFFFFF; --gray: #888; --light: #F0EDE8; --text: #222;
-      --success: #1E8449; --danger: #C0392B; --radius: 12px;
-      --shadow: 0 2px 12px rgba(0,0,0,0.1);
-    }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
-    .nav { background: var(--secondary); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-size: 22px; font-weight: 700; color: var(--primary); }
-    .nav-user { font-size: 13px; color: #ccc; cursor: pointer; }
-    .page { display: none; padding: 20px; }
-    .page.active { display: block; }
-
-    .card { background: var(--white); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-
-    .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; }
-
-    .badge-green { background: #D5F5E3; color: var(--success); padding: 3px 10px; border-radius: 20px; }
-    .badge-red { background: #FADBD8; color: var(--danger); padding: 3px 10px; border-radius: 20px; }
-
-    .text-gray { color: var(--gray); font-size: 13px; }
-
-    .divider { height: 1px; background: #eee; margin: 12px 0; }
-
-    .empty { text-align: center; padding: 40px 20px; color: var(--gray); }
-    .empty .icon { font-size: 48px; margin-bottom: 10px; }
-
-  </style>
-</head>
-
-<body>
-
-<div class="nav">
-  <div class="nav-logo">🚌 SafarWay</div>
-  <div class="nav-user">Profil</div>
-</div>
-
-<!-- PAGE RESERVATIONS -->
-<div class="page active">
-  <div class="card">
-    <h3>🎫 Mes Réservations</h3>
-    <div id="bookings-list">Chargement...</div>
-  </div>
-</div>
-
 <script>
 const API = "https://safarway.onrender.com";
-let token = localStorage.getItem("sw_token");
-let currentUser = JSON.parse(localStorage.getItem("sw_user") || "null");
 
-/* ===================== MODIFIÉ ICI ===================== */
+// ✅ récupération sécurisée
+let token = localStorage.getItem("sw_token");
+let currentUser = null;
+
+try {
+  currentUser = JSON.parse(localStorage.getItem("sw_user"));
+} catch (e) {
+  currentUser = null;
+}
+
+// 🔥 DEBUG (tu peux enlever après)
+console.log("TOKEN:", token);
+console.log("USER:", currentUser);
+
+/* ===================== LOAD BOOKINGS ===================== */
 async function loadBookings() {
-  if (!currentUser) {
+
+  // ❌ pas connecté
+  if (!token || !currentUser) {
     document.getElementById("bookings-list").innerHTML =
       '<div class="empty"><div class="icon">🔒</div><p>Connectez-vous</p></div>';
     return;
@@ -81,11 +30,22 @@ async function loadBookings() {
       headers: { "Authorization": `Bearer ${token}` }
     });
 
+    // 🔥 si token invalide → reset
+    if (res.status === 401) {
+      localStorage.removeItem("sw_token");
+      localStorage.removeItem("sw_user");
+
+      document.getElementById("bookings-list").innerHTML =
+        '<div class="empty"><div class="icon">🔒</div><p>Session expirée, reconnectez-vous</p></div>';
+      return;
+    }
+
     const bookings = await res.json();
     const c = document.getElementById("bookings-list");
 
     if (!bookings.length) {
-      c.innerHTML = '<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';
+      c.innerHTML =
+        '<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';
       return;
     }
 
@@ -111,7 +71,7 @@ async function loadBookings() {
         ${b.status === "confirme" && b.driver_phone
           ? `<a href="tel:${b.driver_phone}"
                style="display:block;margin-top:8px;padding:10px;background:#1A5276;color:white;border-radius:8px;text-align:center;font-weight:600;text-decoration:none;">
-               📞 Appeler le chauffeur
+               📞 Appeler ${b.driver_name || "le chauffeur"}
              </a>`
           : ""
         }
@@ -125,11 +85,14 @@ async function loadBookings() {
     `).join("");
 
   } catch (e) {
+    console.error(e);
+
     document.getElementById("bookings-list").innerHTML =
       '<div class="empty"><p>Erreur serveur</p></div>';
   }
 }
 
+/* ===================== ANNULATION ===================== */
 async function cancelBooking(id) {
   if (!confirm("Annuler ?")) return;
 
@@ -143,6 +106,3 @@ async function cancelBooking(id) {
 
 loadBookings();
 </script>
-
-</body>
-</html>
