@@ -81,6 +81,10 @@
     .admin-tab { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; background: var(--light); color: var(--gray); transition: all 0.2s; }
     .admin-tab.active { background: var(--secondary); color: white; }
     .sms-area { width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; }
+    .otp-box { background: var(--light); border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 14px; }
+    .otp-box p { font-size: 13px; color: var(--gray); margin-bottom: 4px; }
+    .otp-box strong { font-size: 15px; color: var(--secondary); }
+    .btn-delete { width:auto; padding:6px 10px; font-size:13px; border-radius:6px; border:none; background:#7B241C; color:white; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -149,6 +153,7 @@
     <div class="tabs">
       <div class="tab active" onclick="switchAuthTab('login')">Connexion</div>
       <div class="tab" onclick="switchAuthTab('register')">Inscription</div>
+      <div class="tab" onclick="switchAuthTab('admin')">🔐 Admin</div>
     </div>
     <div id="login-form">
       <div class="card">
@@ -172,6 +177,24 @@
         </div>
         <div id="reg-alert"></div>
         <button class="btn btn-secondary mt-10" onclick="register()">Créer mon compte</button>
+      </div>
+    </div>
+    <div id="admin-form" style="display:none">
+      <div class="card">
+        <div class="card-title">🔐 Connexion Admin</div>
+        <div id="admin-step1">
+          <div class="otp-box"><p>Accès réservé aux administrateurs SafarWay</p><strong>Un code vous sera envoyé par email</strong></div>
+          <div class="form-group"><label>Email Admin</label><input type="email" id="admin-email" placeholder="admin@safarway.com"></div>
+          <div id="admin-email-alert"></div>
+          <button class="btn btn-secondary mt-10" onclick="requestOTP()">📧 Recevoir le code</button>
+        </div>
+        <div id="admin-step2" style="display:none">
+          <div class="otp-box"><p>✅ Code envoyé à votre email</p><strong>Vérifiez votre boîte mail</strong></div>
+          <div class="form-group"><label>Code à 6 chiffres</label><input type="number" id="admin-otp" placeholder="123456" style="font-size:20px;text-align:center;letter-spacing:4px"></div>
+          <div id="admin-otp-alert"></div>
+          <button class="btn btn-primary mt-10" onclick="verifyOTP()">✅ Se connecter</button>
+          <button class="btn btn-outline mt-10" onclick="resetAdminForm()">← Recommencer</button>
+        </div>
       </div>
     </div>
   </div>
@@ -308,6 +331,38 @@ async function register(){
   }catch(e){showAlert("reg-alert",e.message,"error");}
 }
 
+async function requestOTP(){
+  const email=document.getElementById("admin-email").value;
+  if(!email){showAlert("admin-email-alert","Entrez votre email","error");return;}
+  try{
+    const r=await fetch(API+"/users/admin/request-otp?email="+encodeURIComponent(email),{method:"POST"});
+    const d=await r.json();
+    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur");
+    document.getElementById("admin-step1").style.display="none";
+    document.getElementById("admin-step2").style.display="block";
+  }catch(e){showAlert("admin-email-alert",e.message,"error");}
+}
+
+async function verifyOTP(){
+  const email=document.getElementById("admin-email").value;
+  const otp=document.getElementById("admin-otp").value;
+  if(!otp){showAlert("admin-otp-alert","Entrez le code","error");return;}
+  try{
+    const r=await fetch(API+"/users/admin/verify-otp?email="+encodeURIComponent(email)+"&otp="+otp,{method:"POST"});
+    const d=await r.json();
+    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Code incorrect");
+    token=d.access_token;currentUser=d.user;
+    localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));
+    updateUI();showPage("home");
+  }catch(e){showAlert("admin-otp-alert",e.message,"error");}
+}
+
+function resetAdminForm(){
+  document.getElementById("admin-step1").style.display="block";
+  document.getElementById("admin-step2").style.display="none";
+  document.getElementById("admin-otp").value="";
+}
+
 function logout(){
   token=null;currentUser=null;
   localStorage.removeItem("sw_token");localStorage.removeItem("sw_user");
@@ -328,12 +383,20 @@ function updateProfileSection(){
     document.getElementById("auth-section").style.display="none";
     document.getElementById("profile-section").style.display="block";
     document.getElementById("profile-name").textContent=currentUser.name;
-    document.getElementById("profile-phone").textContent=currentUser.phone;
+    document.getElementById("profile-phone").textContent=currentUser.phone||"—";
     document.getElementById("profile-role").textContent=currentUser.role;
   }else{
     document.getElementById("auth-section").style.display="block";
     document.getElementById("profile-section").style.display="none";
   }
+}
+
+function switchAuthTab(tab){
+  document.querySelectorAll("#page-profile .tab").forEach(t=>t.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("login-form").style.display=tab==="login"?"block":"none";
+  document.getElementById("register-form").style.display=tab==="register"?"block":"none";
+  document.getElementById("admin-form").style.display=tab==="admin"?"block":"none";
 }
 
 async function searchTrips(){
@@ -346,7 +409,6 @@ async function searchTrips(){
   try{
     const r=await fetch(url);const trips=await r.json();
     if(!trips.length){c.innerHTML='<div class="empty"><div class="icon">🚌</div><p>Aucun trajet trouvé</p></div>';return;}
-    // Pas de numéro chauffeur ici — visible seulement après réservation
     c.innerHTML='<div class="card-title">'+trips.length+' trajet(s) trouvé(s)</div>'+
       trips.map(t=>'<div class="trip-card" onclick="bookTrip('+t.id+',\''+t.from_city+'\',\''+t.to_city+'\','+t.price_per_seat+','+t.available_seats+')">'+
         '<div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div>'+
@@ -372,17 +434,13 @@ async function confirmBooking(tripId,seats){
     const r=await fetch(API+"/bookings/",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({trip_id:tripId,seats_booked:seats})});
     const d=await r.json();
     if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur réservation");
-    // Numéro chauffeur visible uniquement ici après confirmation
     alert("✅ Réservation confirmée !\nCode: "+d.reference_code+"\nTotal: "+d.total_price+" MRU\n\n📞 Chauffeur: "+(d.driver_phone||"Voir SMS"));
     showPage("bookings");
   }catch(e){alert("Erreur: "+e.message);}
 }
 
 async function loadBookings(){
-  if(!currentUser){
-    document.getElementById("bookings-list").innerHTML='<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>';
-    return;
-  }
+  if(!currentUser){document.getElementById("bookings-list").innerHTML='<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>';return;}
   try{
     const r=await fetch(API+"/bookings/mes-reservations",{headers:{"Authorization":"Bearer "+token}});
     const bookings=await r.json();
@@ -398,13 +456,8 @@ async function loadBookings(){
         '<p>💺 '+b.seats_booked+' place(s)</p>'+
         '<p>💰 '+b.total_price+' MRU</p>'+
         '<p class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</p>'+
-        // Bouton appel uniquement si réservation confirmée ET numéro disponible
-        (b.status==="confirme"&&b.driver_phone
-          ?'<a href="tel:'+b.driver_phone+'" class="btn-call">📞 Appeler le chauffeur</a>'
-          :'')+
-        (b.status==="confirme"
-          ?'<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking('+b.id+')">Annuler</button>'
-          :'')+
+        (b.status==="confirme"&&b.driver_phone?'<a href="tel:'+b.driver_phone+'" class="btn-call">📞 Appeler le chauffeur</a>':'')+
+        (b.status==="confirme"?'<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking('+b.id+')">Annuler</button>':'')+
       '</div>'
     ).join("");
   }catch(e){document.getElementById("bookings-list").innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}
@@ -487,13 +540,18 @@ async function loadAdminUsers(){
     allUsers=await r.json();
     document.getElementById("admin-users-list").innerHTML=allUsers.map(u=>
       '<div class="user-row">'+
-        '<div class="user-info"><div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div><div class="user-phone">'+u.phone+'</div></div>'+
+        '<div class="user-info">'+
+          '<div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div>'+
+          '<div class="user-phone">'+u.phone+'</div>'+
+        '</div>'+
         '<div class="user-actions">'+
           '<span class="badge '+(u.role==="chauffeur"?"badge-orange":u.role==="admin"?"badge-blue":"badge-green")+'">'+u.role+'</span>'+
-          (u.role!=="admin"?(u.is_active
-            ?'<button class="btn btn-danger btn-sm" onclick="toggleUser('+u.id+',false)">Bloquer</button>'
-            :'<button class="btn btn-success btn-sm" onclick="toggleUser('+u.id+',true)">Activer</button>')
-          :"")+
+          (u.role!=="admin"
+            ?(u.is_active
+              ?'<button class="btn btn-danger btn-sm" onclick="toggleUser('+u.id+',false)">Bloquer</button>'
+              :'<button class="btn btn-success btn-sm" onclick="toggleUser('+u.id+',true)">Activer</button>')
+            :"")+
+          (u.role!=="admin"?'<button class="btn-delete" onclick="deleteUser('+u.id+',\''+u.name+'\')">🗑️</button>':"")+
         '</div>'+
       '</div>'
     ).join("");
@@ -504,6 +562,16 @@ async function toggleUser(userId,activate){
   if(!confirm((activate?"Activer":"Bloquer")+" cet utilisateur ?"))return;
   try{
     await fetch(API+"/admin/users/"+userId+"/"+(activate?"activer":"desactiver"),{method:"PATCH",headers:{"Authorization":"Bearer "+token}});
+    loadAdminUsers();
+  }catch(e){alert("Erreur: "+e.message);}
+}
+
+async function deleteUser(userId,name){
+  if(!confirm("⚠️ Supprimer définitivement "+name+" ?\n\nCette action est IRRÉVERSIBLE !"))return;
+  try{
+    const r=await fetch(API+"/admin/users/"+userId,{method:"DELETE",headers:{"Authorization":"Bearer "+token}});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.detail);
     loadAdminUsers();
   }catch(e){alert("Erreur: "+e.message);}
 }
@@ -584,29 +652,14 @@ async function sendGroupSMS(){
 }
 
 function exportData(type){
-  if(type==="users"){
-    let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");
-    downloadCSV(csv,"safarway_utilisateurs.csv");
-  }else if(type==="bookings"){
-    let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");
-    downloadCSV(csv,"safarway_reservations.csv");
-  }else if(type==="trips"){
-    let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");
-    downloadCSV(csv,"safarway_trajets.csv");
-  }
+  if(type==="users"){let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");downloadCSV(csv,"safarway_utilisateurs.csv");}
+  else if(type==="bookings"){let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");downloadCSV(csv,"safarway_reservations.csv");}
+  else if(type==="trips"){let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");downloadCSV(csv,"safarway_trajets.csv");}
 }
 
 function downloadCSV(csv,filename){
   const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const link=document.createElement("a");
-  link.href=URL.createObjectURL(blob);link.download=filename;link.click();
-}
-
-function switchAuthTab(tab){
-  document.querySelectorAll("#page-profile .tab").forEach(t=>t.classList.remove("active"));
-  event.target.classList.add("active");
-  document.getElementById("login-form").style.display=tab==="login"?"block":"none";
-  document.getElementById("register-form").style.display=tab==="register"?"block":"none";
+  const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=filename;link.click();
 }
 
 function showAlert(id,msg,type){
