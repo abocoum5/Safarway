@@ -33,12 +33,12 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.voyageur, nullable=False)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+    email = Column(String, nullable=True, unique=True)
+    otp_code = Column(String, nullable=True)
+    otp_expires = Column(DateTime, nullable=True)
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")
-   email = Column(String, nullable=True, unique=True)
-   otp_code = Column(String, nullable=True)
-   otp_expires = Column(DateTime, nullable=True)
 
 
 class Trip(Base):
