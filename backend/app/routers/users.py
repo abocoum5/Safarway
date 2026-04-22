@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from app.database import get_db
 from app import models, schemas
-from app.auth import get_current_user, create_access_token, verify_password, get_password_hash
+from app.auth import get_current_user, create_access_token, verify_password, hash_password
 
 router = APIRouter(prefix="/users", tags=["Utilisateurs"])
 
@@ -19,7 +19,7 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Ce numéro est déjà utilisé")
 
-    hashed = get_password_hash(user_data.password)
+    hashed = hash_password(user_data.password)
     new_user = models.User(
         name=user_data.name,
         phone=user_data.phone,
