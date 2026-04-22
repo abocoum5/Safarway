@@ -36,9 +36,9 @@ class User(Base):
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")
-    email: str = Column(String, nullable=True, unique=True)
-    otp_code: str = Column(String, nullable=True)
-    otp_expires: datetime = Column(DateTime, nullable=True)
+   email = Column(String, nullable=True, unique=True)
+   otp_code = Column(String, nullable=True)
+   otp_expires = Column(DateTime, nullable=True)
 
 
 class Trip(Base):
