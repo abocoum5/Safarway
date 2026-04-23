@@ -13,7 +13,7 @@ router = APIRouter(prefix="/users", tags=["Utilisateurs"])
 # INSCRIPTION
 # ─────────────────────────────────────────────
 
-@router.post("/inscription", response_model=schemas.LoginResponse)
+@router.post("/inscription", response_model=schemas.Token)
 def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     existing = db.query(models.User).filter(models.User.phone == user_data.phone).first()
     if existing:
@@ -31,15 +31,15 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
 
     token = create_access_token({"sub": str(new_user.id)})
-    return {"access_token": token, "user": new_user}
+    return {"access_token": token, "token_type": "bearer", "user": new_user}
 
 
 # ─────────────────────────────────────────────
 # CONNEXION NORMALE (téléphone + mot de passe)
 # ─────────────────────────────────────────────
 
-@router.post("/login", response_model=schemas.LoginResponse)
-def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
+@router.post("/login", response_model=schemas.Token)
+def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.phone == credentials.phone).first()
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Numéro ou mot de passe incorrect")
@@ -51,7 +51,7 @@ def login(credentials: schemas.LoginRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=403, detail="Les admins doivent se connecter par email")
 
     token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "user": user}
+    return {"access_token": token, "token_type": "bearer", "user": user}
 
 
 # ─────────────────────────────────────────────
@@ -90,7 +90,7 @@ def admin_request_otp(email: str, db: Session = Depends(get_db)):
 # CONNEXION ADMIN — Étape 2 : vérifier OTP
 # ─────────────────────────────────────────────
 
-@router.post("/admin/verify-otp", response_model=schemas.LoginResponse)
+@router.post("/admin/verify-otp", response_model=schemas.Token)
 def admin_verify_otp(email: str, otp: str, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(
         models.User.email == email,
@@ -111,7 +111,7 @@ def admin_verify_otp(email: str, otp: str, db: Session = Depends(get_db)):
     db.commit()
 
     token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "user": user}
+    return {"access_token": token, "token_type": "bearer", "user": user}
 
 
 # ─────────────────────────────────────────────
