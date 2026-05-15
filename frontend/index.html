@@ -3,99 +3,191 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafarWay - Transport Mauritanie</title>
+  <title>Goova - Transport Mauritanie</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#E07B2A">
+  <meta name="theme-color" content="#6C63FF">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="SafarWay">
+  <meta name="apple-mobile-web-app-title" content="Goova">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    :root { --primary: #E07B2A; --secondary: #1A5276; --bg: #F5F5F0; --white: #FFFFFF; --gray: #888; --light: #F0EDE8; --text: #222; --success: #1E8449; --danger: #C0392B; --radius: 12px; --shadow: 0 2px 12px rgba(0,0,0,0.1); }
-    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
-    .nav { background: var(--secondary); color: white; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-size: 22px; font-weight: 700; color: var(--primary); }
-    .nav-user { font-size: 13px; color: #ccc; cursor: pointer; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5B52E8;
+      --primary-glow: rgba(108, 99, 255, 0.22);
+      --bg: #1A1A2E;
+      --surface: #16213E;
+      --surface2: #0F2442;
+      --border: rgba(108, 99, 255, 0.18);
+      --border-soft: rgba(255,255,255,0.06);
+      --text: #E8E8F0;
+      --text-muted: #7A7A96;
+      --success: #00D68F;
+      --danger: #FF4757;
+      --warning: #FFA502;
+      --radius: 18px;
+      --radius-sm: 12px;
+      --shadow: 0 8px 40px rgba(0,0,0,0.5);
+      --shadow-sm: 0 4px 20px rgba(0,0,0,0.35);
+    }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+
+    /* ── NAVBAR ── */
+    .nav { background: rgba(22, 33, 62, 0.95); border-bottom: 1px solid var(--border-soft); padding: 13px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #6C63FF, #A855F7); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; box-shadow: 0 4px 16px var(--primary-glow); letter-spacing: -1px; }
+    .nav-logo-text { font-size: 21px; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #A9A9CC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; }
+    .nav-user { font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; background: var(--surface2); padding: 7px 15px; border-radius: 20px; border: 1px solid var(--border); transition: all 0.2s; }
+    .nav-user:hover { border-color: var(--primary); color: var(--text); }
+
+    /* ── PAGES ── */
     .page { display: none; padding: 20px; }
-    .page.active { display: block; }
-    .hero { background: linear-gradient(135deg, var(--secondary), #2E86C1); color: white; padding: 30px 20px; text-align: center; margin: -20px -20px 20px; }
-    .hero h1 { font-size: 24px; margin-bottom: 6px; }
-    .hero p { font-size: 14px; opacity: 0.85; }
-    .card { background: var(--white); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
-    .card-title { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--secondary); }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; color: var(--gray); margin-bottom: 4px; font-weight: 500; }
-    .form-group input, .form-group select { width: 100%; padding: 11px 14px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 15px; background: var(--white); transition: border 0.2s; }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); }
-    .btn { width: 100%; padding: 13px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
-    .btn:active { opacity: 0.8; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-secondary { background: var(--secondary); color: white; }
+    .page.active { display: block; animation: fadeIn 0.22s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* ── HERO ── */
+    .hero { background: linear-gradient(135deg, #6C63FF 0%, #A855F7 55%, #3B82F6 100%); border-radius: var(--radius); padding: 34px 22px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(108,99,255,0.35); }
+    .hero::before { content: ''; position: absolute; top: -40%; right: -15%; width: 220px; height: 220px; background: rgba(255,255,255,0.06); border-radius: 50%; }
+    .hero::after { content: ''; position: absolute; bottom: -50%; left: -10%; width: 180px; height: 180px; background: rgba(255,255,255,0.04); border-radius: 50%; }
+    .hero h1 { font-size: 26px; font-weight: 800; color: white; margin-bottom: 7px; position: relative; z-index: 1; letter-spacing: -0.5px; }
+    .hero p { font-size: 14px; color: rgba(255,255,255,0.75); position: relative; z-index: 1; font-weight: 500; }
+
+    /* ── CARDS ── */
+    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); }
+    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+
+    /* ── FORMS ── */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
+    .form-group input, .form-group select { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Inter', sans-serif; background: var(--surface2); color: var(--text); transition: all 0.2s; -webkit-appearance: none; }
+    .form-group input::placeholder { color: var(--text-muted); }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .form-group select option { background: var(--surface2); color: var(--text); }
+    .form-group input[type="file"] { padding: 11px 16px; cursor: pointer; color: var(--text-muted); }
+    .form-group textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'Inter', sans-serif; background: var(--surface2); color: var(--text); resize: vertical; min-height: 90px; transition: all 0.2s; }
+    .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .form-group textarea::placeholder { color: var(--text-muted); }
+
+    /* ── BUTTONS ── */
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+    .btn:active { transform: scale(0.97); }
+    .btn-primary { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; box-shadow: 0 4px 20px var(--primary-glow); }
+    .btn-primary:hover { box-shadow: 0 6px 28px rgba(108,99,255,0.4); transform: translateY(-1px); }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--primary); }
     .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-success { background: var(--success); color: white; }
-    .btn-sm { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-    .btn-call { display:block; margin-top:8px; padding:10px; background:var(--secondary); color:white; border-radius:8px; text-align:center; font-weight:600; text-decoration:none; font-size:14px; }
-    .trip-card { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow); cursor: pointer; border-left: 4px solid var(--primary); transition: transform 0.1s; }
+    .btn-outline:hover { background: var(--primary-glow); }
+    .btn-danger { background: linear-gradient(135deg, #FF4757, #FF6B81); color: white; }
+    .btn-success { background: linear-gradient(135deg, #00D68F, #00B377); color: white; }
+    .btn-sm { width: auto; padding: 6px 14px; font-size: 12px; border-radius: 8px; }
+    .btn-call { display: block; margin-top: 12px; padding: 13px; background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; border-radius: var(--radius-sm); text-align: center; font-weight: 600; text-decoration: none; font-size: 14px; box-shadow: 0 4px 16px var(--primary-glow); }
+    .btn-delete { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 8px; border: none; background: rgba(255,71,87,0.12); color: var(--danger); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+    .btn-delete:hover { background: var(--danger); color: white; }
+
+    /* ── TRIP CARDS ── */
+    .trip-card { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm); cursor: pointer; border: 1px solid var(--border-soft); border-left: 3px solid var(--primary); transition: all 0.2s; }
+    .trip-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary); }
     .trip-card:active { transform: scale(0.98); }
-    .trip-route { display: flex; align-items: center; gap: 8px; font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+    .trip-route { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
     .trip-arrow { color: var(--primary); }
-    .trip-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--gray); }
-    .trip-price { font-size: 18px; font-weight: 700; color: var(--primary); margin-top: 8px; }
-    .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-green { background: #D5F5E3; color: var(--success); }
-    .badge-orange { background: #FDEBD0; color: var(--primary); }
-    .badge-red { background: #FADBD8; color: var(--danger); }
-    .badge-blue { background: #D6EAF8; color: var(--secondary); }
-    .tabs { display: flex; background: var(--light); border-radius: 10px; padding: 4px; margin-bottom: 16px; }
-    .tab { flex: 1; text-align: center; padding: 9px 4px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--gray); transition: all 0.2s; white-space: nowrap; }
-    .tab.active { background: var(--white); color: var(--secondary); box-shadow: var(--shadow); }
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid #eee; display: flex; z-index: 100; }
-    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0; cursor: pointer; font-size: 11px; color: var(--gray); transition: color 0.2s; }
+    .trip-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); }
+    .trip-price { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #6C63FF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 10px; }
+
+    /* ── BADGES ── */
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-green { background: rgba(0,214,143,0.12); color: var(--success); }
+    .badge-orange { background: rgba(255,165,2,0.12); color: var(--warning); }
+    .badge-red { background: rgba(255,71,87,0.12); color: var(--danger); }
+    .badge-blue { background: var(--primary-glow); color: var(--primary); }
+
+    /* ── TABS ── */
+    .tabs { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 18px; border: 1px solid var(--border); gap: 2px; }
+    .tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: all 0.2s; white-space: nowrap; }
+    .tab.active { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; box-shadow: 0 4px 14px var(--primary-glow); }
+
+    /* ── BOTTOM NAV ── */
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(22,33,62,0.97); border-top: 1px solid var(--border-soft); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(20px); }
+    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; font-size: 10px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; }
     .bottom-nav-item.active { color: var(--primary); }
-    .bottom-nav-item .icon { font-size: 22px; display: block; }
-    .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 14px; font-size: 14px; }
-    .alert-success { background: #D5F5E3; color: var(--success); }
-    .alert-error { background: #FADBD8; color: var(--danger); }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .stat-card { background: var(--white); border-radius: var(--radius); padding: 14px; text-align: center; box-shadow: var(--shadow); }
-    .stat-number { font-size: 26px; font-weight: 700; color: var(--primary); }
-    .stat-label { font-size: 11px; color: var(--gray); margin-top: 2px; }
-    .divider { height: 1px; background: #eee; margin: 12px 0; }
+    .bottom-nav-item .icon { font-size: 22px; display: block; margin-bottom: 3px; transition: transform 0.2s; }
+    .bottom-nav-item.active .icon { filter: drop-shadow(0 0 6px var(--primary)); transform: scale(1.1); }
+
+    /* ── ALERTS ── */
+    .alert { padding: 13px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 14px; font-weight: 500; }
+    .alert-success { background: rgba(0,214,143,0.1); color: var(--success); border: 1px solid rgba(0,214,143,0.2); }
+    .alert-error { background: rgba(255,71,87,0.1); color: var(--danger); border: 1px solid rgba(255,71,87,0.2); }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); }
+    .stat-number { font-size: 30px; font-weight: 800; background: linear-gradient(135deg, #6C63FF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* ── MISC ── */
+    .divider { height: 1px; background: var(--border-soft); margin: 14px 0; }
     .mt-10 { margin-top: 10px; }
-    .mb-60 { margin-bottom: 70px; }
-    .loading { text-align: center; padding: 30px; color: var(--gray); font-size: 14px; }
-    .empty { text-align: center; padding: 40px 20px; color: var(--gray); }
-    .empty .icon { font-size: 48px; margin-bottom: 10px; }
-    .text-gray { color: var(--gray); font-size: 13px; }
-    .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; gap: 8px; }
+    .mb-60 { margin-bottom: 85px; }
+    .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+    .empty .icon { font-size: 52px; margin-bottom: 12px; opacity: 0.5; display: block; }
+    .text-gray { color: var(--text-muted); font-size: 13px; }
+
+    /* ── ADMIN ── */
+    .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; gap: 8px; }
     .user-info { flex: 1; min-width: 0; }
-    .user-name { font-weight: 600; font-size: 14px; }
-    .user-phone { color: var(--gray); font-size: 12px; }
-    .user-actions { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
-    .booking-row { padding: 10px 0; border-bottom: 1px solid #eee; }
-    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 14px; }
-    .admin-tab { text-align: center; padding: 10px 4px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer; background: var(--light); color: var(--gray); transition: all 0.2s; }
-    .admin-tab.active { background: var(--secondary); color: white; }
-    .sms-area { width: 100%; padding: 10px; border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px; font-family: inherit; resize: vertical; min-height: 80px; }
-    .otp-box { background: var(--light); border-radius: 10px; padding: 16px; text-align: center; margin-bottom: 14px; }
-    .otp-box p { font-size: 13px; color: var(--gray); margin-bottom: 4px; }
-    .otp-box strong { font-size: 15px; color: var(--secondary); }
-    .btn-delete { width:auto; padding:6px 10px; font-size:13px; border-radius:6px; border:none; background:#7B241C; color:white; cursor:pointer; }
+    .user-name { font-weight: 600; font-size: 14px; color: var(--text); }
+    .user-phone { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+    .user-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
+    .booking-row { padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
+    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 18px; }
+    .admin-tab { text-align: center; padding: 11px 4px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; background: var(--surface2); color: var(--text-muted); transition: all 0.2s; border: 1px solid var(--border); }
+    .admin-tab.active { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; border-color: transparent; box-shadow: 0 4px 16px var(--primary-glow); }
+
+    /* ── SMS AREA ── */
+    .sms-area { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'Inter', sans-serif; resize: vertical; min-height: 90px; background: var(--surface2); color: var(--text); transition: all 0.2s; }
+    .sms-area:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+    .sms-area::placeholder { color: var(--text-muted); }
+
+    /* ── OTP ── */
+    .otp-box { background: var(--surface2); border-radius: var(--radius-sm); padding: 20px; text-align: center; margin-bottom: 18px; border: 1px solid var(--border); }
+    .otp-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
+    .otp-box strong { font-size: 15px; color: var(--text); font-weight: 600; }
+
+    /* ── DRIVER DOCS ── */
+    .driver-docs-notice { background: rgba(108,99,255,0.08); border: 1px solid var(--primary-glow); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: var(--primary); font-weight: 500; }
+
+    /* ── PROFILE ── */
+    .profile-header { background: linear-gradient(135deg, #6C63FF 0%, #A855F7 100%); border-radius: var(--radius); padding: 28px 20px; text-align: center; margin-bottom: 16px; box-shadow: 0 8px 32px var(--primary-glow); }
+    .profile-avatar { width: 68px; height: 68px; background: rgba(255,255,255,0.18); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 14px; border: 2px solid rgba(255,255,255,0.25); }
+    .profile-name { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.3px; }
+    .profile-role-badge { display: inline-block; background: rgba(255,255,255,0.18); color: white; padding: 5px 16px; border-radius: 20px; font-size: 12px; margin-top: 8px; font-weight: 500; text-transform: capitalize; }
+    .profile-info-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-soft); }
+    .profile-info-row:last-child { border-bottom: none; }
+    .profile-info-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .profile-info-value { font-size: 15px; font-weight: 600; color: var(--text); }
   </style>
 </head>
 <body>
 <div class="nav">
-  <div class="nav-logo">🚌 SafarWay</div>
+  <div class="nav-logo">
+    <div class="nav-logo-icon">G</div>
+    <div class="nav-logo-text">Goova</div>
+  </div>
   <div class="nav-user" id="nav-user" onclick="showPage('profile')">Connexion</div>
 </div>
 
 <!-- ACCUEIL -->
 <div class="page active" id="page-home">
-  <div class="hero"><h1>Où voulez-vous aller ?</h1><p>Trouvez votre trajet en Mauritanie</p></div>
+  <div class="hero">
+    <h1>Où voulez-vous aller ?</h1>
+    <p>Trouvez votre trajet en Mauritanie</p>
+  </div>
   <div class="card">
     <div class="card-title">🔍 Rechercher un trajet</div>
     <div class="form-group"><label>Ville de départ</label><select id="search-from"><option value="">Choisir...</option></select></div>
@@ -109,7 +201,7 @@
 
 <!-- RESERVATIONS -->
 <div class="page" id="page-bookings">
-  <div class="card-title" style="padding:0 0 10px">🎫 Mes Réservations</div>
+  <div class="card-title" style="padding:0 0 14px">🎫 Mes Réservations</div>
   <div id="bookings-list"><div class="loading">Chargement...</div></div>
   <div class="mb-60"></div>
 </div>
@@ -117,7 +209,7 @@
 <!-- CHAUFFEUR -->
 <div class="page" id="page-driver">
   <div class="tabs">
-    <div class="tab active" onclick="switchDriverTab('publish')">Publier</div>
+    <div class="tab active" onclick="switchDriverTab('publish')">Publier un trajet</div>
     <div class="tab" onclick="switchDriverTab('mytrips')">Mes Trajets</div>
   </div>
   <div id="driver-publish">
@@ -166,7 +258,7 @@
     </div>
     <div id="register-form" style="display:none">
       <div class="card">
-        <div class="card-title">✍️ Inscription</div>
+        <div class="card-title">✍️ Créer un compte</div>
         <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
         <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="reg-phone" placeholder="222XXXXXXXX"></div>
         <div class="form-group"><label>Mot de passe</label><input type="password" id="reg-password" placeholder="••••••••"></div>
@@ -176,52 +268,55 @@
           <select id="reg-role" onchange="toggleDriverDocs()"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
         </div>
         <div id="driver-docs" style="display:none">
-          <div style="background:#FEF9E7;border:1.5px solid #F0B27A;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#7D6608">📋 Documents obligatoires pour l'inscription comme chauffeur</div>
+          <div class="driver-docs-notice">📋 Documents obligatoires pour l'inscription comme chauffeur</div>
           <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
           <div class="form-group"><label>N° carte d'identité nationale *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
           <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
           <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
         </div>
         <div id="reg-alert"></div>
-        <button class="btn btn-secondary mt-10" onclick="register()">Créer mon compte</button>
+        <button class="btn btn-primary mt-10" onclick="register()">Créer mon compte</button>
       </div>
     </div>
     <div id="admin-form" style="display:none">
       <div class="card">
         <div class="card-title">🔐 Connexion Admin</div>
         <div id="admin-step1">
-          <div class="otp-box"><p>Accès réservé aux administrateurs SafarWay</p><strong>Un code vous sera envoyé par email</strong></div>
-          <div class="form-group"><label>Email Admin</label><input type="email" id="admin-email" placeholder="admin@safarway.com"></div>
+          <div class="otp-box"><p>Accès réservé aux administrateurs Goova</p><strong>Un code vous sera envoyé par email</strong></div>
+          <div class="form-group"><label>Email Admin</label><input type="email" id="admin-email" placeholder="admin@goova.app"></div>
           <div id="admin-email-alert"></div>
-          <button class="btn btn-secondary mt-10" onclick="requestOTP()">📧 Recevoir le code</button>
+          <button class="btn btn-primary mt-10" onclick="requestOTP()">📧 Recevoir le code</button>
         </div>
         <div id="admin-step2" style="display:none">
           <div class="otp-box"><p>✅ Code envoyé à votre email</p><strong>Vérifiez votre boîte mail</strong></div>
-          <div class="form-group"><label>Code à 6 chiffres</label><input type="number" id="admin-otp" placeholder="123456" style="font-size:20px;text-align:center;letter-spacing:4px"></div>
+          <div class="form-group"><label>Code à 6 chiffres</label><input type="number" id="admin-otp" placeholder="123456" style="font-size:22px;text-align:center;letter-spacing:6px"></div>
           <div id="admin-otp-alert"></div>
           <button class="btn btn-primary mt-10" onclick="verifyOTP()">✅ Se connecter</button>
-          <button class="btn btn-outline mt-10" onclick="resetAdminForm()">← Recommencer</button>
+          <button class="btn btn-secondary mt-10" onclick="resetAdminForm()">← Recommencer</button>
         </div>
       </div>
     </div>
   </div>
   <div id="profile-section" style="display:none">
-    <div class="card">
-      <div class="card-title">👤 Mon Profil</div>
-      <p><strong>Nom :</strong> <span id="profile-name"></span></p>
-      <div class="divider"></div>
-      <p><strong>Téléphone :</strong> <span id="profile-phone"></span></p>
-      <div class="divider"></div>
-      <p><strong>Rôle :</strong> <span id="profile-role"></span></p>
-      <button class="btn btn-outline mt-10" onclick="logout()">Se déconnecter</button>
+    <div class="profile-header">
+      <div class="profile-avatar">👤</div>
+      <div class="profile-name" id="profile-name"></div>
+      <div class="profile-role-badge" id="profile-role"></div>
     </div>
+    <div class="card">
+      <div class="profile-info-row">
+        <span class="profile-info-label">Téléphone</span>
+        <span class="profile-info-value" id="profile-phone"></span>
+      </div>
+    </div>
+    <button class="btn btn-secondary" onclick="logout()">Se déconnecter</button>
   </div>
   <div class="mb-60"></div>
 </div>
 
 <!-- ADMIN -->
 <div class="page" id="page-admin">
-  <div class="card-title" style="padding:0 0 10px">⚙️ Tableau de bord Admin</div>
+  <div class="card-title" style="padding:0 0 14px">⚙️ Tableau de bord Admin</div>
   <div class="stats-grid" id="admin-stats"></div>
   <div class="admin-tabs">
     <div class="admin-tab active" onclick="switchAdminTab('users', this)">👥 Utilisateurs</div>
@@ -247,14 +342,14 @@
         <option value="voyageur">Voyageurs uniquement</option>
       </select>
     </div>
-    <div class="form-group"><label>Message</label><textarea class="sms-area" id="sms-message" placeholder="Tapez votre message ici..."></textarea></div>
+    <div class="form-group"><label>Message</label><textarea id="sms-message" placeholder="Tapez votre message ici..."></textarea></div>
     <div id="sms-count" class="text-gray mt-10"></div>
     <div id="sms-alert"></div>
     <button class="btn btn-primary mt-10" onclick="sendGroupSMS()">Envoyer le SMS</button>
   </div>
   <div id="admin-export" class="card" style="display:none">
     <div class="card-title">📥 Exporter les données</div>
-    <p class="text-gray" style="margin-bottom:14px">Téléchargez vos données en format CSV (compatible Excel)</p>
+    <p class="text-gray" style="margin-bottom:16px">Téléchargez vos données en format CSV (compatible Excel)</p>
     <button class="btn btn-secondary mt-10" onclick="exportData('users')">📥 Exporter Utilisateurs</button>
     <button class="btn btn-primary mt-10" onclick="exportData('trips')">📥 Exporter Trajets</button>
     <button class="btn btn-success mt-10" onclick="exportData('bookings')">📥 Exporter Réservations</button>
@@ -329,8 +424,8 @@ function fileToBase64(file){
 
 function viewImage(src,title){
   const m=document.createElement("div");
-  m.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
-  m.innerHTML='<div style="color:white;font-size:15px;font-weight:600;margin-bottom:12px">'+title+'</div><img src="'+src+'" style="max-width:100%;max-height:75vh;border-radius:8px"><button onclick="this.parentElement.remove()" style="margin-top:14px;padding:10px 28px;background:white;border:none;border-radius:8px;font-size:15px;cursor:pointer">Fermer</button>';
+  m.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
+  m.innerHTML='<div style="color:white;font-size:15px;font-weight:600;margin-bottom:14px;font-family:Inter,sans-serif">'+title+'</div><img src="'+src+'" style="max-width:100%;max-height:75vh;border-radius:14px"><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:11px 30px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:15px;cursor:pointer;color:white;font-family:Inter,sans-serif;font-weight:500">Fermer</button>';
   document.body.appendChild(m);
 }
 
@@ -455,7 +550,7 @@ async function searchTrips(){
   if(to)url+="to_city="+encodeURIComponent(to)+"&";
   try{
     const r=await fetch(url);const trips=await r.json();
-    if(!trips.length){c.innerHTML='<div class="empty"><div class="icon">🚌</div><p>Aucun trajet trouvé</p></div>';return;}
+    if(!trips.length){c.innerHTML='<div class="empty"><span class="icon">🚌</span><p>Aucun trajet trouvé</p></div>';return;}
     c.innerHTML='<div class="card-title">'+trips.length+' trajet(s) trouvé(s)</div>'+
       trips.map(t=>'<div class="trip-card" onclick="bookTrip('+t.id+',\''+t.from_city+'\',\''+t.to_city+'\','+t.price_per_seat+','+t.available_seats+')">'+
         '<div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div>'+
@@ -487,12 +582,12 @@ async function confirmBooking(tripId,seats){
 }
 
 async function loadBookings(){
-  if(!currentUser){document.getElementById("bookings-list").innerHTML='<div class="empty"><div class="icon">🔒</div><p>Connectez-vous pour voir vos réservations</p></div>';return;}
+  if(!currentUser){document.getElementById("bookings-list").innerHTML='<div class="empty"><span class="icon">🔒</span><p>Connectez-vous pour voir vos réservations</p></div>';return;}
   try{
     const r=await fetch(API+"/bookings/mes-reservations",{headers:{"Authorization":"Bearer "+token}});
     const bookings=await r.json();
     const c=document.getElementById("bookings-list");
-    if(!bookings.length){c.innerHTML='<div class="empty"><div class="icon">🎫</div><p>Aucune réservation</p></div>';return;}
+    if(!bookings.length){c.innerHTML='<div class="empty"><span class="icon">🎫</span><p>Aucune réservation</p></div>';return;}
     c.innerHTML=bookings.map(b=>
       '<div class="card">'+
         '<div style="display:flex;justify-content:space-between;align-items:center">'+
@@ -501,8 +596,8 @@ async function loadBookings(){
         '</div>'+
         '<div class="divider"></div>'+
         '<p>💺 '+b.seats_booked+' place(s)</p>'+
-        '<p>💰 '+b.total_price+' MRU</p>'+
-        '<p class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</p>'+
+        '<p style="margin-top:6px">💰 '+b.total_price+' MRU</p>'+
+        '<p class="text-gray" style="margin-top:6px">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</p>'+
         (b.status==="confirme"&&b.driver_phone?'<a href="tel:'+b.driver_phone+'" class="btn-call">📞 Appeler le chauffeur</a>':'')+
         (b.status==="confirme"?'<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking('+b.id+')">Annuler</button>':'')+
       '</div>'
@@ -545,7 +640,7 @@ async function loadDriverTrips(){
     const r=await fetch(API+"/trips/mes-trajets",{headers:{"Authorization":"Bearer "+token}});
     const trips=await r.json();
     const c=document.getElementById("driver-trips-list");
-    if(!trips.length){c.innerHTML='<div class="empty"><div class="icon">🚗</div><p>Aucun trajet publié</p></div>';return;}
+    if(!trips.length){c.innerHTML='<div class="empty"><span class="icon">🚗</span><p>Aucun trajet publié</p></div>';return;}
     c.innerHTML=trips.map(t=>
       '<div class="trip-card">'+
         '<div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div>'+
@@ -586,12 +681,12 @@ async function loadAdminUsers(){
     const r=await fetch(API+"/admin/users",{headers:{"Authorization":"Bearer "+token}});
     allUsers=await r.json();
     document.getElementById("admin-users-list").innerHTML=allUsers.map(u=>
-      '<div style="border-bottom:1px solid #eee;padding:8px 0">'+
-      '<div class="user-row" style="border:none;padding:0;margin:0">'+
+      '<div style="border-bottom:1px solid rgba(108,99,255,0.1);padding:10px 0">'+
+      '<div class="user-row" style="padding:0;margin:0">'+
         '<div class="user-info">'+
           '<div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div>'+
           '<div class="user-phone">'+u.phone+'</div>'+
-          (u.role==="chauffeur"&&u.license_number?'<div style="font-size:11px;color:#888;margin-top:2px">Permis: '+u.license_number+' | CI: '+(u.national_id_number||"—")+'</div>':'')+
+          (u.role==="chauffeur"&&u.license_number?'<div style="font-size:11px;color:#6C63FF;margin-top:3px;font-weight:500">Permis: '+u.license_number+' | CI: '+(u.national_id_number||"—")+'</div>':'')+
         '</div>'+
         '<div class="user-actions">'+
           '<span class="badge '+(u.role==="chauffeur"?"badge-orange":u.role==="admin"?"badge-blue":"badge-green")+'">'+u.role+'</span>'+
@@ -604,7 +699,7 @@ async function loadAdminUsers(){
         '</div>'+
       '</div>'+
       (u.role==="chauffeur"&&u.license_number
-        ?'<div style="display:flex;gap:8px;margin-top:6px">'+
+        ?'<div style="display:flex;gap:8px;margin-top:7px">'+
           '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'license\')">📄 Permis</button>'+
           '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'national_id\')">🪪 Carte ID</button>'+
           '</div>'
@@ -639,12 +734,12 @@ async function loadAdminTrips(){
     document.getElementById("admin-trips-list").innerHTML=allAdminTrips.length===0
       ?'<div class="empty"><p>Aucun trajet</p></div>'
       :allAdminTrips.map(t=>
-        '<div style="padding:10px 0;border-bottom:1px solid #eee">'+
+        '<div style="padding:12px 0;border-bottom:1px solid rgba(108,99,255,0.1)">'+
           '<div style="display:flex;justify-content:space-between;align-items:center">'+
             '<strong>'+t.from_city+" → "+t.to_city+'</strong>'+
             '<span class="badge '+(t.status==="actif"?"badge-green":t.status==="complet"?"badge-orange":"badge-red")+'">'+t.status+'</span>'+
           '</div>'+
-          '<div class="text-gray">'+t.departure_date+' à '+t.departure_time+' — '+t.driver_name+'</div>'+
+          '<div class="text-gray" style="margin-top:4px">'+t.departure_date+' à '+t.departure_time+' — '+t.driver_name+'</div>'+
           '<div class="text-gray">💺 '+t.available_seats+"/"+t.total_seats+' places — 💰 '+t.price_per_seat+' MRU</div>'+
         '</div>'
       ).join("");
@@ -661,7 +756,7 @@ async function loadAdminBookings(){
         '<div class="booking-row">'+
           '<div style="display:flex;justify-content:space-between"><strong>'+b.reference_code+'</strong>'+
           '<span class="badge '+(b.status==="confirme"?"badge-green":"badge-red")+'">'+b.status+'</span></div>'+
-          '<div class="text-gray">💺 '+b.seats_booked+' place(s) — 💰 '+b.total_price+' MRU</div>'+
+          '<div class="text-gray" style="margin-top:4px">💺 '+b.seats_booked+' place(s) — 💰 '+b.total_price+' MRU</div>'+
           '<div class="text-gray">Commission: '+Math.round(b.commission)+' MRU</div>'+
           '<div class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</div>'+
         '</div>'
@@ -684,9 +779,9 @@ async function loadRevenueCharts(){
     const commissions=labels.map(d=>Math.round(byDate[d].commission));
     const counts=labels.map(d=>byDate[d].count);
     if(revenueChart)revenueChart.destroy();
-    revenueChart=new Chart(document.getElementById("revenue-chart"),{type:"bar",data:{labels,datasets:[{label:"Commission (MRU)",data:commissions,backgroundColor:"#E07B2A"}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    revenueChart=new Chart(document.getElementById("revenue-chart"),{type:"bar",data:{labels,datasets:[{label:"Commission (MRU)",data:commissions,backgroundColor:"#6C63FF",borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}}}});
     if(bookingsChart)bookingsChart.destroy();
-    bookingsChart=new Chart(document.getElementById("bookings-chart"),{type:"line",data:{labels,datasets:[{label:"Réservations",data:counts,borderColor:"#1A5276",backgroundColor:"rgba(26,82,118,0.1)",fill:true}]},options:{responsive:true,plugins:{legend:{display:false}}}});
+    bookingsChart=new Chart(document.getElementById("bookings-chart"),{type:"line",data:{labels,datasets:[{label:"Réservations",data:counts,borderColor:"#A855F7",backgroundColor:"rgba(168,85,247,0.1)",fill:true,tension:0.4}]},options:{responsive:true,plugins:{legend:{display:false}}}});
   }catch(e){}
 }
 
@@ -708,13 +803,13 @@ async function sendGroupSMS(){
 }
 
 function exportData(type){
-  if(type==="users"){let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");downloadCSV(csv,"safarway_utilisateurs.csv");}
-  else if(type==="bookings"){let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");downloadCSV(csv,"safarway_reservations.csv");}
-  else if(type==="trips"){let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");downloadCSV(csv,"safarway_trajets.csv");}
+  if(type==="users"){let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");downloadCSV(csv,"goova_utilisateurs.csv");}
+  else if(type==="bookings"){let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");downloadCSV(csv,"goova_reservations.csv");}
+  else if(type==="trips"){let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");downloadCSV(csv,"goova_trajets.csv");}
 }
 
 function downloadCSV(csv,filename){
-  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});
   const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=filename;link.click();
 }
 
