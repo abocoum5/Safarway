@@ -71,6 +71,11 @@ def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Dep
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
     if user.role == models.UserRole.admin:
         raise HTTPException(status_code=400, detail="Impossible de supprimer un admin")
+    trip_ids = [t.id for t in user.trips]
+    if trip_ids:
+        db.query(models.Booking).filter(models.Booking.trip_id.in_(trip_ids)).delete(synchronize_session=False)
+    db.query(models.Trip).filter(models.Trip.driver_id == user_id).delete(synchronize_session=False)
+    db.query(models.Booking).filter(models.Booking.passenger_id == user_id).delete(synchronize_session=False)
     db.delete(user)
     db.commit()
     return {"message": f"Utilisateur {user.name} supprimé"}
