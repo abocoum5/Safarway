@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Float, ForeignKey, Enum, Text
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -36,6 +36,10 @@ class User(Base):
     email = Column(String, nullable=True, unique=True)
     otp_code = Column(String, nullable=True)
     otp_expires = Column(DateTime, nullable=True)
+    license_number = Column(String, nullable=True)
+    national_id_number = Column(String, nullable=True)
+    license_photo = Column(Text, nullable=True)
+    national_id_photo = Column(Text, nullable=True)
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")

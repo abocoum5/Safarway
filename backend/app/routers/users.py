@@ -19,12 +19,22 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=400, detail="Ce numéro est déjà utilisé")
 
+    if user_data.role == models.UserRole.chauffeur:
+        if not user_data.license_number or not user_data.national_id_number:
+            raise HTTPException(status_code=400, detail="Numéro de permis et d'identité obligatoires pour les chauffeurs")
+        if not user_data.license_photo or not user_data.national_id_photo:
+            raise HTTPException(status_code=400, detail="Photos du permis et de la carte d'identité obligatoires pour les chauffeurs")
+
     hashed = hash_password(user_data.password)
     new_user = models.User(
         name=user_data.name,
         phone=user_data.phone,
         password_hash=hashed,
         role=user_data.role,
+        license_number=user_data.license_number,
+        national_id_number=user_data.national_id_number,
+        license_photo=user_data.license_photo,
+        national_id_photo=user_data.national_id_photo,
     )
     db.add(new_user)
     db.commit()

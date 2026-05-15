@@ -173,7 +173,14 @@
         <div class="form-group"><label>Confirmer le mot de passe</label><input type="password" id="reg-password-confirm" placeholder="••••••••"></div>
         <div class="form-group">
           <label>Je suis</label>
-          <select id="reg-role"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
+          <select id="reg-role" onchange="toggleDriverDocs()"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
+        </div>
+        <div id="driver-docs" style="display:none">
+          <div style="background:#FEF9E7;border:1.5px solid #F0B27A;border-radius:8px;padding:10px;margin-bottom:10px;font-size:12px;color:#7D6608">📋 Documents obligatoires pour l'inscription comme chauffeur</div>
+          <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
+          <div class="form-group"><label>N° carte d'identité nationale *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
+          <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
+          <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
         </div>
         <div id="reg-alert"></div>
         <button class="btn btn-secondary mt-10" onclick="register()">Créer mon compte</button>
@@ -312,6 +319,33 @@ async function login(){
   }catch(e){showAlert("login-alert",e.message,"error");}
 }
 
+function toggleDriverDocs(){
+  document.getElementById("driver-docs").style.display=document.getElementById("reg-role").value==="chauffeur"?"block":"none";
+}
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>resolve(e.target.result);r.onerror=reject;r.readAsDataURL(file);});
+}
+
+function viewImage(src,title){
+  const m=document.createElement("div");
+  m.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
+  m.innerHTML='<div style="color:white;font-size:15px;font-weight:600;margin-bottom:12px">'+title+'</div><img src="'+src+'" style="max-width:100%;max-height:75vh;border-radius:8px"><button onclick="this.parentElement.remove()" style="margin-top:14px;padding:10px 28px;background:white;border:none;border-radius:8px;font-size:15px;cursor:pointer">Fermer</button>';
+  document.body.appendChild(m);
+}
+
+async function viewDocImage(userId,type){
+  try{
+    const r=await fetch(API+"/admin/users/"+userId+"/documents",{headers:{"Authorization":"Bearer "+token}});
+    const d=await r.json();
+    if(!r.ok)throw new Error(d.detail);
+    const src=type==="license"?d.license_photo:d.national_id_photo;
+    if(!src){alert("Photo non disponible");return;}
+    const u=allUsers.find(x=>x.id===userId);
+    viewImage(src,(type==="license"?"Permis de conduire":"Carte d'identité")+(u?" — "+u.name:""));
+  }catch(e){alert("Erreur: "+e.message);}
+}
+
 async function register(){
   const name=document.getElementById("reg-name").value;
   const phone=document.getElementById("reg-phone").value;
@@ -321,8 +355,21 @@ async function register(){
   if(!name||!phone||!password||!passwordConfirm){showAlert("reg-alert","Remplissez tous les champs","error");return;}
   if(password!==passwordConfirm){showAlert("reg-alert","❌ Les mots de passe ne correspondent pas","error");return;}
   if(password.length<6){showAlert("reg-alert","Minimum 6 caractères","error");return;}
+  let body={name,phone,password,role};
+  if(role==="chauffeur"){
+    const licenseNum=document.getElementById("reg-license-num").value;
+    const nationalId=document.getElementById("reg-national-id").value;
+    const licenseFile=document.getElementById("reg-license-photo").files[0];
+    const nationalIdFile=document.getElementById("reg-national-id-photo").files[0];
+    if(!licenseNum||!nationalId||!licenseFile||!nationalIdFile){showAlert("reg-alert","Tous les documents chauffeur sont obligatoires","error");return;}
+    if(licenseFile.size>2097152||nationalIdFile.size>2097152){showAlert("reg-alert","Chaque photo doit faire moins de 2MB","error");return;}
+    body.license_number=licenseNum;
+    body.national_id_number=nationalId;
+    body.license_photo=await fileToBase64(licenseFile);
+    body.national_id_photo=await fileToBase64(nationalIdFile);
+  }
   try{
-    const r=await fetch(API+"/users/inscription",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,phone,password,role})});
+    const r=await fetch(API+"/users/inscription",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
     const d=await r.json();
     if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur inscription");
     token=d.access_token;currentUser=d.user;
@@ -539,10 +586,12 @@ async function loadAdminUsers(){
     const r=await fetch(API+"/admin/users",{headers:{"Authorization":"Bearer "+token}});
     allUsers=await r.json();
     document.getElementById("admin-users-list").innerHTML=allUsers.map(u=>
-      '<div class="user-row">'+
+      '<div style="border-bottom:1px solid #eee;padding:8px 0">'+
+      '<div class="user-row" style="border:none;padding:0;margin:0">'+
         '<div class="user-info">'+
           '<div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div>'+
           '<div class="user-phone">'+u.phone+'</div>'+
+          (u.role==="chauffeur"&&u.license_number?'<div style="font-size:11px;color:#888;margin-top:2px">Permis: '+u.license_number+' | CI: '+(u.national_id_number||"—")+'</div>':'')+
         '</div>'+
         '<div class="user-actions">'+
           '<span class="badge '+(u.role==="chauffeur"?"badge-orange":u.role==="admin"?"badge-blue":"badge-green")+'">'+u.role+'</span>'+
@@ -553,6 +602,13 @@ async function loadAdminUsers(){
             :"")+
           (u.role!=="admin"?'<button class="btn-delete" onclick="deleteUser('+u.id+',\''+u.name+'\')">🗑️</button>':"")+
         '</div>'+
+      '</div>'+
+      (u.role==="chauffeur"&&u.license_number
+        ?'<div style="display:flex;gap:8px;margin-top:6px">'+
+          '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'license\')">📄 Permis</button>'+
+          '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'national_id\')">🪪 Carte ID</button>'+
+          '</div>'
+        :'')+
       '</div>'
     ).join("");
   }catch(e){document.getElementById("admin-users-list").innerHTML="<p>Erreur de chargement</p>";}

@@ -11,6 +11,10 @@ class UserCreate(BaseModel):
     name: str
     password: str
     role: UserRole = UserRole.voyageur
+    license_number: Optional[str] = None
+    national_id_number: Optional[str] = None
+    license_photo: Optional[str] = None
+    national_id_photo: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -25,6 +29,16 @@ class UserResponse(BaseModel):
     role: UserRole
     is_active: bool
     created_at: datetime
+    license_number: Optional[str] = None
+    national_id_number: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
+class UserDocuments(BaseModel):
+    license_photo: Optional[str] = None
+    national_id_photo: Optional[str] = None
 
     class Config:
         from_attributes = True

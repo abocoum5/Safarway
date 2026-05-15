@@ -41,6 +41,15 @@ def get_all_users(db: Session = Depends(get_db), current_user=Depends(get_curren
     return db.query(models.User).order_by(models.User.id).all()
 
 
+@router.get("/users/{user_id}/documents", response_model=schemas.UserDocuments)
+def get_user_documents(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+    return user
+
+
 @router.patch("/users/{user_id}/activer")
 def activer_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)
