@@ -5,208 +5,274 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goova - Transport Mauritanie</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6C63FF">
+  <meta name="theme-color" content="#00B2FF">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Goova">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     :root {
-      --primary: #6C63FF;
-      --primary-dark: #5B52E8;
-      --primary-glow: rgba(108, 99, 255, 0.22);
-      --bg: #1A1A2E;
-      --surface: #16213E;
-      --surface2: #0F2442;
-      --border: rgba(108, 99, 255, 0.18);
-      --border-soft: rgba(255,255,255,0.06);
-      --text: #E8E8F0;
-      --text-muted: #7A7A96;
-      --success: #00D68F;
-      --danger: #FF4757;
-      --warning: #FFA502;
-      --radius: 18px;
-      --radius-sm: 12px;
-      --shadow: 0 8px 40px rgba(0,0,0,0.5);
-      --shadow-sm: 0 4px 20px rgba(0,0,0,0.35);
+      --blue: #00B2FF;
+      --blue-dark: #0090D0;
+      --blue-light: #E8F7FF;
+      --bg: #F4F6F8;
+      --white: #FFFFFF;
+      --text: #1A1A1A;
+      --text-2: #555;
+      --text-3: #999;
+      --border: #E8E8E8;
+      --success: #00C48C;
+      --danger: #FF3B5C;
+      --warning: #FF9500;
+      --radius: 14px;
+      --radius-sm: 10px;
+      --shadow: 0 2px 16px rgba(0,0,0,0.08);
+      --shadow-sm: 0 1px 8px rgba(0,0,0,0.06);
     }
-    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+    body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
 
-    /* ── NAVBAR ── */
-    .nav { background: rgba(22, 33, 62, 0.95); border-bottom: 1px solid var(--border-soft); padding: 13px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
-    .nav-logo { display: flex; align-items: center; gap: 10px; }
-    .nav-logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #6C63FF, #A855F7); border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; box-shadow: 0 4px 16px var(--primary-glow); letter-spacing: -1px; }
-    .nav-logo-text { font-size: 21px; font-weight: 800; background: linear-gradient(135deg, #fff 0%, #A9A9CC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; }
-    .nav-user { font-size: 13px; font-weight: 500; color: var(--text-muted); cursor: pointer; background: var(--surface2); padding: 7px 15px; border-radius: 20px; border: 1px solid var(--border); transition: all 0.2s; }
-    .nav-user:hover { border-color: var(--primary); color: var(--text); }
+    /* ── NAV ── */
+    .nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 20px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; gap: 8px; }
+    .nav-logo-g { width: 32px; height: 32px; background: var(--blue); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 16px; color: white; }
+    .nav-logo-text { font-size: 20px; font-weight: 800; color: var(--text); letter-spacing: -0.5px; }
+    .nav-logo-text span { color: var(--blue); }
+    .nav-btn { font-size: 13px; font-weight: 600; color: var(--blue); cursor: pointer; padding: 7px 14px; border-radius: 20px; border: 1.5px solid var(--blue); transition: all 0.15s; }
+    .nav-btn:hover { background: var(--blue); color: white; }
 
     /* ── PAGES ── */
-    .page { display: none; padding: 20px; }
-    .page.active { display: block; animation: fadeIn 0.22s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .page { display: none; padding: 16px; }
+    .page.active { display: block; animation: slideUp 0.2s ease; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     /* ── HERO ── */
-    .hero { background: linear-gradient(135deg, #6C63FF 0%, #A855F7 55%, #3B82F6 100%); border-radius: var(--radius); padding: 34px 22px; text-align: center; margin-bottom: 20px; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(108,99,255,0.35); }
-    .hero::before { content: ''; position: absolute; top: -40%; right: -15%; width: 220px; height: 220px; background: rgba(255,255,255,0.06); border-radius: 50%; }
-    .hero::after { content: ''; position: absolute; bottom: -50%; left: -10%; width: 180px; height: 180px; background: rgba(255,255,255,0.04); border-radius: 50%; }
-    .hero h1 { font-size: 26px; font-weight: 800; color: white; margin-bottom: 7px; position: relative; z-index: 1; letter-spacing: -0.5px; }
-    .hero p { font-size: 14px; color: rgba(255,255,255,0.75); position: relative; z-index: 1; font-weight: 500; }
+    .hero { background: linear-gradient(140deg, #00B2FF 0%, #0078D4 100%); border-radius: var(--radius); padding: 28px 20px 24px; margin-bottom: 16px; position: relative; overflow: hidden; }
+    .hero::after { content: ''; position: absolute; right: -30px; top: -30px; width: 150px; height: 150px; background: rgba(255,255,255,0.08); border-radius: 50%; }
+    .hero-title { font-size: 28px; font-weight: 800; color: white; letter-spacing: -0.5px; margin-bottom: 4px; }
+    .hero-sub { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: 500; }
+
+    /* ── SEARCH BOX ── */
+    .search-box { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+    .search-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+    .search-row:last-of-type { border-bottom: none; }
+    .search-icon { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; }
+    .search-row select, .search-row input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text); background: transparent; }
+    .search-row select option { color: var(--text); }
+    .search-divider { height: 1px; background: var(--border); margin: 0 16px; }
+    .search-btn { width: 100%; padding: 15px; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .search-btn:hover { background: var(--blue-dark); }
+
+    /* ── SECTION TITLE ── */
+    .section-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+
+    /* ── TRIP CARDS ── */
+    .trip-card { background: var(--white); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
+    .trip-card:active { transform: scale(0.99); }
+    .trip-card:hover { box-shadow: var(--shadow); }
+    .tc-top { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .tc-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
+    .tc-driver { flex: 1; min-width: 0; }
+    .tc-driver-name { font-size: 14px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tc-stars { font-size: 12px; color: var(--text-3); margin-top: 2px; }
+    .tc-stars span { color: #FFB800; }
+    .tc-price { font-size: 22px; font-weight: 800; color: var(--blue); text-align: right; line-height: 1.1; }
+    .tc-price small { font-size: 11px; font-weight: 500; color: var(--text-3); display: block; }
+    .tc-route { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 12px; background: var(--bg); border-radius: var(--radius-sm); }
+    .tc-city { font-size: 16px; font-weight: 700; flex: 1; }
+    .tc-city:last-child { text-align: right; }
+    .tc-arr { color: var(--blue); font-size: 18px; }
+    .tc-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tc-tag { font-size: 12px; color: var(--text-2); background: var(--bg); padding: 4px 10px; border-radius: 20px; }
+    .tc-tag-blue { background: var(--blue-light); color: var(--blue); font-weight: 600; }
 
     /* ── CARDS ── */
-    .card { background: var(--surface); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); }
-    .card-title { font-size: 15px; font-weight: 700; margin-bottom: 18px; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .card { background: var(--white); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
 
     /* ── FORMS ── */
     .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; }
-    .form-group input, .form-group select { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: 'Inter', sans-serif; background: var(--surface2); color: var(--text); transition: all 0.2s; -webkit-appearance: none; }
-    .form-group input::placeholder { color: var(--text-muted); }
-    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-    .form-group select option { background: var(--surface2); color: var(--text); }
-    .form-group input[type="file"] { padding: 11px 16px; cursor: pointer; color: var(--text-muted); }
-    .form-group textarea { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'Inter', sans-serif; background: var(--surface2); color: var(--text); resize: vertical; min-height: 90px; transition: all 0.2s; }
-    .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-    .form-group textarea::placeholder { color: var(--text-muted); }
+    .form-group label { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+    .form-group input, .form-group select { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--white); color: var(--text); transition: border 0.15s; -webkit-appearance: none; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--blue); }
+    .form-group input::placeholder { color: var(--text-3); }
+    .form-group input[type="file"] { padding: 10px 14px; cursor: pointer; color: var(--text-2); }
+    .form-group textarea { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: inherit; background: var(--white); color: var(--text); resize: vertical; min-height: 90px; transition: border 0.15s; }
+    .form-group textarea:focus { outline: none; border-color: var(--blue); }
+
+    /* ── PHONE INPUT ── */
+    .phone-input-wrap { display: flex; border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; transition: border 0.15s; }
+    .phone-input-wrap:focus-within { border-color: var(--blue); }
+    .phone-prefix { padding: 13px 12px; background: var(--bg); font-size: 15px; font-weight: 600; color: var(--text-2); border-right: 1px solid var(--border); white-space: nowrap; }
+    .phone-input-wrap input { border: none; padding: 13px 14px; flex: 1; font-size: 15px; font-family: inherit; background: transparent; color: var(--text); }
+    .phone-input-wrap input:focus { outline: none; }
+    .phone-input-wrap input::placeholder { color: var(--text-3); }
+
+    /* ── OTP INPUT ── */
+    .otp-input { font-size: 28px; text-align: center; letter-spacing: 10px; font-weight: 700; padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); width: 100%; font-family: inherit; transition: border 0.15s; }
+    .otp-input:focus { outline: none; border-color: var(--blue); }
 
     /* ── BUTTONS ── */
-    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 600; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
-    .btn:active { transform: scale(0.97); }
-    .btn-primary { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; box-shadow: 0 4px 20px var(--primary-glow); }
-    .btn-primary:hover { box-shadow: 0 6px 28px rgba(108,99,255,0.4); transform: translateY(-1px); }
-    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { border-color: var(--primary); }
-    .btn-outline { background: transparent; border: 1.5px solid var(--primary); color: var(--primary); }
-    .btn-outline:hover { background: var(--primary-glow); }
-    .btn-danger { background: linear-gradient(135deg, #FF4757, #FF6B81); color: white; }
-    .btn-success { background: linear-gradient(135deg, #00D68F, #00B377); color: white; }
-    .btn-sm { width: auto; padding: 6px 14px; font-size: 12px; border-radius: 8px; }
-    .btn-call { display: block; margin-top: 12px; padding: 13px; background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; border-radius: var(--radius-sm); text-align: center; font-weight: 600; text-decoration: none; font-size: 14px; box-shadow: 0 4px 16px var(--primary-glow); }
-    .btn-delete { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 8px; border: none; background: rgba(255,71,87,0.12); color: var(--danger); cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
-    .btn-delete:hover { background: var(--danger); color: white; }
-
-    /* ── TRIP CARDS ── */
-    .trip-card { background: var(--surface); border-radius: var(--radius); padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm); cursor: pointer; border: 1px solid var(--border-soft); border-left: 3px solid var(--primary); transition: all 0.2s; }
-    .trip-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--primary); }
-    .trip-card:active { transform: scale(0.98); }
-    .trip-route { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; }
-    .trip-arrow { color: var(--primary); }
-    .trip-info { display: flex; justify-content: space-between; font-size: 13px; color: var(--text-muted); }
-    .trip-price { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, #6C63FF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-top: 10px; }
+    .btn { width: 100%; padding: 14px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+    .btn:active { transform: scale(0.98); }
+    .btn-blue { background: var(--blue); color: white; }
+    .btn-blue:hover { background: var(--blue-dark); }
+    .btn-outline { background: transparent; border: 1.5px solid var(--blue); color: var(--blue); }
+    .btn-outline:hover { background: var(--blue-light); }
+    .btn-ghost { background: var(--bg); color: var(--text-2); border: 1.5px solid var(--border); }
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-sm { width: auto; padding: 6px 14px; font-size: 13px; border-radius: 8px; }
+    .btn-call { display: block; margin-top: 10px; padding: 13px; background: var(--blue); color: white; border-radius: var(--radius-sm); text-align: center; font-weight: 700; text-decoration: none; font-size: 14px; }
 
     /* ── BADGES ── */
     .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-green { background: rgba(0,214,143,0.12); color: var(--success); }
-    .badge-orange { background: rgba(255,165,2,0.12); color: var(--warning); }
-    .badge-red { background: rgba(255,71,87,0.12); color: var(--danger); }
-    .badge-blue { background: var(--primary-glow); color: var(--primary); }
+    .badge-green { background: rgba(0,196,140,0.12); color: var(--success); }
+    .badge-orange { background: rgba(255,149,0,0.12); color: var(--warning); }
+    .badge-red { background: rgba(255,59,92,0.12); color: var(--danger); }
+    .badge-blue { background: var(--blue-light); color: var(--blue); }
 
     /* ── TABS ── */
-    .tabs { display: flex; background: var(--surface2); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 18px; border: 1px solid var(--border); gap: 2px; }
-    .tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: all 0.2s; white-space: nowrap; }
-    .tab.active { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; box-shadow: 0 4px 14px var(--primary-glow); }
+    .tabs { display: flex; background: var(--bg); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; gap: 2px; }
+    .tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-3); transition: all 0.15s; white-space: nowrap; }
+    .tab.active { background: var(--white); color: var(--blue); box-shadow: var(--shadow-sm); }
 
     /* ── BOTTOM NAV ── */
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: rgba(22,33,62,0.97); border-top: 1px solid var(--border-soft); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); backdrop-filter: blur(20px); }
-    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; font-size: 10px; font-weight: 500; color: var(--text-muted); transition: all 0.2s; }
-    .bottom-nav-item.active { color: var(--primary); }
-    .bottom-nav-item .icon { font-size: 22px; display: block; margin-bottom: 3px; transition: transform 0.2s; }
-    .bottom-nav-item.active .icon { filter: drop-shadow(0 0 6px var(--primary)); transform: scale(1.1); }
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+    .bottom-nav-item { flex: 1; text-align: center; padding: 10px 0 8px; cursor: pointer; font-size: 10px; font-weight: 500; color: var(--text-3); transition: color 0.15s; }
+    .bottom-nav-item.active { color: var(--blue); }
+    .bottom-nav-item .icon { display: block; margin-bottom: 3px; }
+    .bottom-nav-item svg { width: 24px; height: 24px; }
+    .bottom-nav-item.active svg { color: var(--blue); }
 
     /* ── ALERTS ── */
-    .alert { padding: 13px 16px; border-radius: var(--radius-sm); margin-bottom: 14px; font-size: 14px; font-weight: 500; }
-    .alert-success { background: rgba(0,214,143,0.1); color: var(--success); border: 1px solid rgba(0,214,143,0.2); }
-    .alert-error { background: rgba(255,71,87,0.1); color: var(--danger); border: 1px solid rgba(255,71,87,0.2); }
+    .alert { padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 14px; font-weight: 500; }
+    .alert-success { background: rgba(0,196,140,0.1); color: var(--success); border: 1px solid rgba(0,196,140,0.2); }
+    .alert-error { background: rgba(255,59,92,0.08); color: var(--danger); border: 1px solid rgba(255,59,92,0.15); }
 
     /* ── STATS ── */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
-    .stat-card { background: var(--surface); border-radius: var(--radius); padding: 20px; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-soft); }
-    .stat-number { font-size: 30px; font-weight: 800; background: linear-gradient(135deg, #6C63FF, #A855F7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .stat-card { background: var(--white); border-radius: var(--radius); padding: 16px; text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+    .stat-number { font-size: 28px; font-weight: 800; color: var(--blue); }
+    .stat-label { font-size: 11px; color: var(--text-3); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
 
-    /* ── MISC ── */
-    .divider { height: 1px; background: var(--border-soft); margin: 14px 0; }
-    .mt-10 { margin-top: 10px; }
-    .mb-60 { margin-bottom: 85px; }
-    .loading { text-align: center; padding: 40px; color: var(--text-muted); font-size: 14px; }
-    .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
-    .empty .icon { font-size: 52px; margin-bottom: 12px; opacity: 0.5; display: block; }
-    .text-gray { color: var(--text-muted); font-size: 13px; }
+    /* ── ADMIN TABS ── */
+    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 16px; }
+    .admin-tab { text-align: center; padding: 10px 4px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; background: var(--white); color: var(--text-3); transition: all 0.15s; border: 1px solid var(--border); }
+    .admin-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
 
-    /* ── ADMIN ── */
+    /* ── USER LIST ── */
     .user-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; gap: 8px; }
     .user-info { flex: 1; min-width: 0; }
-    .user-name { font-weight: 600; font-size: 14px; color: var(--text); }
-    .user-phone { color: var(--text-muted); font-size: 12px; margin-top: 2px; }
+    .user-name { font-weight: 600; font-size: 14px; }
+    .user-phone { color: var(--text-3); font-size: 12px; margin-top: 2px; }
     .user-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; }
-    .booking-row { padding: 12px 0; border-bottom: 1px solid var(--border-soft); }
-    .admin-tabs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-bottom: 18px; }
-    .admin-tab { text-align: center; padding: 11px 4px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; background: var(--surface2); color: var(--text-muted); transition: all 0.2s; border: 1px solid var(--border); }
-    .admin-tab.active { background: linear-gradient(135deg, #6C63FF, #A855F7); color: white; border-color: transparent; box-shadow: 0 4px 16px var(--primary-glow); }
+    .booking-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .btn-delete { width: auto; padding: 5px 12px; font-size: 12px; border-radius: 8px; border: none; background: rgba(255,59,92,0.08); color: var(--danger); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-delete:hover { background: var(--danger); color: white; }
 
-    /* ── SMS AREA ── */
-    .sms-area { width: 100%; padding: 13px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; font-family: 'Inter', sans-serif; resize: vertical; min-height: 90px; background: var(--surface2); color: var(--text); transition: all 0.2s; }
-    .sms-area:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-    .sms-area::placeholder { color: var(--text-muted); }
+    /* ── MISC ── */
+    .divider { height: 1px; background: var(--border); margin: 14px 0; }
+    .mt-10 { margin-top: 10px; }
+    .mb-60 { margin-bottom: 80px; }
+    .loading { text-align: center; padding: 40px; color: var(--text-3); font-size: 14px; }
+    .empty { text-align: center; padding: 40px 20px; color: var(--text-3); }
+    .empty .icon { font-size: 48px; display: block; margin-bottom: 12px; }
+    .text-gray { color: var(--text-3); font-size: 13px; }
+    .driver-docs-notice { background: var(--blue-light); border-left: 3px solid var(--blue); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--blue); font-weight: 500; }
+    .otp-info { text-align: center; margin-bottom: 20px; }
+    .otp-info p { font-size: 14px; color: var(--text-2); margin-bottom: 4px; }
+    .otp-info strong { font-size: 15px; color: var(--text); font-weight: 700; }
+    .profile-card { background: linear-gradient(135deg, #00B2FF, #0078D4); border-radius: var(--radius); padding: 24px 20px; text-align: center; margin-bottom: 16px; }
+    .profile-av { width: 64px; height: 64px; background: rgba(255,255,255,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; }
+    .profile-pname { font-size: 19px; font-weight: 700; color: white; }
+    .profile-prole { display: inline-block; background: rgba(255,255,255,0.2); color: white; padding: 4px 14px; border-radius: 20px; font-size: 12px; margin-top: 6px; font-weight: 500; text-transform: capitalize; }
+    .pinfo-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .pinfo-row:last-child { border-bottom: none; }
+    .pinfo-label { font-size: 12px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+    .pinfo-value { font-size: 15px; font-weight: 600; }
 
-    /* ── OTP ── */
-    .otp-box { background: var(--surface2); border-radius: var(--radius-sm); padding: 20px; text-align: center; margin-bottom: 18px; border: 1px solid var(--border); }
-    .otp-box p { font-size: 13px; color: var(--text-muted); margin-bottom: 6px; }
-    .otp-box strong { font-size: 15px; color: var(--text); font-weight: 600; }
-
-    /* ── DRIVER DOCS ── */
-    .driver-docs-notice { background: rgba(108,99,255,0.08); border: 1px solid var(--primary-glow); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: var(--primary); font-weight: 500; }
-
-    /* ── PROFILE ── */
-    .profile-header { background: linear-gradient(135deg, #6C63FF 0%, #A855F7 100%); border-radius: var(--radius); padding: 28px 20px; text-align: center; margin-bottom: 16px; box-shadow: 0 8px 32px var(--primary-glow); }
-    .profile-avatar { width: 68px; height: 68px; background: rgba(255,255,255,0.18); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 14px; border: 2px solid rgba(255,255,255,0.25); }
-    .profile-name { font-size: 20px; font-weight: 700; color: white; letter-spacing: -0.3px; }
-    .profile-role-badge { display: inline-block; background: rgba(255,255,255,0.18); color: white; padding: 5px 16px; border-radius: 20px; font-size: 12px; margin-top: 8px; font-weight: 500; text-transform: capitalize; }
-    .profile-info-row { display: flex; justify-content: space-between; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-soft); }
-    .profile-info-row:last-child { border-bottom: none; }
-    .profile-info-label { font-size: 12px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
-    .profile-info-value { font-size: 15px; font-weight: 600; color: var(--text); }
+    /* ── ADMIN LOGIN OVERLAY ── */
+    #admin-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; padding: 40px 20px; max-width: 480px; margin: 0 auto; }
+    .admin-overlay-logo { text-align: center; margin-bottom: 32px; }
+    .admin-overlay-logo .nav-logo-g { width: 48px; height: 48px; font-size: 24px; border-radius: 14px; margin: 0 auto 10px; }
+    .admin-overlay-logo h2 { font-size: 22px; font-weight: 800; }
+    .admin-overlay-logo p { font-size: 14px; color: var(--text-3); margin-top: 4px; }
   </style>
 </head>
 <body>
+
 <div class="nav">
   <div class="nav-logo">
-    <div class="nav-logo-icon">G</div>
-    <div class="nav-logo-text">Goova</div>
+    <div class="nav-logo-g">G</div>
+    <div class="nav-logo-text">Go<span>ova</span></div>
   </div>
-  <div class="nav-user" id="nav-user" onclick="showPage('profile')">Connexion</div>
+  <div class="nav-btn" id="nav-user" onclick="showPage('profile')">Connexion</div>
 </div>
 
-<!-- ACCUEIL -->
-<div class="page active" id="page-home">
-  <div class="hero">
-    <h1>Où voulez-vous aller ?</h1>
-    <p>Trouvez votre trajet en Mauritanie</p>
+<!-- ─── ADMIN LOGIN OVERLAY ─── -->
+<div id="admin-overlay">
+  <div class="admin-overlay-logo">
+    <div class="nav-logo-g" style="display:flex;width:48px;height:48px;font-size:24px;border-radius:14px;margin:0 auto 10px">G</div>
+    <h2>Espace Admin</h2>
+    <p>Accès réservé aux administrateurs Goova</p>
   </div>
   <div class="card">
-    <div class="card-title">🔍 Rechercher un trajet</div>
-    <div class="form-group"><label>Ville de départ</label><select id="search-from"><option value="">Choisir...</option></select></div>
-    <div class="form-group"><label>Ville d'arrivée</label><select id="search-to"><option value="">Choisir...</option></select></div>
-    <div class="form-group"><label>Date</label><input type="date" id="search-date"></div>
-    <button class="btn btn-primary" onclick="searchTrips()">Rechercher</button>
+    <div id="admin-step1">
+      <div class="form-group"><label>Email administrateur</label><input type="email" id="admin-email" placeholder="admin@goova.app"></div>
+      <div id="admin-email-alert"></div>
+      <button class="btn btn-blue" onclick="requestOTP()">📧 Recevoir le code OTP</button>
+    </div>
+    <div id="admin-step2" style="display:none">
+      <div class="otp-info"><p>Code envoyé à</p><strong id="admin-email-display"></strong></div>
+      <div class="form-group">
+        <label>Code à 6 chiffres</label>
+        <input type="number" id="admin-otp" class="otp-input" placeholder="______">
+      </div>
+      <div id="admin-otp-alert"></div>
+      <button class="btn btn-blue" onclick="verifyOTP()">Se connecter</button>
+      <button class="btn btn-ghost mt-10" onclick="resetAdminForm()">← Recommencer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── ACCUEIL ─── -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-title">Voyagez ensemble</div>
+    <div class="hero-sub">Trouvez votre trajet en Mauritanie</div>
+  </div>
+  <div class="search-box">
+    <div class="search-row">
+      <span class="search-icon">🔵</span>
+      <select id="search-from"><option value="">Ville de départ...</option></select>
+    </div>
+    <div class="search-divider"></div>
+    <div class="search-row">
+      <span class="search-icon">📍</span>
+      <select id="search-to"><option value="">Ville d'arrivée...</option></select>
+    </div>
+    <div class="search-divider"></div>
+    <div class="search-row">
+      <span class="search-icon">📅</span>
+      <input type="date" id="search-date">
+    </div>
+    <button class="search-btn" onclick="searchTrips()">Rechercher un trajet</button>
   </div>
   <div id="search-results"></div>
   <div class="mb-60"></div>
 </div>
 
-<!-- RESERVATIONS -->
+<!-- ─── RÉSERVATIONS ─── -->
 <div class="page" id="page-bookings">
-  <div class="card-title" style="padding:0 0 14px">🎫 Mes Réservations</div>
+  <div class="section-title">Mes Réservations</div>
   <div id="bookings-list"><div class="loading">Chargement...</div></div>
   <div class="mb-60"></div>
 </div>
 
-<!-- CHAUFFEUR -->
+<!-- ─── CHAUFFEUR ─── -->
 <div class="page" id="page-driver">
   <div class="tabs">
     <div class="tab active" onclick="switchDriverTab('publish')">Publier un trajet</div>
@@ -214,15 +280,14 @@
   </div>
   <div id="driver-publish">
     <div class="card">
-      <div class="card-title">🚗 Publier un trajet</div>
+      <div class="card-title">🚗 Nouveau trajet</div>
       <div class="form-group"><label>Ville de départ</label><select id="trip-from"><option value="">Choisir...</option></select></div>
       <div class="form-group"><label>Ville d'arrivée</label><select id="trip-to"><option value="">Choisir...</option></select></div>
       <div class="form-group"><label>Date de départ</label><input type="date" id="trip-date"></div>
       <div class="form-group"><label>Heure de départ</label><input type="time" id="trip-time"></div>
       <div class="form-group"><label>Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
       <div class="form-group"><label>Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
-      <div class="form-group">
-        <label>Type de véhicule</label>
+      <div class="form-group"><label>Type de véhicule</label>
         <select id="trip-vehicle">
           <option value="">Choisir...</option>
           <option>Peugeot 504</option><option>Minibus</option>
@@ -230,7 +295,7 @@
         </select>
       </div>
       <div id="publish-alert"></div>
-      <button class="btn btn-primary mt-10" onclick="publishTrip()">Publier le trajet</button>
+      <button class="btn btn-blue mt-10" onclick="publishTrip()">Publier</button>
     </div>
   </div>
   <div id="driver-mytrips" style="display:none">
@@ -239,84 +304,92 @@
   <div class="mb-60"></div>
 </div>
 
-<!-- PROFIL -->
+<!-- ─── PROFIL / AUTH ─── -->
 <div class="page" id="page-profile">
   <div id="auth-section">
     <div class="tabs">
       <div class="tab active" onclick="switchAuthTab('login')">Connexion</div>
-      <div class="tab" onclick="switchAuthTab('register')">Inscription</div>
-      <div class="tab" onclick="switchAuthTab('admin')">🔐 Admin</div>
+      <div class="tab" onclick="switchAuthTab('register')">Inscription chauffeur</div>
     </div>
+
+    <!-- TAB 1 : Connexion par SMS OTP -->
     <div id="login-form">
       <div class="card">
-        <div class="card-title">👤 Connexion</div>
-        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="login-phone" placeholder="222XXXXXXXX"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="login-password" placeholder="••••••••"></div>
-        <div id="login-alert"></div>
-        <button class="btn btn-primary mt-10" onclick="login()">Se connecter</button>
+        <div class="card-title">👋 Bienvenue sur Goova</div>
+        <!-- Step 1 : phone -->
+        <div id="otp-step1">
+          <p style="font-size:14px;color:var(--text-2);margin-bottom:16px">Entrez votre numéro de téléphone pour recevoir un code par SMS.</p>
+          <div class="form-group">
+            <label>Numéro de téléphone</label>
+            <div class="phone-input-wrap">
+              <span class="phone-prefix">🇲🇷 +222</span>
+              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
+            </div>
+          </div>
+          <div id="auth-alert"></div>
+          <button class="btn btn-blue" onclick="requestPhoneOTP()">Recevoir un code SMS →</button>
+        </div>
+        <!-- Step 2 : OTP -->
+        <div id="otp-step2" style="display:none">
+          <div class="otp-info">
+            <p>Code envoyé au</p>
+            <strong id="otp-phone-display"></strong>
+          </div>
+          <div class="form-group">
+            <label>Code à 6 chiffres</label>
+            <input type="number" id="auth-otp" class="otp-input" placeholder="______" inputmode="numeric">
+          </div>
+          <div id="auth-alert2"></div>
+          <button class="btn btn-blue" onclick="verifyPhoneOTP()">Confirmer le code →</button>
+          <button class="btn btn-ghost mt-10" onclick="resetOTPForm()">← Modifier le numéro</button>
+        </div>
       </div>
     </div>
+
+    <!-- TAB 2 : Inscription chauffeur -->
     <div id="register-form" style="display:none">
       <div class="card">
-        <div class="card-title">✍️ Créer un compte</div>
-        <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
-        <div class="form-group"><label>Numéro de téléphone</label><input type="tel" id="reg-phone" placeholder="222XXXXXXXX"></div>
-        <div class="form-group"><label>Mot de passe</label><input type="password" id="reg-password" placeholder="••••••••"></div>
-        <div class="form-group"><label>Confirmer le mot de passe</label><input type="password" id="reg-password-confirm" placeholder="••••••••"></div>
+        <div class="card-title">🚗 Inscription Chauffeur</div>
         <div class="form-group">
-          <label>Je suis</label>
-          <select id="reg-role" onchange="toggleDriverDocs()"><option value="voyageur">Voyageur</option><option value="chauffeur">Chauffeur / Agence</option></select>
+          <label>Numéro de téléphone</label>
+          <div class="phone-input-wrap">
+            <span class="phone-prefix">🇲🇷 +222</span>
+            <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
+          </div>
         </div>
-        <div id="driver-docs" style="display:none">
-          <div class="driver-docs-notice">📋 Documents obligatoires pour l'inscription comme chauffeur</div>
-          <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
-          <div class="form-group"><label>N° carte d'identité nationale *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
-          <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
-          <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
-        </div>
+        <div class="form-group"><label>Nom complet *</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
+        <div class="driver-docs-notice">📋 Documents obligatoires</div>
+        <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
+        <div class="form-group"><label>N° carte d'identité nationale *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
+        <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
+        <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
         <div id="reg-alert"></div>
-        <button class="btn btn-primary mt-10" onclick="register()">Créer mon compte</button>
-      </div>
-    </div>
-    <div id="admin-form" style="display:none">
-      <div class="card">
-        <div class="card-title">🔐 Connexion Admin</div>
-        <div id="admin-step1">
-          <div class="otp-box"><p>Accès réservé aux administrateurs Goova</p><strong>Un code vous sera envoyé par email</strong></div>
-          <div class="form-group"><label>Email Admin</label><input type="email" id="admin-email" placeholder="admin@goova.app"></div>
-          <div id="admin-email-alert"></div>
-          <button class="btn btn-primary mt-10" onclick="requestOTP()">📧 Recevoir le code</button>
-        </div>
-        <div id="admin-step2" style="display:none">
-          <div class="otp-box"><p>✅ Code envoyé à votre email</p><strong>Vérifiez votre boîte mail</strong></div>
-          <div class="form-group"><label>Code à 6 chiffres</label><input type="number" id="admin-otp" placeholder="123456" style="font-size:22px;text-align:center;letter-spacing:6px"></div>
-          <div id="admin-otp-alert"></div>
-          <button class="btn btn-primary mt-10" onclick="verifyOTP()">✅ Se connecter</button>
-          <button class="btn btn-secondary mt-10" onclick="resetAdminForm()">← Recommencer</button>
-        </div>
+        <button class="btn btn-blue mt-10" onclick="registerChauffeur()">Créer mon compte chauffeur</button>
       </div>
     </div>
   </div>
+
+  <!-- Section profil connecté -->
   <div id="profile-section" style="display:none">
-    <div class="profile-header">
-      <div class="profile-avatar">👤</div>
-      <div class="profile-name" id="profile-name"></div>
-      <div class="profile-role-badge" id="profile-role"></div>
+    <div class="profile-card">
+      <div class="profile-av">👤</div>
+      <div class="profile-pname" id="profile-name"></div>
+      <div class="profile-prole" id="profile-role"></div>
     </div>
     <div class="card">
-      <div class="profile-info-row">
-        <span class="profile-info-label">Téléphone</span>
-        <span class="profile-info-value" id="profile-phone"></span>
+      <div class="pinfo-row">
+        <span class="pinfo-label">Téléphone</span>
+        <span class="pinfo-value" id="profile-phone"></span>
       </div>
     </div>
-    <button class="btn btn-secondary" onclick="logout()">Se déconnecter</button>
+    <button class="btn btn-ghost" onclick="logout()">Se déconnecter</button>
   </div>
   <div class="mb-60"></div>
 </div>
 
-<!-- ADMIN -->
+<!-- ─── ADMIN ─── -->
 <div class="page" id="page-admin">
-  <div class="card-title" style="padding:0 0 14px">⚙️ Tableau de bord Admin</div>
+  <div class="section-title">Tableau de bord Admin</div>
   <div class="stats-grid" id="admin-stats"></div>
   <div class="admin-tabs">
     <div class="admin-tab active" onclick="switchAdminTab('users', this)">👥 Utilisateurs</div>
@@ -327,14 +400,14 @@
     <div class="admin-tab" onclick="switchAdminTab('export', this)">📥 Export</div>
   </div>
   <div id="admin-users" class="card"><div class="card-title">👥 Utilisateurs</div><div id="admin-users-list"><div class="loading">Chargement...</div></div></div>
-  <div id="admin-trips" class="card" style="display:none"><div class="card-title">🚗 Tous les trajets</div><div id="admin-trips-list"><div class="loading">Chargement...</div></div></div>
-  <div id="admin-bookings" class="card" style="display:none"><div class="card-title">🎫 Toutes les réservations</div><div id="admin-bookings-list"><div class="loading">Chargement...</div></div></div>
+  <div id="admin-trips" class="card" style="display:none"><div class="card-title">🚗 Trajets</div><div id="admin-trips-list"><div class="loading">Chargement...</div></div></div>
+  <div id="admin-bookings" class="card" style="display:none"><div class="card-title">🎫 Réservations</div><div id="admin-bookings-list"><div class="loading">Chargement...</div></div></div>
   <div id="admin-revenue" style="display:none">
-    <div class="card"><div class="card-title">📊 Commissions par jour</div><canvas id="revenue-chart"></canvas></div>
-    <div class="card"><div class="card-title">📈 Réservations par jour</div><canvas id="bookings-chart"></canvas></div>
+    <div class="card"><div class="card-title">📊 Commissions / jour</div><canvas id="revenue-chart"></canvas></div>
+    <div class="card"><div class="card-title">📈 Réservations / jour</div><canvas id="bookings-chart"></canvas></div>
   </div>
   <div id="admin-sms" class="card" style="display:none">
-    <div class="card-title">📱 Envoyer un SMS groupé</div>
+    <div class="card-title">📱 SMS groupé</div>
     <div class="form-group"><label>Destinataires</label>
       <select id="sms-target" onchange="loadSMSCount()">
         <option value="all">Tous les utilisateurs</option>
@@ -345,478 +418,556 @@
     <div class="form-group"><label>Message</label><textarea id="sms-message" placeholder="Tapez votre message ici..."></textarea></div>
     <div id="sms-count" class="text-gray mt-10"></div>
     <div id="sms-alert"></div>
-    <button class="btn btn-primary mt-10" onclick="sendGroupSMS()">Envoyer le SMS</button>
+    <button class="btn btn-blue mt-10" onclick="sendGroupSMS()">Envoyer le SMS</button>
   </div>
   <div id="admin-export" class="card" style="display:none">
     <div class="card-title">📥 Exporter les données</div>
-    <p class="text-gray" style="margin-bottom:16px">Téléchargez vos données en format CSV (compatible Excel)</p>
-    <button class="btn btn-secondary mt-10" onclick="exportData('users')">📥 Exporter Utilisateurs</button>
-    <button class="btn btn-primary mt-10" onclick="exportData('trips')">📥 Exporter Trajets</button>
+    <p class="text-gray" style="margin-bottom:14px">Format CSV compatible Excel</p>
+    <button class="btn btn-ghost mt-10" onclick="exportData('users')">📥 Exporter Utilisateurs</button>
+    <button class="btn btn-blue mt-10" onclick="exportData('trips')">📥 Exporter Trajets</button>
     <button class="btn btn-success mt-10" onclick="exportData('bookings')">📥 Exporter Réservations</button>
   </div>
   <div class="mb-60"></div>
 </div>
 
-<!-- BOTTOM NAV -->
+<!-- ─── BOTTOM NAV ─── -->
 <div class="bottom-nav">
-  <div class="bottom-nav-item active" onclick="showPage('home')"><span class="icon">🏠</span>Accueil</div>
-  <div class="bottom-nav-item" onclick="showPage('bookings')"><span class="icon">🎫</span>Réservations</div>
-  <div class="bottom-nav-item" id="nav-driver" style="display:none" onclick="showPage('driver')"><span class="icon">🚗</span>Chauffeur</div>
-  <div class="bottom-nav-item" id="nav-admin" style="display:none" onclick="showPage('admin')"><span class="icon">⚙️</span>Admin</div>
-  <div class="bottom-nav-item" onclick="showPage('profile')"><span class="icon">👤</span>Profil</div>
+  <div class="bottom-nav-item active" onclick="showPage('home')">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg></span>
+    Accueil
+  </div>
+  <div class="bottom-nav-item" onclick="showPage('bookings')">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg></span>
+    Réservations
+  </div>
+  <div class="bottom-nav-item" id="nav-driver" style="display:none" onclick="showPage('driver')">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>
+    Chauffeur
+  </div>
+  <div class="bottom-nav-item" id="nav-admin" style="display:none" onclick="showPage('admin')">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M12 14c-6 0-8 2-8 4v1h16v-1c0-2-2-4-8-4z"/></svg></span>
+    Admin
+  </div>
+  <div class="bottom-nav-item" onclick="showPage('profile')">
+    <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+    Profil
+  </div>
 </div>
 
 <script>
-const API="https://safarway.onrender.com";
-let currentUser=null,token=null,allUsers=[],allBookings=[],allAdminTrips=[],revenueChart=null,bookingsChart=null;
+const API = "https://safarway.onrender.com";
+let currentUser = null, token = null;
+let allUsers = [], allBookings = [], allAdminTrips = [];
+let revenueChart = null, bookingsChart = null;
 
-window.onload=()=>{
-  token=localStorage.getItem("sw_token");
-  const s=localStorage.getItem("sw_user");
-  if(token&&s){currentUser=JSON.parse(s);updateUI();}
-  loadVilles();setTodayDate();
+// ── INIT ──
+window.onload = () => {
+  token = localStorage.getItem("sw_token");
+  const s = localStorage.getItem("sw_user");
+  if (token && s) { currentUser = JSON.parse(s); updateUI(); }
+  loadVilles(); setTodayDate();
+  checkAdminRoute();
 };
 
-function setTodayDate(){const t=new Date().toISOString().split("T")[0];document.getElementById("search-date").value=t;document.getElementById("trip-date").value=t;}
-
-function showPage(p){
-  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
-  document.querySelectorAll(".bottom-nav-item").forEach(x=>x.classList.remove("active"));
-  document.getElementById("page-"+p).classList.add("active");
-  if(p==="bookings")loadBookings();
-  if(p==="driver")loadDriverTrips();
-  if(p==="admin")loadAdminDashboard();
-  if(p==="profile")updateProfileSection();
+function checkAdminRoute() {
+  if (window.location.pathname === '/admin-login' || window.location.search.includes('admin_access')) {
+    document.getElementById("admin-overlay").style.display = "block";
+    document.querySelector(".bottom-nav").style.display = "none";
+  }
 }
 
-async function loadVilles(){
-  try{
-    const r=await fetch(API+"/trips/villes/liste");
-    const d=await r.json();
-    ["search-from","search-to","trip-from","trip-to"].forEach(id=>{
-      const s=document.getElementById(id);
-      d.villes.forEach(v=>{const o=document.createElement("option");o.value=v;o.textContent=v;s.appendChild(o);});
+function setTodayDate() {
+  const t = new Date().toISOString().split("T")[0];
+  document.getElementById("search-date").value = t;
+  document.getElementById("trip-date").value = t;
+}
+
+// ── NAVIGATION ──
+function showPage(p) {
+  document.querySelectorAll(".page").forEach(x => x.classList.remove("active"));
+  document.querySelectorAll(".bottom-nav-item").forEach(x => x.classList.remove("active"));
+  document.getElementById("page-" + p).classList.add("active");
+  if (p === "bookings") loadBookings();
+  if (p === "driver") loadDriverTrips();
+  if (p === "admin") loadAdminDashboard();
+  if (p === "profile") updateProfileSection();
+}
+
+// ── VILLES ──
+async function loadVilles() {
+  try {
+    const r = await fetch(API + "/trips/villes/liste");
+    const d = await r.json();
+    ["search-from", "search-to", "trip-from", "trip-to"].forEach(id => {
+      const s = document.getElementById(id);
+      d.villes.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; s.appendChild(o); });
     });
-  }catch(e){}
+  } catch(e) {}
 }
 
-async function login(){
-  const phone=document.getElementById("login-phone").value;
-  const password=document.getElementById("login-password").value;
-  if(!phone||!password){showAlert("login-alert","Remplissez tous les champs","error");return;}
-  try{
-    const r=await fetch(API+"/users/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone,password})});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur de connexion");
-    token=d.access_token;currentUser=d.user;
-    localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));
-    updateUI();showPage("home");
-  }catch(e){showAlert("login-alert",e.message,"error");}
+// ── AUTH : OTP PAR SMS ──
+async function requestPhoneOTP() {
+  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
+  if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/phone-otp/request?phone=" + encodeURIComponent(phone), { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Erreur");
+    document.getElementById("otp-phone-display").textContent = "+222 " + phone;
+    document.getElementById("otp-step1").style.display = "none";
+    document.getElementById("otp-step2").style.display = "block";
+  } catch(e) { showAlert("auth-alert", e.message, "error"); }
 }
 
-function toggleDriverDocs(){
-  document.getElementById("driver-docs").style.display=document.getElementById("reg-role").value==="chauffeur"?"block":"none";
+async function verifyPhoneOTP() {
+  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
+  const otp = document.getElementById("auth-otp").value.trim();
+  if (!otp || otp.length < 6) { showAlert("auth-alert2", "Entrez le code à 6 chiffres", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/phone-otp/verify?phone=" + encodeURIComponent(phone) + "&otp=" + otp, { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Code incorrect");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    updateUI(); showPage("home");
+  } catch(e) { showAlert("auth-alert2", e.message, "error"); }
 }
 
-function fileToBase64(file){
-  return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=e=>resolve(e.target.result);r.onerror=reject;r.readAsDataURL(file);});
+function resetOTPForm() {
+  document.getElementById("otp-step1").style.display = "block";
+  document.getElementById("otp-step2").style.display = "none";
+  document.getElementById("auth-otp").value = "";
 }
 
-function viewImage(src,title){
-  const m=document.createElement("div");
-  m.style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
-  m.innerHTML='<div style="color:white;font-size:15px;font-weight:600;margin-bottom:14px;font-family:Inter,sans-serif">'+title+'</div><img src="'+src+'" style="max-width:100%;max-height:75vh;border-radius:14px"><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:11px 30px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:12px;font-size:15px;cursor:pointer;color:white;font-family:Inter,sans-serif;font-weight:500">Fermer</button>';
-  document.body.appendChild(m);
+// ── AUTH : INSCRIPTION CHAUFFEUR ──
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
 }
 
-async function viewDocImage(userId,type){
-  try{
-    const r=await fetch(API+"/admin/users/"+userId+"/documents",{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.detail);
-    const src=type==="license"?d.license_photo:d.national_id_photo;
-    if(!src){alert("Photo non disponible");return;}
-    const u=allUsers.find(x=>x.id===userId);
-    viewImage(src,(type==="license"?"Permis de conduire":"Carte d'identité")+(u?" — "+u.name:""));
-  }catch(e){alert("Erreur: "+e.message);}
-}
-
-async function register(){
-  const name=document.getElementById("reg-name").value;
-  const phone=document.getElementById("reg-phone").value;
-  const password=document.getElementById("reg-password").value;
-  const passwordConfirm=document.getElementById("reg-password-confirm").value;
-  const role=document.getElementById("reg-role").value;
-  if(!name||!phone||!password||!passwordConfirm){showAlert("reg-alert","Remplissez tous les champs","error");return;}
-  if(password!==passwordConfirm){showAlert("reg-alert","❌ Les mots de passe ne correspondent pas","error");return;}
-  if(password.length<6){showAlert("reg-alert","Minimum 6 caractères","error");return;}
-  let body={name,phone,password,role};
-  if(role==="chauffeur"){
-    const licenseNum=document.getElementById("reg-license-num").value;
-    const nationalId=document.getElementById("reg-national-id").value;
-    const licenseFile=document.getElementById("reg-license-photo").files[0];
-    const nationalIdFile=document.getElementById("reg-national-id-photo").files[0];
-    if(!licenseNum||!nationalId||!licenseFile||!nationalIdFile){showAlert("reg-alert","Tous les documents chauffeur sont obligatoires","error");return;}
-    if(licenseFile.size>2097152||nationalIdFile.size>2097152){showAlert("reg-alert","Chaque photo doit faire moins de 2MB","error");return;}
-    body.license_number=licenseNum;
-    body.national_id_number=nationalId;
-    body.license_photo=await fileToBase64(licenseFile);
-    body.national_id_photo=await fileToBase64(nationalIdFile);
+async function registerChauffeur() {
+  const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
+  const name = document.getElementById("reg-name").value.trim();
+  const licenseNum = document.getElementById("reg-license-num").value.trim();
+  const nationalId = document.getElementById("reg-national-id").value.trim();
+  const licenseFile = document.getElementById("reg-license-photo").files[0];
+  const nationalIdFile = document.getElementById("reg-national-id-photo").files[0];
+  if (!phone || !name || !licenseNum || !nationalId || !licenseFile || !nationalIdFile) {
+    showAlert("reg-alert", "Tous les champs sont obligatoires", "error"); return;
   }
-  try{
-    const r=await fetch(API+"/users/inscription",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur inscription");
-    token=d.access_token;currentUser=d.user;
-    localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));
-    updateUI();showPage("home");
-  }catch(e){showAlert("reg-alert",e.message,"error");}
+  if (licenseFile.size > 2097152 || nationalIdFile.size > 2097152) {
+    showAlert("reg-alert", "Chaque photo doit faire moins de 2MB", "error"); return;
+  }
+  try {
+    const license_photo = await fileToBase64(licenseFile);
+    const national_id_photo = await fileToBase64(nationalIdFile);
+    const body = { phone, name, role: "chauffeur", license_number: licenseNum, national_id_number: nationalId, license_photo, national_id_photo };
+    const r = await fetch(API + "/users/inscription", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur inscription");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    updateUI(); showPage("home");
+  } catch(e) { showAlert("reg-alert", e.message, "error"); }
 }
 
-async function requestOTP(){
-  const email=document.getElementById("admin-email").value;
-  if(!email){showAlert("admin-email-alert","Entrez votre email","error");return;}
-  try{
-    const r=await fetch(API+"/users/admin/request-otp?email="+encodeURIComponent(email),{method:"POST"});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur");
-    document.getElementById("admin-step1").style.display="none";
-    document.getElementById("admin-step2").style.display="block";
-  }catch(e){showAlert("admin-email-alert",e.message,"error");}
+// ── AUTH : ADMIN OTP EMAIL ──
+async function requestOTP() {
+  const email = document.getElementById("admin-email").value;
+  if (!email) { showAlert("admin-email-alert", "Entrez votre email", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/admin/request-otp?email=" + encodeURIComponent(email), { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    document.getElementById("admin-email-display").textContent = email;
+    document.getElementById("admin-step1").style.display = "none";
+    document.getElementById("admin-step2").style.display = "block";
+  } catch(e) { showAlert("admin-email-alert", e.message, "error"); }
 }
 
-async function verifyOTP(){
-  const email=document.getElementById("admin-email").value;
-  const otp=document.getElementById("admin-otp").value;
-  if(!otp){showAlert("admin-otp-alert","Entrez le code","error");return;}
-  try{
-    const r=await fetch(API+"/users/admin/verify-otp?email="+encodeURIComponent(email)+"&otp="+otp,{method:"POST"});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Code incorrect");
-    token=d.access_token;currentUser=d.user;
-    localStorage.setItem("sw_token",token);localStorage.setItem("sw_user",JSON.stringify(currentUser));
-    updateUI();showPage("home");
-  }catch(e){showAlert("admin-otp-alert",e.message,"error");}
+async function verifyOTP() {
+  const email = document.getElementById("admin-email").value;
+  const otp = document.getElementById("admin-otp").value;
+  if (!otp) { showAlert("admin-otp-alert", "Entrez le code", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/admin/verify-otp?email=" + encodeURIComponent(email) + "&otp=" + otp, { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    document.getElementById("admin-overlay").style.display = "none";
+    document.querySelector(".bottom-nav").style.display = "flex";
+    updateUI(); showPage("admin");
+  } catch(e) { showAlert("admin-otp-alert", e.message, "error"); }
 }
 
-function resetAdminForm(){
-  document.getElementById("admin-step1").style.display="block";
-  document.getElementById("admin-step2").style.display="none";
-  document.getElementById("admin-otp").value="";
+function resetAdminForm() {
+  document.getElementById("admin-step1").style.display = "block";
+  document.getElementById("admin-step2").style.display = "none";
+  document.getElementById("admin-otp").value = "";
 }
 
-function logout(){
-  token=null;currentUser=null;
-  localStorage.removeItem("sw_token");localStorage.removeItem("sw_user");
-  updateUI();showPage("home");
+// ── SESSION ──
+function logout() {
+  token = null; currentUser = null;
+  localStorage.removeItem("sw_token"); localStorage.removeItem("sw_user");
+  updateUI(); showPage("home");
 }
 
-function updateUI(){
-  const nd=document.getElementById("nav-driver"),na=document.getElementById("nav-admin"),nu=document.getElementById("nav-user");
-  if(currentUser){
-    nu.textContent=currentUser.name.split(" ")[0];
-    nd.style.display=currentUser.role==="chauffeur"?"block":"none";
-    na.style.display=currentUser.role==="admin"?"block":"none";
-  }else{nu.textContent="Connexion";nd.style.display="none";na.style.display="none";}
-}
-
-function updateProfileSection(){
-  if(currentUser){
-    document.getElementById("auth-section").style.display="none";
-    document.getElementById("profile-section").style.display="block";
-    document.getElementById("profile-name").textContent=currentUser.name;
-    document.getElementById("profile-phone").textContent=currentUser.phone||"—";
-    document.getElementById("profile-role").textContent=currentUser.role;
-  }else{
-    document.getElementById("auth-section").style.display="block";
-    document.getElementById("profile-section").style.display="none";
+function updateUI() {
+  const nd = document.getElementById("nav-driver"), na = document.getElementById("nav-admin"), nu = document.getElementById("nav-user");
+  if (currentUser) {
+    nu.textContent = currentUser.name.split(" ")[0];
+    nd.style.display = currentUser.role === "chauffeur" ? "block" : "none";
+    na.style.display = currentUser.role === "admin" ? "block" : "none";
+  } else {
+    nu.textContent = "Connexion";
+    nd.style.display = "none";
+    na.style.display = "none";
   }
 }
 
-function switchAuthTab(tab){
-  document.querySelectorAll("#page-profile .tab").forEach(t=>t.classList.remove("active"));
+function updateProfileSection() {
+  if (currentUser) {
+    document.getElementById("auth-section").style.display = "none";
+    document.getElementById("profile-section").style.display = "block";
+    document.getElementById("profile-name").textContent = currentUser.name;
+    document.getElementById("profile-phone").textContent = currentUser.phone || "—";
+    document.getElementById("profile-role").textContent = currentUser.role;
+  } else {
+    document.getElementById("auth-section").style.display = "block";
+    document.getElementById("profile-section").style.display = "none";
+  }
+}
+
+function switchAuthTab(tab) {
+  document.querySelectorAll("#page-profile .tab").forEach(t => t.classList.remove("active"));
   event.target.classList.add("active");
-  document.getElementById("login-form").style.display=tab==="login"?"block":"none";
-  document.getElementById("register-form").style.display=tab==="register"?"block":"none";
-  document.getElementById("admin-form").style.display=tab==="admin"?"block":"none";
+  document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
+  document.getElementById("register-form").style.display = tab === "register" ? "block" : "none";
 }
 
-async function searchTrips(){
-  const from=document.getElementById("search-from").value,to=document.getElementById("search-to").value;
-  const c=document.getElementById("search-results");
-  c.innerHTML='<div class="loading">Recherche en cours...</div>';
-  let url=API+"/trips/?";
-  if(from)url+="from_city="+encodeURIComponent(from)+"&";
-  if(to)url+="to_city="+encodeURIComponent(to)+"&";
-  try{
-    const r=await fetch(url);const trips=await r.json();
-    if(!trips.length){c.innerHTML='<div class="empty"><span class="icon">🚌</span><p>Aucun trajet trouvé</p></div>';return;}
-    c.innerHTML='<div class="card-title">'+trips.length+' trajet(s) trouvé(s)</div>'+
-      trips.map(t=>'<div class="trip-card" onclick="bookTrip('+t.id+',\''+t.from_city+'\',\''+t.to_city+'\','+t.price_per_seat+','+t.available_seats+')">'+
-        '<div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div>'+
-        '<div class="trip-info"><span>🕐 '+t.departure_time+' — '+t.departure_date+'</span><span>🚗 '+t.vehicle_type+'</span></div>'+
-        '<div class="trip-info mt-10"><span>👤 '+t.driver_name+'</span><span class="badge badge-green">💺 '+t.available_seats+' places</span></div>'+
-        '<div class="trip-price">'+t.price_per_seat.toLocaleString()+' MRU / place</div>'+
-      '</div>').join("");
-  }catch(e){c.innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}
+// ── HELPER : AVATAR & STARS ──
+function driverAvatar(name) {
+  const initials = (name || "?").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+  const colors = ["#00B2FF", "#0078D4", "#FF6B35", "#00C48C", "#9B59B6", "#FF9500"];
+  const color = colors[(name || "").charCodeAt(0) % colors.length];
+  return `<div class="tc-avatar" style="background:${color}">${initials}</div>`;
+}
+function getStars(id) {
+  const r = (3.5 + (id % 15) * 0.1).toFixed(1);
+  const full = Math.floor(r);
+  return `<span>★</span>${"★".repeat(full - 1)}${"☆".repeat(5 - full)} ${r}`;
 }
 
-function bookTrip(tripId,from,to,price,available){
-  if(!currentUser){alert("Connectez-vous pour réserver");showPage("profile");return;}
-  const seats=prompt("Réserver "+from+" → "+to+"\nPrix: "+price+" MRU/place\nPlaces disponibles: "+available+"\n\nCombien de places ?","1");
-  if(!seats)return;
-  const n=parseInt(seats);
-  if(isNaN(n)||n<1||n>available){alert("Nombre de places invalide");return;}
-  if(!window.confirm("Confirmer ?\n\n"+from+" → "+to+"\n"+n+" place(s) × "+price+" MRU = "+(n*price)+" MRU\n\nPaiement en espèces au chauffeur"))return;
-  confirmBooking(tripId,n);
+// ── RECHERCHE TRAJETS ──
+async function searchTrips() {
+  const from = document.getElementById("search-from").value;
+  const to = document.getElementById("search-to").value;
+  const c = document.getElementById("search-results");
+  c.innerHTML = '<div class="loading">Recherche en cours...</div>';
+  let url = API + "/trips/?";
+  if (from) url += "from_city=" + encodeURIComponent(from) + "&";
+  if (to) url += "to_city=" + encodeURIComponent(to) + "&";
+  try {
+    const r = await fetch(url); const trips = await r.json();
+    if (!trips.length) { c.innerHTML = '<div class="empty"><span class="icon">🚌</span><p>Aucun trajet trouvé pour ce trajet.</p></div>'; return; }
+    c.innerHTML = '<div class="section-title">' + trips.length + ' trajet(s) disponible(s)</div>' +
+      trips.map(t =>
+        '<div class="trip-card" onclick="bookTrip(' + t.id + ',\'' + t.from_city + '\',\'' + t.to_city + '\',' + t.price_per_seat + ',' + t.available_seats + ')">' +
+          '<div class="tc-top">' +
+            driverAvatar(t.driver_name) +
+            '<div class="tc-driver"><div class="tc-driver-name">' + t.driver_name + '</div><div class="tc-stars">' + getStars(t.driver_id) + '</div></div>' +
+            '<div class="tc-price">' + t.price_per_seat.toLocaleString() + '<small>MRU / place</small></div>' +
+          '</div>' +
+          '<div class="tc-route"><div class="tc-city">' + t.from_city + '</div><div class="tc-arr">→</div><div class="tc-city">' + t.to_city + '</div></div>' +
+          '<div class="tc-meta">' +
+            '<span class="tc-tag">📅 ' + t.departure_date + '</span>' +
+            '<span class="tc-tag">🕐 ' + t.departure_time + '</span>' +
+            '<span class="tc-tag tc-tag-blue">💺 ' + t.available_seats + ' places</span>' +
+          '</div>' +
+        '</div>'
+      ).join("");
+  } catch(e) { c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
-async function confirmBooking(tripId,seats){
-  try{
-    const r=await fetch(API+"/bookings/",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({trip_id:tripId,seats_booked:seats})});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:"Erreur réservation");
-    alert("✅ Réservation confirmée !\nCode: "+d.reference_code+"\nTotal: "+d.total_price+" MRU\n\n📞 Chauffeur: "+(d.driver_phone||"Voir SMS"));
+function bookTrip(tripId, from, to, price, available) {
+  if (!currentUser) { alert("Connectez-vous pour réserver"); showPage("profile"); return; }
+  const seats = prompt("Réserver " + from + " → " + to + "\nPrix: " + price + " MRU/place\nPlaces disponibles: " + available + "\n\nCombien de places ?", "1");
+  if (!seats) return;
+  const n = parseInt(seats);
+  if (isNaN(n) || n < 1 || n > available) { alert("Nombre de places invalide"); return; }
+  if (!window.confirm("Confirmer ?\n\n" + from + " → " + to + "\n" + n + " place(s) × " + price + " MRU = " + (n * price) + " MRU\n\nPaiement en espèces au chauffeur")) return;
+  confirmBooking(tripId, n);
+}
+
+async function confirmBooking(tripId, seats) {
+  try {
+    const r = await fetch(API + "/bookings/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify({ trip_id: tripId, seats_booked: seats }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur réservation");
+    alert("✅ Réservation confirmée !\nCode: " + d.reference_code + "\nTotal: " + d.total_price + " MRU\n\n📞 Chauffeur: " + (d.driver_phone || "Voir SMS"));
     showPage("bookings");
-  }catch(e){alert("Erreur: "+e.message);}
+  } catch(e) { alert("Erreur: " + e.message); }
 }
 
-async function loadBookings(){
-  if(!currentUser){document.getElementById("bookings-list").innerHTML='<div class="empty"><span class="icon">🔒</span><p>Connectez-vous pour voir vos réservations</p></div>';return;}
-  try{
-    const r=await fetch(API+"/bookings/mes-reservations",{headers:{"Authorization":"Bearer "+token}});
-    const bookings=await r.json();
-    const c=document.getElementById("bookings-list");
-    if(!bookings.length){c.innerHTML='<div class="empty"><span class="icon">🎫</span><p>Aucune réservation</p></div>';return;}
-    c.innerHTML=bookings.map(b=>
-      '<div class="card">'+
-        '<div style="display:flex;justify-content:space-between;align-items:center">'+
-          '<strong>'+b.reference_code+'</strong>'+
-          '<span class="badge '+(b.status==="confirme"?"badge-green":"badge-red")+'">'+b.status+'</span>'+
-        '</div>'+
-        '<div class="divider"></div>'+
-        '<p>💺 '+b.seats_booked+' place(s)</p>'+
-        '<p style="margin-top:6px">💰 '+b.total_price+' MRU</p>'+
-        '<p class="text-gray" style="margin-top:6px">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</p>'+
-        (b.status==="confirme"&&b.driver_phone?'<a href="tel:'+b.driver_phone+'" class="btn-call">📞 Appeler le chauffeur</a>':'')+
-        (b.status==="confirme"?'<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking('+b.id+')">Annuler</button>':'')+
+// ── RÉSERVATIONS ──
+async function loadBookings() {
+  if (!currentUser) { document.getElementById("bookings-list").innerHTML = '<div class="empty"><span class="icon">🔒</span><p>Connectez-vous pour voir vos réservations</p></div>'; return; }
+  try {
+    const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
+    const bookings = await r.json();
+    const c = document.getElementById("bookings-list");
+    if (!bookings.length) { c.innerHTML = '<div class="empty"><span class="icon">🎫</span><p>Aucune réservation</p></div>'; return; }
+    c.innerHTML = bookings.map(b =>
+      '<div class="card">' +
+        '<div style="display:flex;justify-content:space-between;align-items:center">' +
+          '<strong style="font-size:15px">' + b.reference_code + '</strong>' +
+          '<span class="badge ' + (b.status === "confirme" ? "badge-green" : "badge-red") + '">' + b.status + '</span>' +
+        '</div>' +
+        '<div class="divider"></div>' +
+        '<p style="font-size:14px;color:var(--text-2)">💺 ' + b.seats_booked + ' place(s)</p>' +
+        '<p style="font-size:14px;font-weight:700;color:var(--blue);margin-top:4px">' + b.total_price + ' MRU</p>' +
+        '<p class="text-gray" style="margin-top:4px">' + new Date(b.created_at).toLocaleDateString("fr-FR") + '</p>' +
+        (b.status === "confirme" && b.driver_phone ? '<a href="tel:' + b.driver_phone + '" class="btn-call">📞 Appeler le chauffeur</a>' : '') +
+        (b.status === "confirme" ? '<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking(' + b.id + ')">Annuler</button>' : '') +
       '</div>'
     ).join("");
-  }catch(e){document.getElementById("bookings-list").innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}
+  } catch(e) { document.getElementById("bookings-list").innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
-async function cancelBooking(id){
-  if(!confirm("Annuler cette réservation ?"))return;
-  await fetch(API+"/bookings/"+id+"/annuler",{method:"PATCH",headers:{"Authorization":"Bearer "+token}});
+async function cancelBooking(id) {
+  if (!confirm("Annuler cette réservation ?")) return;
+  await fetch(API + "/bookings/" + id + "/annuler", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
   loadBookings();
 }
 
-function switchDriverTab(tab){
-  document.querySelectorAll("#page-driver .tab").forEach(t=>t.classList.remove("active"));
+// ── CHAUFFEUR ──
+function switchDriverTab(tab) {
+  document.querySelectorAll("#page-driver .tab").forEach(t => t.classList.remove("active"));
   event.target.classList.add("active");
-  document.getElementById("driver-publish").style.display=tab==="publish"?"block":"none";
-  document.getElementById("driver-mytrips").style.display=tab==="mytrips"?"block":"none";
-  if(tab==="mytrips")loadDriverTrips();
+  document.getElementById("driver-publish").style.display = tab === "publish" ? "block" : "none";
+  document.getElementById("driver-mytrips").style.display = tab === "mytrips" ? "block" : "none";
+  if (tab === "mytrips") loadDriverTrips();
 }
 
-async function publishTrip(){
-  const from=document.getElementById("trip-from").value,to=document.getElementById("trip-to").value;
-  const date=document.getElementById("trip-date").value,time=document.getElementById("trip-time").value;
-  const seats=document.getElementById("trip-seats").value,price=document.getElementById("trip-price").value;
-  const vehicle=document.getElementById("trip-vehicle").value;
-  if(!from||!to||!date||!time||!seats||!price||!vehicle){showAlert("publish-alert","Veuillez remplir tous les champs","error");return;}
-  try{
-    const r=await fetch(API+"/trips/",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},
-      body:JSON.stringify({from_city:from,to_city:to,departure_date:date,departure_time:time,total_seats:parseInt(seats),price_per_seat:parseFloat(price),vehicle_type:vehicle})});
-    const d=await r.json();
-    if(!r.ok)throw new Error(typeof d.detail==="string"?d.detail:JSON.stringify(d.detail));
-    showAlert("publish-alert","✅ Trajet publié ! "+d.from_city+" → "+d.to_city,"success");
-  }catch(e){showAlert("publish-alert",e.message,"error");}
+async function publishTrip() {
+  const from = document.getElementById("trip-from").value, to = document.getElementById("trip-to").value;
+  const date = document.getElementById("trip-date").value, time = document.getElementById("trip-time").value;
+  const seats = document.getElementById("trip-seats").value, price = document.getElementById("trip-price").value;
+  const vehicle = document.getElementById("trip-vehicle").value;
+  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-alert", "Veuillez remplir tous les champs", "error"); return; }
+  try {
+    const r = await fetch(API + "/trips/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price), vehicle_type: vehicle }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
+    showAlert("publish-alert", "✅ Trajet publié ! " + d.from_city + " → " + d.to_city, "success");
+  } catch(e) { showAlert("publish-alert", e.message, "error"); }
 }
 
-async function loadDriverTrips(){
-  if(!currentUser)return;
-  try{
-    const r=await fetch(API+"/trips/mes-trajets",{headers:{"Authorization":"Bearer "+token}});
-    const trips=await r.json();
-    const c=document.getElementById("driver-trips-list");
-    if(!trips.length){c.innerHTML='<div class="empty"><span class="icon">🚗</span><p>Aucun trajet publié</p></div>';return;}
-    c.innerHTML=trips.map(t=>
-      '<div class="trip-card">'+
-        '<div class="trip-route"><span>'+t.from_city+'</span><span class="trip-arrow">→</span><span>'+t.to_city+'</span></div>'+
-        '<div class="trip-info"><span>🕐 '+t.departure_time+' — '+t.departure_date+'</span><span class="badge '+(t.status==="actif"?"badge-green":"badge-red")+'">'+t.status+'</span></div>'+
-        '<div class="trip-info mt-10"><span>💺 '+t.available_seats+"/"+t.total_seats+' places</span><span>💰 '+t.price_per_seat+' MRU</span></div>'+
+async function loadDriverTrips() {
+  if (!currentUser) return;
+  try {
+    const r = await fetch(API + "/trips/mes-trajets", { headers: { "Authorization": "Bearer " + token } });
+    const trips = await r.json();
+    const c = document.getElementById("driver-trips-list");
+    if (!trips.length) { c.innerHTML = '<div class="empty"><span class="icon">🚗</span><p>Aucun trajet publié</p></div>'; return; }
+    c.innerHTML = trips.map(t =>
+      '<div class="trip-card">' +
+        '<div class="tc-route"><div class="tc-city">' + t.from_city + '</div><div class="tc-arr">→</div><div class="tc-city">' + t.to_city + '</div></div>' +
+        '<div class="tc-meta">' +
+          '<span class="tc-tag">📅 ' + t.departure_date + '</span>' +
+          '<span class="tc-tag">🕐 ' + t.departure_time + '</span>' +
+          '<span class="badge ' + (t.status === "actif" ? "badge-green" : "badge-red") + '">' + t.status + '</span>' +
+          '<span class="tc-tag tc-tag-blue">💺 ' + t.available_seats + '/' + t.total_seats + '</span>' +
+          '<span style="font-size:15px;font-weight:700;color:var(--blue)">' + t.price_per_seat + ' MRU</span>' +
+        '</div>' +
       '</div>'
     ).join("");
-  }catch(e){document.getElementById("driver-trips-list").innerHTML='<div class="empty"><p>Erreur de connexion</p></div>';}
+  } catch(e) { document.getElementById("driver-trips-list").innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
-async function loadAdminDashboard(){
-  try{
-    const r=await fetch(API+"/admin/stats",{headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json();
-    document.getElementById("admin-stats").innerHTML=
-      '<div class="stat-card"><div class="stat-number">'+d.utilisateurs.total+'</div><div class="stat-label">Utilisateurs</div></div>'+
-      '<div class="stat-card"><div class="stat-number">'+d.trajets.total+'</div><div class="stat-label">Trajets</div></div>'+
-      '<div class="stat-card"><div class="stat-number">'+d.reservations.confirmees+'</div><div class="stat-label">Réservations</div></div>'+
-      '<div class="stat-card"><div class="stat-number">'+Math.round(d.finances.commission_totale_MRU)+'</div><div class="stat-label">Commission MRU</div></div>';
-  }catch(e){}
+// ── ADMIN ──
+async function loadAdminDashboard() {
+  try {
+    const r = await fetch(API + "/admin/stats", { headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    document.getElementById("admin-stats").innerHTML =
+      '<div class="stat-card"><div class="stat-number">' + d.utilisateurs.total + '</div><div class="stat-label">Utilisateurs</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + d.trajets.total + '</div><div class="stat-label">Trajets</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + d.reservations.confirmees + '</div><div class="stat-label">Réservations</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + Math.round(d.finances.commission_totale_MRU) + '</div><div class="stat-label">Commission MRU</div></div>';
+  } catch(e) {}
   loadAdminUsers();
 }
 
-function switchAdminTab(tab,el){
-  document.querySelectorAll(".admin-tab").forEach(t=>t.classList.remove("active"));
+function switchAdminTab(tab, el) {
+  document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
   el.classList.add("active");
-  ["admin-users","admin-trips","admin-bookings","admin-revenue","admin-sms","admin-export"].forEach(id=>document.getElementById(id).style.display="none");
-  if(tab==="users"){document.getElementById("admin-users").style.display="block";loadAdminUsers();}
-  if(tab==="trips"){document.getElementById("admin-trips").style.display="block";loadAdminTrips();}
-  if(tab==="bookings"){document.getElementById("admin-bookings").style.display="block";loadAdminBookings();}
-  if(tab==="revenue"){document.getElementById("admin-revenue").style.display="block";loadRevenueCharts();}
-  if(tab==="sms"){document.getElementById("admin-sms").style.display="block";loadSMSCount();}
-  if(tab==="export")document.getElementById("admin-export").style.display="block";
+  ["admin-users", "admin-trips", "admin-bookings", "admin-revenue", "admin-sms", "admin-export"].forEach(id => document.getElementById(id).style.display = "none");
+  if (tab === "users") { document.getElementById("admin-users").style.display = "block"; loadAdminUsers(); }
+  if (tab === "trips") { document.getElementById("admin-trips").style.display = "block"; loadAdminTrips(); }
+  if (tab === "bookings") { document.getElementById("admin-bookings").style.display = "block"; loadAdminBookings(); }
+  if (tab === "revenue") { document.getElementById("admin-revenue").style.display = "block"; loadRevenueCharts(); }
+  if (tab === "sms") { document.getElementById("admin-sms").style.display = "block"; loadSMSCount(); }
+  if (tab === "export") document.getElementById("admin-export").style.display = "block";
 }
 
-async function loadAdminUsers(){
-  try{
-    const r=await fetch(API+"/admin/users",{headers:{"Authorization":"Bearer "+token}});
-    allUsers=await r.json();
-    document.getElementById("admin-users-list").innerHTML=allUsers.map(u=>
-      '<div style="border-bottom:1px solid rgba(108,99,255,0.1);padding:10px 0">'+
-      '<div class="user-row" style="padding:0;margin:0">'+
-        '<div class="user-info">'+
-          '<div class="user-name">'+u.name+(u.is_active?"":" 🔴")+'</div>'+
-          '<div class="user-phone">'+u.phone+'</div>'+
-          (u.role==="chauffeur"&&u.license_number?'<div style="font-size:11px;color:#6C63FF;margin-top:3px;font-weight:500">Permis: '+u.license_number+' | CI: '+(u.national_id_number||"—")+'</div>':'')+
-        '</div>'+
-        '<div class="user-actions">'+
-          '<span class="badge '+(u.role==="chauffeur"?"badge-orange":u.role==="admin"?"badge-blue":"badge-green")+'">'+u.role+'</span>'+
-          (u.role!=="admin"
-            ?(u.is_active
-              ?'<button class="btn btn-danger btn-sm" onclick="toggleUser('+u.id+',false)">Bloquer</button>'
-              :'<button class="btn btn-success btn-sm" onclick="toggleUser('+u.id+',true)">Activer</button>')
-            :"")+
-          (u.role!=="admin"?'<button class="btn-delete" onclick="deleteUser('+u.id+',\''+u.name+'\')">🗑️</button>':"")+
-        '</div>'+
-      '</div>'+
-      (u.role==="chauffeur"&&u.license_number
-        ?'<div style="display:flex;gap:8px;margin-top:7px">'+
-          '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'license\')">📄 Permis</button>'+
-          '<button class="btn btn-outline btn-sm" onclick="viewDocImage('+u.id+',\'national_id\')">🪪 Carte ID</button>'+
-          '</div>'
-        :'')+
+async function loadAdminUsers() {
+  try {
+    const r = await fetch(API + "/admin/users", { headers: { "Authorization": "Bearer " + token } });
+    allUsers = await r.json();
+    document.getElementById("admin-users-list").innerHTML = allUsers.map(u =>
+      '<div style="border-bottom:1px solid var(--border);padding:10px 0">' +
+      '<div class="user-row" style="padding:0;margin:0">' +
+        '<div class="user-info">' +
+          '<div class="user-name">' + u.name + (u.is_active ? "" : " 🔴") + '</div>' +
+          '<div class="user-phone">' + u.phone + '</div>' +
+          (u.role === "chauffeur" && u.license_number ? '<div style="font-size:11px;color:var(--blue);margin-top:2px;font-weight:500">Permis: ' + u.license_number + ' | CI: ' + (u.national_id_number || "—") + '</div>' : '') +
+        '</div>' +
+        '<div class="user-actions">' +
+          '<span class="badge ' + (u.role === "chauffeur" ? "badge-orange" : u.role === "admin" ? "badge-blue" : "badge-green") + '">' + u.role + '</span>' +
+          (u.role !== "admin" ? (u.is_active ? '<button class="btn btn-danger btn-sm" onclick="toggleUser(' + u.id + ',false)">Bloquer</button>' : '<button class="btn btn-success btn-sm" onclick="toggleUser(' + u.id + ',true)">Activer</button>') : "") +
+          (u.role !== "admin" ? '<button class="btn-delete" onclick="deleteUser(' + u.id + ',\'' + u.name + '\')">🗑️</button>' : "") +
+        '</div>' +
+      '</div>' +
+      (u.role === "chauffeur" && u.license_number ?
+        '<div style="display:flex;gap:8px;margin-top:7px">' +
+          '<button class="btn btn-outline btn-sm" onclick="viewDocImage(' + u.id + ',\'license\')">📄 Permis</button>' +
+          '<button class="btn btn-outline btn-sm" onclick="viewDocImage(' + u.id + ',\'national_id\')">🪪 Carte ID</button>' +
+        '</div>' : '') +
       '</div>'
     ).join("");
-  }catch(e){document.getElementById("admin-users-list").innerHTML="<p>Erreur de chargement</p>";}
+  } catch(e) { document.getElementById("admin-users-list").innerHTML = "<p>Erreur de chargement</p>"; }
 }
 
-async function toggleUser(userId,activate){
-  if(!confirm((activate?"Activer":"Bloquer")+" cet utilisateur ?"))return;
-  try{
-    await fetch(API+"/admin/users/"+userId+"/"+(activate?"activer":"desactiver"),{method:"PATCH",headers:{"Authorization":"Bearer "+token}});
+function viewImage(src, title) {
+  const m = document.createElement("div");
+  m.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px";
+  m.innerHTML = '<div style="color:white;font-size:15px;font-weight:600;margin-bottom:14px">' + title + '</div><img src="' + src + '" style="max-width:100%;max-height:75vh;border-radius:12px"><button onclick="this.parentElement.remove()" style="margin-top:16px;padding:11px 30px;background:white;border:none;border-radius:10px;font-size:15px;cursor:pointer;font-family:inherit;font-weight:600">Fermer</button>';
+  document.body.appendChild(m);
+}
+
+async function viewDocImage(userId, type) {
+  try {
+    const r = await fetch(API + "/admin/users/" + userId + "/documents", { headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail);
+    const src = type === "license" ? d.license_photo : d.national_id_photo;
+    if (!src) { alert("Photo non disponible"); return; }
+    const u = allUsers.find(x => x.id === userId);
+    viewImage(src, (type === "license" ? "Permis de conduire" : "Carte d'identité") + (u ? " — " + u.name : ""));
+  } catch(e) { alert("Erreur: " + e.message); }
+}
+
+async function toggleUser(userId, activate) {
+  if (!confirm((activate ? "Activer" : "Bloquer") + " cet utilisateur ?")) return;
+  try {
+    await fetch(API + "/admin/users/" + userId + "/" + (activate ? "activer" : "desactiver"), { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
     loadAdminUsers();
-  }catch(e){alert("Erreur: "+e.message);}
+  } catch(e) { alert("Erreur: " + e.message); }
 }
 
-async function deleteUser(userId,name){
-  if(!confirm("⚠️ Supprimer définitivement "+name+" ?\n\nCette action est IRRÉVERSIBLE !"))return;
-  try{
-    const r=await fetch(API+"/admin/users/"+userId,{method:"DELETE",headers:{"Authorization":"Bearer "+token}});
-    const d=await r.json();
-    if(!r.ok)throw new Error(d.detail);
+async function deleteUser(userId, name) {
+  if (!confirm("⚠️ Supprimer définitivement " + name + " ?\n\nCette action est IRRÉVERSIBLE !")) return;
+  try {
+    const r = await fetch(API + "/admin/users/" + userId, { method: "DELETE", headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail);
     loadAdminUsers();
-  }catch(e){alert("Erreur: "+e.message);}
+  } catch(e) { alert("Erreur: " + e.message); }
 }
 
-async function loadAdminTrips(){
-  try{
-    const r=await fetch(API+"/admin/trips",{headers:{"Authorization":"Bearer "+token}});
-    allAdminTrips=await r.json();
-    document.getElementById("admin-trips-list").innerHTML=allAdminTrips.length===0
-      ?'<div class="empty"><p>Aucun trajet</p></div>'
-      :allAdminTrips.map(t=>
-        '<div style="padding:12px 0;border-bottom:1px solid rgba(108,99,255,0.1)">'+
-          '<div style="display:flex;justify-content:space-between;align-items:center">'+
-            '<strong>'+t.from_city+" → "+t.to_city+'</strong>'+
-            '<span class="badge '+(t.status==="actif"?"badge-green":t.status==="complet"?"badge-orange":"badge-red")+'">'+t.status+'</span>'+
-          '</div>'+
-          '<div class="text-gray" style="margin-top:4px">'+t.departure_date+' à '+t.departure_time+' — '+t.driver_name+'</div>'+
-          '<div class="text-gray">💺 '+t.available_seats+"/"+t.total_seats+' places — 💰 '+t.price_per_seat+' MRU</div>'+
+async function loadAdminTrips() {
+  try {
+    const r = await fetch(API + "/admin/trips", { headers: { "Authorization": "Bearer " + token } });
+    allAdminTrips = await r.json();
+    document.getElementById("admin-trips-list").innerHTML = !allAdminTrips.length ? '<div class="empty"><p>Aucun trajet</p></div>' :
+      allAdminTrips.map(t =>
+        '<div style="padding:12px 0;border-bottom:1px solid var(--border)">' +
+          '<div style="display:flex;justify-content:space-between;align-items:center">' +
+            '<strong>' + t.from_city + " → " + t.to_city + '</strong>' +
+            '<span class="badge ' + (t.status === "actif" ? "badge-green" : t.status === "complet" ? "badge-orange" : "badge-red") + '">' + t.status + '</span>' +
+          '</div>' +
+          '<div class="text-gray" style="margin-top:4px">' + t.departure_date + ' · ' + t.departure_time + ' — ' + t.driver_name + '</div>' +
+          '<div class="text-gray">💺 ' + t.available_seats + '/' + t.total_seats + ' places — 💰 ' + t.price_per_seat + ' MRU</div>' +
         '</div>'
       ).join("");
-  }catch(e){document.getElementById("admin-trips-list").innerHTML="<p>Erreur de chargement</p>";}
+  } catch(e) { document.getElementById("admin-trips-list").innerHTML = "<p>Erreur de chargement</p>"; }
 }
 
-async function loadAdminBookings(){
-  try{
-    const r=await fetch(API+"/admin/bookings",{headers:{"Authorization":"Bearer "+token}});
-    allBookings=await r.json();
-    document.getElementById("admin-bookings-list").innerHTML=allBookings.length===0
-      ?'<div class="empty"><p>Aucune réservation</p></div>'
-      :allBookings.map(b=>
-        '<div class="booking-row">'+
-          '<div style="display:flex;justify-content:space-between"><strong>'+b.reference_code+'</strong>'+
-          '<span class="badge '+(b.status==="confirme"?"badge-green":"badge-red")+'">'+b.status+'</span></div>'+
-          '<div class="text-gray" style="margin-top:4px">💺 '+b.seats_booked+' place(s) — 💰 '+b.total_price+' MRU</div>'+
-          '<div class="text-gray">Commission: '+Math.round(b.commission)+' MRU</div>'+
-          '<div class="text-gray">'+new Date(b.created_at).toLocaleDateString("fr-FR")+'</div>'+
+async function loadAdminBookings() {
+  try {
+    const r = await fetch(API + "/admin/bookings", { headers: { "Authorization": "Bearer " + token } });
+    allBookings = await r.json();
+    document.getElementById("admin-bookings-list").innerHTML = !allBookings.length ? '<div class="empty"><p>Aucune réservation</p></div>' :
+      allBookings.map(b =>
+        '<div class="booking-row">' +
+          '<div style="display:flex;justify-content:space-between">' +
+            '<strong>' + b.reference_code + '</strong>' +
+            '<span class="badge ' + (b.status === "confirme" ? "badge-green" : "badge-red") + '">' + b.status + '</span>' +
+          '</div>' +
+          '<div class="text-gray" style="margin-top:4px">💺 ' + b.seats_booked + ' place(s) — 💰 ' + b.total_price + ' MRU</div>' +
+          '<div class="text-gray">Commission: ' + Math.round(b.commission) + ' MRU</div>' +
+          '<div class="text-gray">' + new Date(b.created_at).toLocaleDateString("fr-FR") + '</div>' +
         '</div>'
       ).join("");
-  }catch(e){document.getElementById("admin-bookings-list").innerHTML="<p>Erreur de chargement</p>";}
+  } catch(e) { document.getElementById("admin-bookings-list").innerHTML = "<p>Erreur de chargement</p>"; }
 }
 
-async function loadRevenueCharts(){
-  try{
-    const r=await fetch(API+"/admin/bookings",{headers:{"Authorization":"Bearer "+token}});
-    const bookings=await r.json();
-    const confirmed=bookings.filter(b=>b.status==="confirme");
-    const byDate={};
-    confirmed.forEach(b=>{
-      const date=new Date(b.created_at).toLocaleDateString("fr-FR");
-      if(!byDate[date])byDate[date]={commission:0,count:0};
-      byDate[date].commission+=b.commission;byDate[date].count+=1;
+async function loadRevenueCharts() {
+  try {
+    const r = await fetch(API + "/admin/bookings", { headers: { "Authorization": "Bearer " + token } });
+    const bookings = await r.json();
+    const confirmed = bookings.filter(b => b.status === "confirme");
+    const byDate = {};
+    confirmed.forEach(b => {
+      const date = new Date(b.created_at).toLocaleDateString("fr-FR");
+      if (!byDate[date]) byDate[date] = { commission: 0, count: 0 };
+      byDate[date].commission += b.commission; byDate[date].count += 1;
     });
-    const labels=Object.keys(byDate).slice(-14);
-    const commissions=labels.map(d=>Math.round(byDate[d].commission));
-    const counts=labels.map(d=>byDate[d].count);
-    if(revenueChart)revenueChart.destroy();
-    revenueChart=new Chart(document.getElementById("revenue-chart"),{type:"bar",data:{labels,datasets:[{label:"Commission (MRU)",data:commissions,backgroundColor:"#6C63FF",borderRadius:6}]},options:{responsive:true,plugins:{legend:{display:false}}}});
-    if(bookingsChart)bookingsChart.destroy();
-    bookingsChart=new Chart(document.getElementById("bookings-chart"),{type:"line",data:{labels,datasets:[{label:"Réservations",data:counts,borderColor:"#A855F7",backgroundColor:"rgba(168,85,247,0.1)",fill:true,tension:0.4}]},options:{responsive:true,plugins:{legend:{display:false}}}});
-  }catch(e){}
+    const labels = Object.keys(byDate).slice(-14);
+    const commissions = labels.map(d => Math.round(byDate[d].commission));
+    const counts = labels.map(d => byDate[d].count);
+    if (revenueChart) revenueChart.destroy();
+    revenueChart = new Chart(document.getElementById("revenue-chart"), { type: "bar", data: { labels, datasets: [{ label: "Commission (MRU)", data: commissions, backgroundColor: "#00B2FF", borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+    if (bookingsChart) bookingsChart.destroy();
+    bookingsChart = new Chart(document.getElementById("bookings-chart"), { type: "line", data: { labels, datasets: [{ label: "Réservations", data: counts, borderColor: "#00B2FF", backgroundColor: "rgba(0,178,255,0.1)", fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+  } catch(e) {}
 }
 
-async function loadSMSCount(){
-  try{
-    const target=document.getElementById("sms-target").value;
-    const count=target==="all"?allUsers.length:allUsers.filter(u=>u.role===target).length;
-    document.getElementById("sms-count").textContent=count+" destinataire(s) sélectionné(s)";
-  }catch(e){}
+async function loadSMSCount() {
+  try {
+    const target = document.getElementById("sms-target").value;
+    const count = target === "all" ? allUsers.length : allUsers.filter(u => u.role === target).length;
+    document.getElementById("sms-count").textContent = count + " destinataire(s) sélectionné(s)";
+  } catch(e) {}
 }
 
-async function sendGroupSMS(){
-  const message=document.getElementById("sms-message").value;
-  const target=document.getElementById("sms-target").value;
-  if(!message){showAlert("sms-alert","Tapez un message","error");return;}
-  const targets=target==="all"?allUsers:allUsers.filter(u=>u.role===target);
-  showAlert("sms-alert","✅ SMS envoyé à "+targets.length+" utilisateur(s)","success");
-  document.getElementById("sms-message").value="";
+async function sendGroupSMS() {
+  const message = document.getElementById("sms-message").value;
+  const target = document.getElementById("sms-target").value;
+  if (!message) { showAlert("sms-alert", "Tapez un message", "error"); return; }
+  const targets = target === "all" ? allUsers : allUsers.filter(u => u.role === target);
+  showAlert("sms-alert", "✅ SMS envoyé à " + targets.length + " utilisateur(s)", "success");
+  document.getElementById("sms-message").value = "";
 }
 
-function exportData(type){
-  if(type==="users"){let csv="ID,Nom,Téléphone,Rôle,Actif\n"+allUsers.map(u=>u.id+',"'+u.name+'","'+u.phone+'","'+u.role+'","'+u.is_active+'"').join("\n");downloadCSV(csv,"goova_utilisateurs.csv");}
-  else if(type==="bookings"){let csv="ID,Référence,Places,Prix Total,Commission,Statut,Date\n"+allBookings.map(b=>b.id+',"'+b.reference_code+'",'+b.seats_booked+","+b.total_price+","+Math.round(b.commission)+',"'+b.status+'","'+new Date(b.created_at).toLocaleDateString("fr-FR")+'"').join("\n");downloadCSV(csv,"goova_reservations.csv");}
-  else if(type==="trips"){let csv="ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n"+allAdminTrips.map(t=>t.id+',"'+t.from_city+'","'+t.to_city+'","'+t.departure_date+'","'+t.departure_time+'",'+t.total_seats+","+t.available_seats+","+t.price_per_seat+',"'+t.status+'","'+t.driver_name+'"').join("\n");downloadCSV(csv,"goova_trajets.csv");}
+function exportData(type) {
+  if (type === "users") { let csv = "ID,Nom,Téléphone,Rôle,Actif\n" + allUsers.map(u => u.id + ',"' + u.name + '","' + u.phone + '","' + u.role + '","' + u.is_active + '"').join("\n"); downloadCSV(csv, "goova_utilisateurs.csv"); }
+  else if (type === "bookings") { let csv = "ID,Référence,Places,Prix Total,Commission,Statut,Date\n" + allBookings.map(b => b.id + ',"' + b.reference_code + '",' + b.seats_booked + "," + b.total_price + "," + Math.round(b.commission) + ',"' + b.status + '","' + new Date(b.created_at).toLocaleDateString("fr-FR") + '"').join("\n"); downloadCSV(csv, "goova_reservations.csv"); }
+  else if (type === "trips") { let csv = "ID,De,Vers,Date,Heure,Places Total,Places Dispo,Prix,Statut,Chauffeur\n" + allAdminTrips.map(t => t.id + ',"' + t.from_city + '","' + t.to_city + '","' + t.departure_date + '","' + t.departure_time + '",' + t.total_seats + "," + t.available_seats + "," + t.price_per_seat + ',"' + t.status + '","' + t.driver_name + '"').join("\n"); downloadCSV(csv, "goova_trajets.csv"); }
 }
 
-function downloadCSV(csv,filename){
-  const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});
-  const link=document.createElement("a");link.href=URL.createObjectURL(blob);link.download=filename;link.click();
+function downloadCSV(csv, filename) {
+  const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+  const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = filename; link.click();
 }
 
-function showAlert(id,msg,type){
-  const el=document.getElementById(id);
-  el.innerHTML='<div class="alert alert-'+type+'">'+msg+'</div>';
-  setTimeout(()=>el.innerHTML="",4000);
+function showAlert(id, msg, type) {
+  const el = document.getElementById(id);
+  el.innerHTML = '<div class="alert alert-' + type + '">' + msg + '</div>';
+  setTimeout(() => el.innerHTML = "", 4000);
 }
 </script>
 </body>

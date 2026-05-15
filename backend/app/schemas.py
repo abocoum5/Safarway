@@ -8,8 +8,8 @@ from app.models import UserRole, TripStatus, BookingStatus
 
 class UserCreate(BaseModel):
     phone: str
-    name: str
-    password: str
+    name: Optional[str] = None
+    password: Optional[str] = None
     role: UserRole = UserRole.voyageur
     license_number: Optional[str] = None
     national_id_number: Optional[str] = None

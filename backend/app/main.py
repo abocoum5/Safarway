@@ -14,6 +14,7 @@ def run_migrations():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS national_id_number VARCHAR"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS license_photo TEXT"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS national_id_photo TEXT"))
+        conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
         conn.commit()
 
 run_migrations()
