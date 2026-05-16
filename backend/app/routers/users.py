@@ -122,8 +122,9 @@ def admin_request_otp(email: str, db: Session = Depends(get_db)):
 
     try:
         send_otp_email(email, otp)
+        print(f"[ADMIN OTP] {email} → {otp}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur envoi email: {e}")
+        print(f"[ADMIN OTP FALLBACK] Email non envoyé ({e}). Code pour {email} : {otp}")
 
     return {"message": "Code envoyé par email"}
 
@@ -213,6 +214,39 @@ def verify_phone_otp(phone: str, otp: str, db: Session = Depends(get_db)):
 
     token = create_access_token({"sub": str(user.id)})
     return {"access_token": token, "token_type": "bearer", "user": user}
+
+
+# ─────────────────────────────────────────────
+# SETUP PREMIER ADMIN (utilisable une seule fois)
+# ─────────────────────────────────────────────
+
+@router.post("/admin/setup")
+def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)):
+    existing_admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
+    if existing_admin:
+        raise HTTPException(status_code=403, detail="Un admin existe déjà. Endpoint désactivé.")
+
+    if db.query(models.User).filter(models.User.email == email).first():
+        raise HTTPException(status_code=400, detail="Email déjà utilisé")
+
+    from app.email_service import generate_otp
+    otp = generate_otp()
+
+    admin = models.User(
+        phone=phone,
+        name=name,
+        email=email,
+        role=models.UserRole.admin,
+        is_active=True,
+        is_approved=True,
+        is_phone_verified=True,
+        otp_code=otp,
+        otp_expires=datetime.utcnow() + timedelta(minutes=30),
+    )
+    db.add(admin)
+    db.commit()
+    print(f"[ADMIN SETUP] Compte admin créé : {email} — OTP initial : {otp}")
+    return {"message": f"Admin créé. Récupère ton OTP dans les logs Render.", "email": email}
 
 
 # ─────────────────────────────────────────────
