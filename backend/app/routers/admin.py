@@ -110,7 +110,7 @@ def desactiver_user(user_id: int, db: Session = Depends(get_db), current_user=De
     return {"message": f"Utilisateur {user.name} désactivé"}
 
 
-@router.delete("/users/{user_id}")
+@router.post("/users/{user_id}/supprimer")
 def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)
     user = db.query(models.User).filter(models.User.id == user_id).first()
