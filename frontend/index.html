@@ -1001,7 +1001,7 @@ async function loadHomeTrips() {
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.notrips") + '</p></div>'; return; }
     c.innerHTML = '<div class="trip-list">' + trips.slice(0, 8).map(trip => renderTripCard(trip)).join("") + '</div>';
-  } catch(e) { c.innerHTML = '<div class="empty"><p>' + t("err.connect") + '</p></div>'; }
+  } catch(e) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.notrips") + '</p></div>'; }
 }
 
 // ── SEARCH ──
