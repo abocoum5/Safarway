@@ -305,8 +305,8 @@
         <div style="font-size:12px;color:var(--text-3);margin-top:4px">Valable 30 minutes</div>
       </div>
       <div class="form-group">
-        <label>Entrez le code ci-dessus</label>
-        <input type="number" id="admin-otp" class="otp-input" placeholder="______" inputmode="numeric">
+        <label>Code pré-rempli — cliquez directement sur Se connecter</label>
+        <input type="text" id="admin-otp" class="otp-input" placeholder="______" inputmode="numeric" maxlength="6" autocomplete="one-time-code">
       </div>
       <div id="admin-otp-alert"></div>
       <button class="btn btn-green" onclick="verifyOTP()">Se connecter →</button>
@@ -1392,6 +1392,7 @@ async function requestOTP() {
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur serveur");
     _adminEmail = d.email;
     document.getElementById("admin-otp-display").textContent = d.otp;
+    document.getElementById("admin-otp").value = d.otp;
     document.getElementById("admin-step1").style.display = "none";
     document.getElementById("admin-step2").style.display = "block";
   } catch(e) {
