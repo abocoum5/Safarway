@@ -103,6 +103,8 @@ class BookingResponse(BaseModel):
     created_at: datetime
     driver_phone: Optional[str] = None
     driver_name: Optional[str] = None
+    passenger_name: Optional[str] = None
+    passenger_phone: Optional[str] = None
     trip_date: Optional[str] = None
     from_city: Optional[str] = None
     to_city: Optional[str] = None

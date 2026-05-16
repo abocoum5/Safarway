@@ -150,6 +150,13 @@
     .otp-info p { font-size: 14px; color: var(--text-2); }
     .otp-info strong { font-size: 15px; color: var(--text); font-weight: 700; }
 
+    /* ── PASSENGERS MODAL ── */
+    .pax-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
+    .pax-row:last-child { border-bottom:none; }
+    .pax-name { font-size:15px; font-weight:600; }
+    .pax-seats { font-size:13px; color:var(--text-3); margin-top:2px; }
+    .pax-call { padding:6px 12px; background:var(--green); color:white; border:none; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
+
     /* ── STARS ── */
     .sf { color: #F59E0B; }
     .star-btn { font-size: 36px; background: none; border: none; cursor: pointer; padding: 0 4px; line-height: 1; transition: transform 0.1s; color: #D1D5DB; }
@@ -592,6 +599,18 @@
     <button class="btn btn-ghost mt-10" onclick="exportData('users')">📥 Utilisateurs</button>
     <button class="btn btn-green mt-10" onclick="exportData('trips')">📥 Trajets</button>
     <button class="btn btn-ghost mt-10" onclick="exportData('bookings')">📥 Réservations</button>
+  </div>
+</div>
+
+<!-- ─── PASSENGERS MODAL ─── -->
+<div id="pax-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-end">
+  <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;box-sizing:border-box;max-height:80vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <div style="font-size:17px;font-weight:700">👥 Passagers</div>
+      <button onclick="closePaxModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-3)">✕</button>
+    </div>
+    <div id="pax-trip-info" style="font-size:14px;color:var(--text-3);margin-bottom:16px"></div>
+    <div id="pax-list"></div>
   </div>
 </div>
 
@@ -1171,6 +1190,9 @@ async function loadMyTrips() {
           '<span class="badge ' + (t.status === "actif" ? "badge-green" : "badge-red") + '">' + t.status + '</span>' +
           '<span style="font-size:17px;font-weight:700;color:var(--green);margin-left:auto">' + t.price_per_seat + ' MRU</span>' +
         '</div>' +
+        '<div style="margin-top:10px">' +
+          '<button class="btn btn-ghost btn-sm" onclick="openPaxModal(' + t.id + ',\'' + t.from_city + '\',\'' + t.to_city + '\',\'' + t.departure_date + '\')">👥 Voir passagers (' + (t.total_seats - t.available_seats) + '/' + t.total_seats + ')</button>' +
+        '</div>' +
       '</div>'
     ).join("");
   } catch(e) { if (c) c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
@@ -1287,6 +1309,43 @@ function backToRegForm() {
   document.getElementById("reg-fields-card").style.display = "block";
   document.getElementById("reg-otp-card").style.display = "none";
   document.getElementById("reg-otp").value = "";
+}
+
+// ── PASSENGERS MODAL ──
+async function openPaxModal(tripId, from, to, date) {
+  document.getElementById("pax-trip-info").textContent = from + " → " + to + "  ·  " + date;
+  document.getElementById("pax-list").innerHTML = '<div class="loading">Chargement...</div>';
+  document.getElementById("pax-modal").style.display = "flex";
+  document.getElementById("bottom-nav").style.display = "none";
+  try {
+    const r = await fetch(API + "/bookings/trajet/" + tripId, { headers: { "Authorization": "Bearer " + token } });
+    const bookings = await r.json();
+    const confirmed = bookings.filter(b => b.status === "confirme");
+    if (!bookings.length) {
+      document.getElementById("pax-list").innerHTML = '<div class="empty" style="padding:20px 0"><p>Aucune réservation pour ce trajet</p></div>';
+      return;
+    }
+    document.getElementById("pax-list").innerHTML =
+      '<div style="font-size:13px;color:var(--text-3);margin-bottom:12px">' + confirmed.length + ' passager(s) confirmé(s) · ' + bookings.filter(b=>b.status==="annule").length + ' annulé(s)</div>' +
+      bookings.map(b =>
+        '<div class="pax-row">' +
+          '<div>' +
+            '<div class="pax-name">' + (b.passenger_name || "Anonyme") + '</div>' +
+            '<div class="pax-seats">💺 ' + b.seats_booked + ' place(s) · <span class="badge ' + (b.status==="confirme"?"badge-green":"badge-red") + '" style="font-size:11px;padding:2px 6px">' + b.status + '</span></div>' +
+          '</div>' +
+          (b.status === "confirme" && b.passenger_phone
+            ? '<a href="tel:+222' + b.passenger_phone + '" class="pax-call">📞 Appeler</a>'
+            : '') +
+        '</div>'
+      ).join("");
+  } catch(e) {
+    document.getElementById("pax-list").innerHTML = '<div class="empty"><p>Erreur de chargement</p></div>';
+  }
+}
+
+function closePaxModal() {
+  document.getElementById("pax-modal").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
 }
 
 // ── RATING MODAL ──

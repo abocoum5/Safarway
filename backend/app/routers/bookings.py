@@ -179,4 +179,27 @@ def reservations_du_trajet(
         raise HTTPException(status_code=404, detail="Trajet introuvable")
     if trip.driver_id != current_user.id and current_user.role != models.UserRole.admin:
         raise HTTPException(status_code=403, detail="Non autorise")
-    return db.query(models.Booking).filter(models.Booking.trip_id == trip_id).all()
+    bookings = (
+        db.query(models.Booking)
+        .options(joinedload(models.Booking.passenger))
+        .filter(models.Booking.trip_id == trip_id)
+        .order_by(models.Booking.created_at)
+        .all()
+    )
+    result = []
+    for b in bookings:
+        item = schemas.BookingResponse(
+            id=b.id,
+            trip_id=b.trip_id,
+            passenger_id=b.passenger_id,
+            seats_booked=b.seats_booked,
+            total_price=b.total_price,
+            commission=b.commission,
+            status=b.status,
+            reference_code=b.reference_code,
+            created_at=b.created_at,
+            passenger_name=b.passenger.name if b.passenger else None,
+            passenger_phone=b.passenger.phone if b.passenger else None,
+        )
+        result.append(item)
+    return result
