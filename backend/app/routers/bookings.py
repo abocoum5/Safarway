@@ -88,11 +88,16 @@ def mes_reservations(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    bookings = db.query(models.Booking)\
-        .options(joinedload(models.Booking.trip).joinedload(models.Trip.driver))\
-        .filter(models.Booking.passenger_id == current_user.id)\
-        .order_by(models.Booking.created_at.desc())\
+    bookings = (
+        db.query(models.Booking)
+        .options(
+            joinedload(models.Booking.trip).joinedload(models.Trip.driver),
+            joinedload(models.Booking.review),
+        )
+        .filter(models.Booking.passenger_id == current_user.id)
+        .order_by(models.Booking.created_at.desc())
         .all()
+    )
 
     result = []
     for b in bookings:
@@ -106,9 +111,12 @@ def mes_reservations(
             status=b.status,
             reference_code=b.reference_code,
             created_at=b.created_at,
-            # Numero chauffeur visible uniquement si reservation confirmee
             driver_phone=b.trip.driver.phone if b.trip and b.trip.driver and b.status == models.BookingStatus.confirme else None,
             driver_name=b.trip.driver.name if b.trip and b.trip.driver else None,
+            trip_date=b.trip.departure_date if b.trip else None,
+            from_city=b.trip.from_city if b.trip else None,
+            to_city=b.trip.to_city if b.trip else None,
+            has_review=b.review is not None,
         )
         result.append(item)
     return result

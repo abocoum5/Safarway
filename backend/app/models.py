@@ -41,6 +41,7 @@ class User(Base):
     license_photo = Column(Text, nullable=True)
     national_id_photo = Column(Text, nullable=True)
     is_approved = Column(Boolean, default=False)
+    is_phone_verified = Column(Boolean, default=False)
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")
@@ -81,3 +82,20 @@ class Booking(Base):
 
     trip = relationship("Trip", back_populates="bookings")
     passenger = relationship("User", back_populates="bookings")
+    review = relationship("Review", back_populates="booking", uselist=False)
+
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    booking_id = Column(Integer, ForeignKey("bookings.id"), nullable=False, unique=True)
+    passenger_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    driver_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)
+    comment = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    booking = relationship("Booking", back_populates="review")
+    passenger = relationship("User", foreign_keys=[passenger_id])
+    driver = relationship("User", foreign_keys=[driver_id])

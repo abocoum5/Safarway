@@ -14,6 +14,31 @@ def check_admin(current_user):
         raise HTTPException(status_code=403, detail="Accès réservé aux admins")
 
 
+@router.get("/stats/hebdo")
+def get_stats_hebdo(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    bookings = db.query(models.Booking).filter(
+        models.Booking.status == models.BookingStatus.confirme
+    ).all()
+    by_week: dict = {}
+    for b in bookings:
+        if not b.created_at:
+            continue
+        week = b.created_at.strftime("%Y-W%W")
+        if week not in by_week:
+            by_week[week] = {"commission": 0.0, "gmv": 0.0, "count": 0}
+        by_week[week]["commission"] += b.commission
+        by_week[week]["gmv"] += b.total_price
+        by_week[week]["count"] += 1
+    sorted_weeks = sorted(by_week.keys())[-12:]
+    return {
+        "labels": sorted_weeks,
+        "commissions": [round(by_week[w]["commission"], 2) for w in sorted_weeks],
+        "gmv": [round(by_week[w]["gmv"], 2) for w in sorted_weeks],
+        "counts": [by_week[w]["count"] for w in sorted_weeks],
+    }
+
+
 @router.get("/stats")
 def get_stats(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)

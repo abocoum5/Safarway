@@ -4,7 +4,7 @@ from sqlalchemy import text
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.database import engine, SessionLocal
 from app import models
-from app.routers import users, trips, bookings, admin
+from app.routers import users, trips, bookings, admin, reviews
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -17,6 +17,7 @@ def run_migrations():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS national_id_photo TEXT"))
         conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_approved BOOLEAN DEFAULT TRUE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_phone_verified BOOLEAN DEFAULT TRUE"))
         conn.commit()
 
 run_migrations()
@@ -52,6 +53,7 @@ app.include_router(users.router)
 app.include_router(trips.router)
 app.include_router(bookings.router)
 app.include_router(admin.router)
+app.include_router(reviews.router)
 
 @app.get("/")
 def root():

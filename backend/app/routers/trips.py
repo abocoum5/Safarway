@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from typing import List, Optional
 from datetime import date
 from app.database import get_db
@@ -100,10 +101,20 @@ def rechercher_trajets(
 
     trips = query.order_by(models.Trip.departure_date, models.Trip.departure_time).all()
 
+    driver_ids = list({trip.driver_id for trip in trips})
+    ratings = {
+        row[0]: round(float(row[1]), 1)
+        for row in db.query(models.Review.driver_id, func.avg(models.Review.rating))
+        .filter(models.Review.driver_id.in_(driver_ids))
+        .group_by(models.Review.driver_id)
+        .all()
+    } if driver_ids else {}
+
     results = []
     for trip in trips:
         t = schemas.TripResponse.model_validate(trip)
         t.driver_name = trip.driver.name
+        t.driver_rating = ratings.get(trip.driver_id)
         results.append(t)
 
     return results
@@ -137,6 +148,10 @@ def get_trajet(trip_id: int, db: Session = Depends(get_db)):
         )
     result = schemas.TripResponse.model_validate(trip)
     result.driver_name = trip.driver.name
+    avg = db.query(func.avg(models.Review.rating)).filter(
+        models.Review.driver_id == trip.driver_id
+    ).scalar()
+    result.driver_rating = round(float(avg), 1) if avg else None
     return result
 
 

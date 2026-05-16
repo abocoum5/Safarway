@@ -29,6 +29,7 @@ class UserResponse(BaseModel):
     role: UserRole
     is_active: bool
     is_approved: Optional[bool] = None
+    is_phone_verified: Optional[bool] = None
     created_at: datetime
     license_number: Optional[str] = None
     national_id_number: Optional[str] = None
@@ -77,6 +78,7 @@ class TripResponse(BaseModel):
     status: TripStatus
     created_at: datetime
     driver_name: Optional[str] = None
+    driver_rating: Optional[float] = None
 
     class Config:
         from_attributes = True
@@ -99,10 +101,31 @@ class BookingResponse(BaseModel):
     status: BookingStatus
     reference_code: str
     created_at: datetime
-
-    # ✅ AJOUTS DEMANDÉS
     driver_phone: Optional[str] = None
     driver_name: Optional[str] = None
+    trip_date: Optional[str] = None
+    from_city: Optional[str] = None
+    to_city: Optional[str] = None
+    has_review: Optional[bool] = None
+
+    class Config:
+        from_attributes = True
+
+
+class ReviewCreate(BaseModel):
+    booking_id: int
+    rating: int
+    comment: Optional[str] = None
+
+
+class ReviewResponse(BaseModel):
+    id: int
+    booking_id: int
+    passenger_id: int
+    driver_id: int
+    rating: int
+    comment: Optional[str] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True

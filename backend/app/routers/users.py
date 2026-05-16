@@ -13,8 +13,11 @@ router = APIRouter(prefix="/users", tags=["Utilisateurs"])
 # INSCRIPTION
 # ─────────────────────────────────────────────
 
-@router.post("/inscription", response_model=schemas.Token)
+@router.post("/inscription")
 def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
+    from app.email_service import generate_otp
+    from app.sms import send_otp_sms
+
     existing = db.query(models.User).filter(models.User.phone == user_data.phone).first()
     if existing:
         raise HTTPException(status_code=400, detail="Ce numéro est déjà utilisé")
@@ -28,6 +31,7 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
             raise HTTPException(status_code=400, detail="Photos du permis et de la carte d'identité obligatoires pour les chauffeurs")
 
     hashed = hash_password(user_data.password) if user_data.password else None
+    otp = generate_otp()
     new_user = models.User(
         name=user_data.name or ("Voyageur " + user_data.phone[-4:]),
         phone=user_data.phone,
@@ -37,13 +41,39 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
         national_id_number=user_data.national_id_number,
         license_photo=user_data.license_photo,
         national_id_photo=user_data.national_id_photo,
+        otp_code=otp,
+        otp_expires=datetime.utcnow() + timedelta(minutes=10),
+        is_phone_verified=False,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    token = create_access_token({"sub": str(new_user.id)})
-    return {"access_token": token, "token_type": "bearer", "user": new_user}
+    try:
+        send_otp_sms(new_user.phone, otp)
+    except Exception as e:
+        print(f"OTP inscription non envoyé: {e}")
+
+    return {"pending_verification": True, "phone": new_user.phone}
+
+
+@router.post("/verify-inscription", response_model=schemas.Token)
+def verify_inscription(phone: str, otp: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if not user.otp_code or user.otp_code != otp:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if not user.otp_expires or datetime.utcnow() > user.otp_expires:
+        raise HTTPException(status_code=400, detail="Code expiré")
+
+    user.otp_code = None
+    user.otp_expires = None
+    user.is_phone_verified = True
+    db.commit()
+
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": user}
 
 
 # ─────────────────────────────────────────────

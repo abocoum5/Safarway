@@ -150,6 +150,13 @@
     .otp-info p { font-size: 14px; color: var(--text-2); }
     .otp-info strong { font-size: 15px; color: var(--text); font-weight: 700; }
 
+    /* ── STARS ── */
+    .sf { color: #F59E0B; }
+    .star-btn { font-size: 36px; background: none; border: none; cursor: pointer; padding: 0 4px; line-height: 1; transition: transform 0.1s; color: #D1D5DB; }
+    .star-btn.active { color: #F59E0B; }
+    .star-btn:active { transform: scale(1.3); }
+    .rating-modal-inner { background: var(--bg); border-radius: 20px 20px 0 0; padding: 24px 20px 32px; width: 100%; box-sizing: border-box; }
+
     /* ── BUTTONS ── */
     .btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
     .btn:active { transform: scale(0.98); }
@@ -436,7 +443,7 @@
       </div>
 
       <div id="register-form" style="display:none">
-        <div class="card">
+        <div class="card" id="reg-fields-card">
           <div class="card-title" data-i18n="auth.driver.title">Inscription Chauffeur 🚗</div>
           <div class="form-group">
             <label>Numéro de téléphone</label>
@@ -453,6 +460,17 @@
           <div class="form-group"><label data-i18n="auth.id.photo">Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
           <div id="reg-alert"></div>
           <button class="btn btn-green mt-10" onclick="registerChauffeur()" data-i18n="auth.create.account">Créer mon compte</button>
+        </div>
+        <div class="card" id="reg-otp-card" style="display:none">
+          <div class="card-title">Vérification du numéro 📱</div>
+          <div class="otp-info"><p>Code envoyé au</p><strong id="reg-otp-phone-display"></strong></div>
+          <div class="form-group">
+            <label>Code à 6 chiffres</label>
+            <input type="number" id="reg-otp" class="otp-input" placeholder="______" inputmode="numeric">
+          </div>
+          <div id="reg-otp-alert"></div>
+          <button class="btn btn-green" onclick="verifyInscription()">Confirmer →</button>
+          <button class="btn btn-ghost mt-10" onclick="backToRegForm()">← Modifier le numéro</button>
         </div>
       </div>
     </div>
@@ -540,8 +558,10 @@
   <div id="admin-trips" class="card" style="display:none"><div class="card-title">🚗 Trajets</div><div id="admin-trips-list"></div></div>
   <div id="admin-bookings" class="card" style="display:none"><div class="card-title">🎫 Réservations</div><div id="admin-bookings-list"></div></div>
   <div id="admin-revenue" style="display:none">
-    <div class="card"><div class="card-title">📊 Commissions / jour</div><canvas id="revenue-chart"></canvas></div>
-    <div class="card"><div class="card-title">📈 Réservations / jour</div><canvas id="bookings-chart"></canvas></div>
+    <div class="stats-grid" id="revenue-summary"></div>
+    <div class="card"><div class="card-title">💰 Commission / semaine (MRU)</div><canvas id="revenue-chart"></canvas></div>
+    <div class="card"><div class="card-title">📦 Volume total / semaine (MRU)</div><canvas id="gmv-chart"></canvas></div>
+    <div class="card"><div class="card-title">📈 Réservations / semaine</div><canvas id="bookings-chart"></canvas></div>
   </div>
   <div id="admin-sms" class="card" style="display:none">
     <div class="card-title">📱 SMS groupé</div>
@@ -568,6 +588,27 @@
     <button class="btn btn-ghost mt-10" onclick="exportData('users')">📥 Utilisateurs</button>
     <button class="btn btn-green mt-10" onclick="exportData('trips')">📥 Trajets</button>
     <button class="btn btn-ghost mt-10" onclick="exportData('bookings')">📥 Réservations</button>
+  </div>
+</div>
+
+<!-- ─── RATING MODAL ─── -->
+<div id="rating-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-end">
+  <div class="rating-modal-inner">
+    <div style="font-size:17px;font-weight:700;margin-bottom:6px">Évaluer le trajet ⭐</div>
+    <div id="rating-trip-info" style="font-size:14px;color:var(--text-3);margin-bottom:20px"></div>
+    <div id="rating-stars" style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
+      <button class="star-btn" onclick="setRating(1)">★</button>
+      <button class="star-btn" onclick="setRating(2)">★</button>
+      <button class="star-btn" onclick="setRating(3)">★</button>
+      <button class="star-btn" onclick="setRating(4)">★</button>
+      <button class="star-btn" onclick="setRating(5)">★</button>
+    </div>
+    <div class="form-group">
+      <textarea id="rating-comment" placeholder="Commentaire (optionnel)..." style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-2);resize:vertical;min-height:80px;outline:none;box-sizing:border-box;transition:border 0.15s" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <div id="rating-alert"></div>
+    <button class="btn btn-green" onclick="submitReview()">Envoyer mon avis</button>
+    <button class="btn btn-ghost mt-10" onclick="closeRatingModal()">Annuler</button>
   </div>
 </div>
 
@@ -726,7 +767,7 @@ async function sendReminders() {
 }
 let currentUser = null, token = null;
 let allUsers = [], allBookings = [], allAdminTrips = [];
-let revenueChart = null, bookingsChart = null;
+let revenueChart = null, bookingsChart = null, gmvChart = null;
 let VILLES = [];
 let tripsCache = {};
 
@@ -925,15 +966,16 @@ function driverAvatar(name) {
   return '<div class="tc-avatar" style="background:' + color + '">' + initials + '</div>';
 }
 
-function getStars(id) {
-  const r = (3.5 + (id % 15) * 0.1).toFixed(1);
-  const full = Math.floor(r);
-  return '<span class="sf">' + "★".repeat(full) + '</span>' + "☆".repeat(5 - full) + ' ' + r;
+function starsDisplay(rating) {
+  if (!rating) return '';
+  const full = Math.round(rating);
+  return '<span class="sf">' + '★'.repeat(full) + '</span>' + '☆'.repeat(5 - full) + ' ' + rating.toFixed(1);
 }
 
 function renderTripCard(t) {
   tripsCache[t.id] = t;
-  const meta = [t.driver_name || "Chauffeur", t.vehicle_type, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
+  const ratingStr = t.driver_rating ? starsDisplay(t.driver_rating) : '';
+  const meta = [t.driver_name || "Chauffeur", ratingStr, t.vehicle_type, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
   return '<div class="trip-row" onclick="showTripDetail(' + t.id + ')">' +
     '<div class="tr-main">' +
       '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
@@ -966,7 +1008,9 @@ function showTripDetail(tripId) {
     '</div>' +
     '<div class="td-driver">' +
       '<div class="td-driver-av" style="background:' + color + '">' + initials + '</div>' +
-      '<div><div class="td-driver-name">' + name + '</div><div class="td-driver-sub">' + t("driver.sub") + '</div></div>' +
+      '<div><div class="td-driver-name">' + name + '</div>' +
+      (t.driver_rating ? '<div style="font-size:13px;color:#F59E0B;margin-top:2px">' + starsDisplay(t.driver_rating) + '</div>' : '<div class="td-driver-sub">' + t("driver.sub") + '</div>') +
+      '</div>' +
     '</div>' +
     '<div class="td-info-grid">' +
       '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (t.vehicle_type || "—") + '</span></div>' +
@@ -1077,20 +1121,26 @@ async function loadMyBookings() {
     const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
     const bookings = await r.json();
     if (!bookings.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🎫</div><p>Aucune réservation</p></div>'; return; }
-    c.innerHTML = bookings.map(b =>
-      '<div class="card">' +
+    const today = new Date().toISOString().split("T")[0];
+    c.innerHTML = bookings.map(b => {
+      const isPast = b.trip_date && b.trip_date < today;
+      const canRate = b.status === "confirme" && isPast && !b.has_review;
+      return '<div class="card">' +
         '<div style="display:flex;justify-content:space-between;align-items:center">' +
           '<strong>' + b.reference_code + '</strong>' +
           '<span class="badge ' + (b.status === "confirme" ? "badge-green" : "badge-red") + '">' + b.status + '</span>' +
         '</div>' +
+        (b.from_city && b.to_city ? '<div style="font-size:15px;font-weight:700;margin-top:10px">' + b.from_city + ' → ' + b.to_city + '</div>' : '') +
+        (b.trip_date ? '<div class="text-gray" style="margin-top:2px">📅 ' + b.trip_date + '</div>' : '') +
         '<div class="divider"></div>' +
         '<p style="font-size:14px;color:var(--text-2)">💺 ' + b.seats_booked + ' place(s)</p>' +
         '<p style="font-size:18px;font-weight:700;color:var(--green);margin-top:4px">' + b.total_price + ' MRU</p>' +
-        '<p class="text-gray" style="margin-top:4px">' + new Date(b.created_at).toLocaleDateString("fr-FR") + '</p>' +
         (b.status === "confirme" && b.driver_phone ? '<a href="tel:' + b.driver_phone + '" class="btn-call">📞 Appeler le chauffeur</a>' : '') +
-        (b.status === "confirme" ? '<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking(' + b.id + ')">Annuler</button>' : '') +
-      '</div>'
-    ).join("");
+        (b.status === "confirme" && !isPast ? '<button class="btn btn-danger btn-sm mt-10" onclick="cancelBooking(' + b.id + ')">Annuler</button>' : '') +
+        (canRate ? '<button class="btn btn-ghost btn-sm mt-10" onclick="openRatingModal(' + b.id + ',\'' + (b.from_city||'') + '\',\'' + (b.to_city||'') + '\')">⭐ Laisser un avis</button>' : '') +
+        (b.has_review ? '<div style="font-size:13px;color:var(--text-3);margin-top:8px">✓ Avis déjà envoyé</div>' : '') +
+      '</div>';
+    }).join("");
   } catch(e) { if (c) c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
@@ -1191,6 +1241,8 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
 }
 
+let _regPhone = "";
+
 async function registerChauffeur() {
   const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
   const name = document.getElementById("reg-name").value.trim();
@@ -1207,10 +1259,77 @@ async function registerChauffeur() {
     const r = await fetch(API + "/users/inscription", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur inscription");
+    _regPhone = phone;
+    document.getElementById("reg-otp-phone-display").textContent = "+222 " + phone;
+    document.getElementById("reg-fields-card").style.display = "none";
+    document.getElementById("reg-otp-card").style.display = "block";
+  } catch(e) { showAlert("reg-alert", e.message, "error"); }
+}
+
+async function verifyInscription() {
+  const otp = document.getElementById("reg-otp").value.trim();
+  if (!otp || otp.length < 6) { showAlert("reg-otp-alert", "Entrez le code à 6 chiffres", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/verify-inscription?phone=" + encodeURIComponent(_regPhone) + "&otp=" + otp, { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     showPage("home");
-  } catch(e) { showAlert("reg-alert", e.message, "error"); }
+  } catch(e) { showAlert("reg-otp-alert", e.message, "error"); }
+}
+
+function backToRegForm() {
+  document.getElementById("reg-fields-card").style.display = "block";
+  document.getElementById("reg-otp-card").style.display = "none";
+  document.getElementById("reg-otp").value = "";
+}
+
+// ── RATING MODAL ──
+let _ratingBookingId = null, _selectedRating = 0;
+
+function openRatingModal(bookingId, fromCity, toCity) {
+  _ratingBookingId = bookingId;
+  _selectedRating = 0;
+  document.getElementById("rating-trip-info").textContent = fromCity + " → " + toCity;
+  document.getElementById("rating-comment").value = "";
+  document.getElementById("rating-alert").innerHTML = "";
+  updateStarButtons(0);
+  const modal = document.getElementById("rating-modal");
+  modal.style.display = "flex";
+  document.getElementById("bottom-nav").style.display = "none";
+}
+
+function closeRatingModal() {
+  document.getElementById("rating-modal").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
+}
+
+function setRating(n) {
+  _selectedRating = n;
+  updateStarButtons(n);
+}
+
+function updateStarButtons(n) {
+  document.querySelectorAll(".star-btn").forEach((btn, i) => {
+    btn.classList.toggle("active", i < n);
+  });
+}
+
+async function submitReview() {
+  if (!_selectedRating) { showAlert("rating-alert", "Choisissez une note (1 à 5 étoiles)", "error"); return; }
+  const comment = document.getElementById("rating-comment").value.trim() || null;
+  try {
+    const r = await fetch(API + "/reviews/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ booking_id: _ratingBookingId, rating: _selectedRating, comment })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    closeRatingModal();
+    loadMyBookings();
+  } catch(e) { showAlert("rating-alert", e.message, "error"); }
 }
 
 // ── SESSION ──
@@ -1435,22 +1554,23 @@ async function loadAdminBookings() {
 
 async function loadRevenueCharts() {
   try {
-    const r = await fetch(API + "/admin/bookings", { headers: { "Authorization": "Bearer " + token } });
-    const bookings = await r.json();
-    const confirmed = bookings.filter(b => b.status === "confirme");
-    const byDate = {};
-    confirmed.forEach(b => {
-      const date = new Date(b.created_at).toLocaleDateString("fr-FR");
-      if (!byDate[date]) byDate[date] = { commission: 0, count: 0 };
-      byDate[date].commission += b.commission; byDate[date].count += 1;
-    });
-    const labels = Object.keys(byDate).slice(-14);
-    const commissions = labels.map(d => Math.round(byDate[d].commission));
-    const counts = labels.map(d => byDate[d].count);
+    const r = await fetch(API + "/admin/stats/hebdo", { headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    const labels = d.labels.map(w => w.replace("W", " sem."));
+    const totalCommission = d.commissions.reduce((a, b) => a + b, 0);
+    const totalGmv = d.gmv.reduce((a, b) => a + b, 0);
+    const totalCount = d.counts.reduce((a, b) => a + b, 0);
+    document.getElementById("revenue-summary").innerHTML =
+      '<div class="stat-card"><div class="stat-number">' + Math.round(totalCommission) + '</div><div class="stat-label">Commission totale MRU</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + Math.round(totalGmv) + '</div><div class="stat-label">Volume total MRU</div></div>' +
+      '<div class="stat-card"><div class="stat-number">' + totalCount + '</div><div class="stat-label">Réservations confirmées</div></div>';
+    const chartOpts = { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } };
     if (revenueChart) revenueChart.destroy();
-    revenueChart = new Chart(document.getElementById("revenue-chart"), { type: "bar", data: { labels, datasets: [{ label: "Commission (MRU)", data: commissions, backgroundColor: "#34D186", borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+    revenueChart = new Chart(document.getElementById("revenue-chart"), { type: "bar", data: { labels, datasets: [{ data: d.commissions, backgroundColor: "#22C55E", borderRadius: 6 }] }, options: chartOpts });
+    if (gmvChart) gmvChart.destroy();
+    gmvChart = new Chart(document.getElementById("gmv-chart"), { type: "bar", data: { labels, datasets: [{ data: d.gmv, backgroundColor: "#86EFAC", borderRadius: 6 }] }, options: chartOpts });
     if (bookingsChart) bookingsChart.destroy();
-    bookingsChart = new Chart(document.getElementById("bookings-chart"), { type: "line", data: { labels, datasets: [{ label: "Réservations", data: counts, borderColor: "#34D186", backgroundColor: "rgba(52,209,134,0.1)", fill: true, tension: 0.4 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+    bookingsChart = new Chart(document.getElementById("bookings-chart"), { type: "line", data: { labels, datasets: [{ data: d.counts, borderColor: "#22C55E", backgroundColor: "rgba(34,197,94,0.12)", fill: true, tension: 0.4, pointBackgroundColor: "#22C55E" }] }, options: chartOpts });
   } catch(e) {}
 }
 
