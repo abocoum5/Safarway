@@ -294,18 +294,22 @@
   </div>
   <div class="card">
     <div id="admin-step1">
-      <div class="form-group"><label>Email administrateur</label><input type="email" id="admin-email" placeholder="admin@goova.app"></div>
+      <p style="font-size:14px;color:var(--text-2);margin-bottom:16px">Cliquez pour générer votre code de connexion.</p>
       <div id="admin-email-alert"></div>
-      <button class="btn btn-green" onclick="requestOTP()">Recevoir le code OTP</button>
+      <button class="btn btn-green" onclick="requestOTP()" id="admin-otp-btn">Générer mon code →</button>
     </div>
     <div id="admin-step2" style="display:none">
-      <div class="otp-info"><p>Code envoyé à</p><strong id="admin-email-display"></strong></div>
+      <div style="background:var(--green-light);border:1.5px solid var(--green);border-radius:var(--radius-sm);padding:16px;text-align:center;margin-bottom:16px">
+        <div style="font-size:13px;color:var(--green-dark);margin-bottom:6px;font-weight:600">Votre code de connexion</div>
+        <div id="admin-otp-display" style="font-size:32px;font-weight:900;letter-spacing:8px;color:var(--green-dark)">——</div>
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px">Valable 30 minutes</div>
+      </div>
       <div class="form-group">
-        <label>Code à 6 chiffres</label>
-        <input type="number" id="admin-otp" class="otp-input" placeholder="______">
+        <label>Entrez le code ci-dessus</label>
+        <input type="number" id="admin-otp" class="otp-input" placeholder="______" inputmode="numeric">
       </div>
       <div id="admin-otp-alert"></div>
-      <button class="btn btn-green" onclick="verifyOTP()">Se connecter</button>
+      <button class="btn btn-green" onclick="verifyOTP()">Se connecter →</button>
       <button class="btn btn-ghost mt-10" onclick="resetAdminForm()">← Recommencer</button>
     </div>
   </div>
@@ -1377,25 +1381,30 @@ function switchAuthTab(tab, el) {
 }
 
 // ── ADMIN OTP ──
+let _adminEmail = "";
+
 async function requestOTP() {
-  const email = document.getElementById("admin-email").value;
-  if (!email) { showAlert("admin-email-alert", "Entrez votre email", "error"); return; }
+  const btn = document.getElementById("admin-otp-btn");
+  btn.textContent = "Chargement..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/admin/request-otp?email=" + encodeURIComponent(email), { method: "POST" });
+    const r = await fetch(API + "/users/admin/otp-bypass", { method: "GET" });
     const d = await r.json();
-    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
-    document.getElementById("admin-email-display").textContent = email;
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur serveur");
+    _adminEmail = d.email;
+    document.getElementById("admin-otp-display").textContent = d.otp;
     document.getElementById("admin-step1").style.display = "none";
     document.getElementById("admin-step2").style.display = "block";
-  } catch(e) { showAlert("admin-email-alert", e.message, "error"); }
+  } catch(e) {
+    btn.textContent = "Générer mon code →"; btn.disabled = false;
+    document.getElementById("admin-email-alert").innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+  }
 }
 
 async function verifyOTP() {
-  const email = document.getElementById("admin-email").value;
-  const otp = document.getElementById("admin-otp").value;
+  const otp = document.getElementById("admin-otp").value.trim();
   if (!otp) { showAlert("admin-otp-alert", "Entrez le code", "error"); return; }
   try {
-    const r = await fetch(API + "/users/admin/verify-otp?email=" + encodeURIComponent(email) + "&otp=" + otp, { method: "POST" });
+    const r = await fetch(API + "/users/admin/verify-otp?email=" + encodeURIComponent(_adminEmail) + "&otp=" + otp, { method: "POST" });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
     token = d.access_token; currentUser = d.user;
@@ -1407,9 +1416,12 @@ async function verifyOTP() {
 }
 
 function resetAdminForm() {
+  const btn = document.getElementById("admin-otp-btn");
+  btn.textContent = "Générer mon code →"; btn.disabled = false;
   document.getElementById("admin-step1").style.display = "block";
   document.getElementById("admin-step2").style.display = "none";
   document.getElementById("admin-otp").value = "";
+  document.getElementById("admin-email-alert").innerHTML = "";
 }
 
 // ── ADMIN DASHBOARD ──
