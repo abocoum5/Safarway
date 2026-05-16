@@ -14,10 +14,11 @@ VILLES = [
     "Oualata", "Chinguetti", "Ouadane", "Fdérik", "Bir Moghrein",
     "Kayes", "Monguel", "Maghama", "M'Bout", "Guerou", "Kankossa",
     "Barkéol", "Moudjeria", "Ould Yengé", "Ghabou", "Diaguily",
-    "Mederdra", "Tekane", "R'Kiz", "Teguent", "Keur Macène",
+    "Mederdra", "Tekane", "R'Kiz", "Keur Macène",
     "Amourj", "Djiguenni", "Kobenni", "Tamchakett", "Tintane",
-    "Boumdeid", "Rachid", "Nbeika", "Choum", "Tichitt",
-    "Bir Gandouz", "Aoujeft", "Ain Ehel Taya",
+    "Boumdeid", "Tichitt", "Aoujeft", "Choum",
+    "Adel Bagrou", "Bababe", "Bir Gandouz", "Benichab", "El Ain",
+    "Terjit", "Aghreijit", "Rachid", "Nbeika", "Hassi Cheggar",
 ]
 
 
