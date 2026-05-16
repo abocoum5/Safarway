@@ -8,8 +8,16 @@ from app.auth import get_current_user
 router = APIRouter(prefix="/trips", tags=["Trajets"])
 
 VILLES = [
-    "Nouakchott", "Nouadhibou", "Atar", "Kiffa",
-    "Kaédi", "Néma", "Rosso", "Zouerate", "Tidjikja", "Aleg", "Dakar"
+    "Nouakchott", "Nouadhibou", "Rosso", "Kaédi", "Kiffa", "Néma",
+    "Ayoun el Atrous", "Atar", "Tidjikja", "Sélibaby", "Zouerate",
+    "Akjoujt", "Aleg", "Boghé", "Boutilimit", "Timbedra", "Bassikounou",
+    "Oualata", "Chinguetti", "Ouadane", "Fdérik", "Bir Moghrein",
+    "Kayes", "Monguel", "Maghama", "M'Bout", "Guerou", "Kankossa",
+    "Barkéol", "Moudjeria", "Ould Yengé", "Ghabou", "Diaguily",
+    "Mederdra", "Tekane", "R'Kiz", "Teguent", "Keur Macène",
+    "Amourj", "Djiguenni", "Kobenni", "Tamchakett", "Tintane",
+    "Boumdeid", "Rachid", "Nbeika", "Choum", "Tichitt",
+    "Bir Gandouz", "Aoujeft", "Ain Ehel Taya",
 ]
 
 
