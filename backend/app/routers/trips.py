@@ -19,6 +19,7 @@ VILLES = [
     "Boumdeid", "Tichitt", "Aoujeft", "Choum",
     "Adel Bagrou", "Bababe", "Bir Gandouz", "Benichab", "El Ain",
     "Terjit", "Aghreijit", "Rachid", "Nbeika", "Hassi Cheggar",
+    "Dakar",
 ]
 
 
