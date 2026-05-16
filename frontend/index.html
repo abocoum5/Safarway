@@ -71,27 +71,24 @@
     .section { padding: 0 20px; }
     .section-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
 
-    /* ── TRIP CARDS ── */
-    .trip-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; transition: box-shadow 0.15s; }
-    .trip-card:hover { box-shadow: var(--shadow); }
-    .tc-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .tc-avatar { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: white; flex-shrink: 0; }
-    .tc-driver { flex: 1; min-width: 0; }
-    .tc-name { font-size: 14px; font-weight: 600; }
-    .tc-stars { font-size: 12px; color: var(--text-3); margin-top: 2px; }
-    .tc-stars .sf { color: #FFB800; }
-    .tc-price-block { text-align: right; }
-    .tc-price { font-size: 21px; font-weight: 800; color: var(--green); line-height: 1; }
-    .tc-per { font-size: 11px; color: var(--text-3); margin-top: 2px; }
-    .tc-route { display: flex; align-items: center; gap: 8px; background: var(--bg-2); border-radius: 10px; padding: 12px 14px; margin-bottom: 12px; }
+    /* ── TRIP ROWS ── */
+    .trip-list { border-top: 1px solid var(--border); }
+    .trip-row { padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s, margin 0.12s, padding 0.12s; }
+    .trip-row:hover { background: var(--green-light); margin: 0 -20px; padding: 14px 20px; }
+    .trip-row:active { background: var(--green-light); }
+    .tr-main { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
+    .tr-time { font-size: 16px; font-weight: 700; color: var(--text); min-width: 52px; flex-shrink: 0; }
+    .tr-route { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tr-price { font-size: 16px; font-weight: 700; color: var(--green); white-space: nowrap; flex-shrink: 0; }
+    .tr-meta { font-size: 12px; color: var(--text-3); padding-left: 62px; line-height: 1.4; }
+    /* card for driver's own trips */
+    .trip-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; }
+    .tc-route { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
     .tc-city { font-size: 15px; font-weight: 700; flex: 1; }
     .tc-city.right { text-align: right; }
-    .tc-arrow { color: var(--green); font-size: 18px; font-weight: 800; flex-shrink: 0; }
+    .tc-arrow { color: var(--green); font-size: 16px; font-weight: 800; }
     .tc-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .tc-tag { font-size: 12px; color: var(--text-2); background: var(--bg-2); padding: 5px 10px; border-radius: 20px; }
-    .tc-btn { background: var(--green); color: white; border: none; border-radius: 10px; padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; margin-left: auto; transition: background 0.15s; white-space: nowrap; }
-    .tc-btn:hover { background: var(--green-dark); }
-    .tc-btn:active { transform: scale(0.97); }
+    .tc-tag { font-size: 12px; color: var(--text-2); background: var(--bg-2); padding: 4px 9px; border-radius: 20px; }
 
     /* ── SEARCH PAGE ── */
     .search-page-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
@@ -654,19 +651,14 @@ function getStars(id) {
 }
 
 function renderTripCard(t) {
-  return '<div class="trip-card">' +
-    '<div class="tc-header">' +
-      driverAvatar(t.driver_name) +
-      '<div class="tc-driver"><div class="tc-name">' + (t.driver_name || "Chauffeur") + '</div><div class="tc-stars">' + getStars(t.driver_id) + '</div></div>' +
-      '<div class="tc-price-block"><div class="tc-price">' + t.price_per_seat.toLocaleString() + '</div><div class="tc-per">MRU / place</div></div>' +
+  const meta = [t.driver_name || "Chauffeur", t.vehicle_type, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
+  return '<div class="trip-row" onclick="bookTrip(' + t.id + ',\'' + t.from_city.replace(/'/g,"\\&#39;") + '\',\'' + t.to_city.replace(/'/g,"\\&#39;") + '\',' + t.price_per_seat + ',' + t.available_seats + ')">' +
+    '<div class="tr-main">' +
+      '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
+      '<div class="tr-route">' + t.from_city + ' → ' + t.to_city + '</div>' +
+      '<div class="tr-price">' + t.price_per_seat.toLocaleString() + ' MRU</div>' +
     '</div>' +
-    '<div class="tc-route"><div class="tc-city">' + t.from_city + '</div><div class="tc-arrow">→</div><div class="tc-city right">' + t.to_city + '</div></div>' +
-    '<div class="tc-footer">' +
-      '<span class="tc-tag">📅 ' + t.departure_date + '</span>' +
-      '<span class="tc-tag">🕐 ' + t.departure_time + '</span>' +
-      '<span class="tc-tag">💺 ' + t.available_seats + '</span>' +
-      '<button class="tc-btn" onclick="bookTrip(' + t.id + ',\'' + t.from_city + '\',\'' + t.to_city + '\',' + t.price_per_seat + ',' + t.available_seats + ')">Réserver</button>' +
-    '</div>' +
+    '<div class="tr-meta">' + meta + '</div>' +
   '</div>';
 }
 
@@ -679,7 +671,7 @@ async function loadHomeTrips() {
     const r = await fetch(API + "/trips/");
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>Aucun trajet disponible.</p></div>'; return; }
-    c.innerHTML = trips.slice(0, 8).map(t => renderTripCard(t)).join("");
+    c.innerHTML = '<div class="trip-list">' + trips.slice(0, 8).map(t => renderTripCard(t)).join("") + '</div>';
   } catch(e) { c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
@@ -698,7 +690,7 @@ async function searchTrips() {
     const r = await fetch(url);
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>Aucun trajet trouvé.</p></div>'; return; }
-    c.innerHTML = '<p style="font-size:14px;color:var(--text-2);margin-bottom:12px">' + trips.length + ' trajet(s) trouvé(s)</p>' + trips.map(t => renderTripCard(t)).join("");
+    c.innerHTML = '<p style="font-size:13px;color:var(--text-3);margin-bottom:4px">' + trips.length + ' trajet(s) trouvé(s)</p><div class="trip-list">' + trips.map(t => renderTripCard(t)).join("") + '</div>';
   } catch(e) { c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
