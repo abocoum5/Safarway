@@ -55,15 +55,25 @@
     .hero-sub { font-size: 15px; color: rgba(255,255,255,0.85); font-weight: 500; }
 
     /* ── SEARCH BOX ── */
-    .search-box { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 16px; }
+    .search-box { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 16px; }
     .search-row { display: flex; align-items: center; padding: 14px 16px; border-bottom: 1px solid var(--border); gap: 12px; }
     .search-row:last-of-type { border-bottom: none; }
     .search-icon { width: 20px; text-align: center; font-size: 16px; flex-shrink: 0; }
     .search-row select, .search-row input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text); background: transparent; }
     .search-row select option { color: var(--text); }
     .search-divider { height: 1px; background: var(--border); margin: 0 16px; }
-    .search-btn { width: 100%; padding: 15px; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: background 0.15s; }
+    .search-btn { width: 100%; padding: 15px; background: var(--blue); color: white; font-size: 16px; font-weight: 700; border: none; cursor: pointer; font-family: inherit; transition: background 0.15s; border-radius: 0 0 var(--radius) var(--radius); }
     .search-btn:hover { background: var(--blue-dark); }
+
+    /* ── AUTOCOMPLETE ── */
+    .autocomplete-wrap { position: relative; flex: 1; min-width: 0; width: 100%; }
+    .autocomplete-wrap input { width: 100%; }
+    .autocomplete-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--white); border: 1.5px solid var(--blue); border-radius: var(--radius-sm); box-shadow: 0 8px 28px rgba(0,0,0,0.13); z-index: 200; max-height: 220px; overflow-y: auto; display: none; }
+    .autocomplete-item { padding: 13px 16px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; display: flex; align-items: center; gap: 10px; }
+    .autocomplete-item:last-child { border-bottom: none; }
+    .autocomplete-item:hover, .autocomplete-item.ac-active { background: var(--blue-light); color: var(--blue); font-weight: 600; }
+    .autocomplete-item mark { background: none; color: var(--blue); font-weight: 700; font-style: normal; }
+    .autocomplete-item::before { content: '📍'; font-size: 13px; }
 
     /* ── SECTION TITLE ── */
     .section-title { font-size: 17px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
@@ -247,12 +257,18 @@
   <div class="search-box">
     <div class="search-row">
       <span class="search-icon">🔵</span>
-      <select id="search-from"><option value="">Ville de départ...</option></select>
+      <div class="autocomplete-wrap">
+        <input type="text" id="search-from" placeholder="Ville de départ..." autocomplete="off">
+        <div class="autocomplete-list" id="search-from-list"></div>
+      </div>
     </div>
     <div class="search-divider"></div>
     <div class="search-row">
       <span class="search-icon">📍</span>
-      <select id="search-to"><option value="">Ville d'arrivée...</option></select>
+      <div class="autocomplete-wrap">
+        <input type="text" id="search-to" placeholder="Ville d'arrivée..." autocomplete="off">
+        <div class="autocomplete-list" id="search-to-list"></div>
+      </div>
     </div>
     <div class="search-divider"></div>
     <div class="search-row">
@@ -281,8 +297,8 @@
   <div id="driver-publish">
     <div class="card">
       <div class="card-title">🚗 Nouveau trajet</div>
-      <div class="form-group"><label>Ville de départ</label><select id="trip-from"><option value="">Choisir...</option></select></div>
-      <div class="form-group"><label>Ville d'arrivée</label><select id="trip-to"><option value="">Choisir...</option></select></div>
+      <div class="form-group"><label>Ville de départ</label><div class="autocomplete-wrap"><input type="text" id="trip-from" placeholder="Tapez une ville..." autocomplete="off"><div class="autocomplete-list" id="trip-from-list"></div></div></div>
+      <div class="form-group"><label>Ville d'arrivée</label><div class="autocomplete-wrap"><input type="text" id="trip-to" placeholder="Tapez une ville..." autocomplete="off"><div class="autocomplete-list" id="trip-to-list"></div></div></div>
       <div class="form-group"><label>Date de départ</label><input type="date" id="trip-date"></div>
       <div class="form-group"><label>Heure de départ</label><input type="time" id="trip-time"></div>
       <div class="form-group"><label>Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
@@ -459,6 +475,7 @@ const API = "https://safarway.onrender.com";
 let currentUser = null, token = null;
 let allUsers = [], allBookings = [], allAdminTrips = [];
 let revenueChart = null, bookingsChart = null;
+let VILLES = [];
 
 // ── INIT ──
 window.onload = () => {
@@ -498,11 +515,46 @@ async function loadVilles() {
   try {
     const r = await fetch(API + "/trips/villes/liste");
     const d = await r.json();
-    ["search-from", "search-to", "trip-from", "trip-to"].forEach(id => {
-      const s = document.getElementById(id);
-      d.villes.forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v; s.appendChild(o); });
-    });
+    VILLES = d.villes;
+    ["search-from", "search-to", "trip-from", "trip-to"].forEach(id => setupAutocomplete(id, id + "-list"));
   } catch(e) {}
+}
+
+function setupAutocomplete(inputId, listId) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  if (!input || !list) return;
+  let activeIdx = -1;
+
+  function renderList(val) {
+    const q = val.trim().toLowerCase();
+    list.innerHTML = "";
+    activeIdx = -1;
+    if (q.length < 2) { list.style.display = "none"; return; }
+    const matches = VILLES.filter(v => v.toLowerCase().includes(q)).slice(0, 12);
+    if (!matches.length) { list.style.display = "none"; return; }
+    matches.forEach((v, i) => {
+      const item = document.createElement("div");
+      item.className = "autocomplete-item";
+      const idx = v.toLowerCase().indexOf(q);
+      item.innerHTML = v.substring(0, idx) + "<mark>" + v.substring(idx, idx + q.length) + "</mark>" + v.substring(idx + q.length);
+      item.addEventListener("mousedown", e => { e.preventDefault(); input.value = v; list.style.display = "none"; });
+      list.appendChild(item);
+    });
+    list.style.display = "block";
+  }
+
+  input.addEventListener("input", () => renderList(input.value));
+  input.addEventListener("focus", () => { if (input.value.trim().length >= 2) renderList(input.value); });
+  input.addEventListener("blur", () => setTimeout(() => { list.style.display = "none"; }, 150));
+  input.addEventListener("keydown", e => {
+    const items = list.querySelectorAll(".autocomplete-item");
+    if (!items.length) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIdx)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIdx)); }
+    else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent.trim(); list.style.display = "none"; }
+    else if (e.key === "Escape") { list.style.display = "none"; }
+  });
 }
 
 // ── AUTH : OTP PAR SMS ──
