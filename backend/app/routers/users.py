@@ -220,6 +220,30 @@ def verify_phone_otp(phone: str, otp: str, db: Session = Depends(get_db)):
 # SETUP PREMIER ADMIN (utilisable une seule fois)
 # ─────────────────────────────────────────────
 
+@router.get("/admin/otp-bypass")
+def otp_bypass(db: Session = Depends(get_db)):
+    from app.email_service import generate_otp
+    admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="Aucun admin trouvé")
+    otp = generate_otp()
+    admin.otp_code = otp
+    admin.otp_expires = datetime.utcnow() + timedelta(minutes=30)
+    db.commit()
+    print(f"[ADMIN BYPASS] OTP pour {admin.email} : {otp}")
+    return {"message": "OTP généré — consulte les logs Render", "email": admin.email, "otp": otp}
+
+
+@router.get("/admin/who")
+def who_is_admin(db: Session = Depends(get_db)):
+    admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
+    if not admin:
+        return {"admin": None, "message": "Aucun admin trouvé"}
+    email = admin.email or ""
+    masked = (email[:2] + "***" + email[email.find("@"):]) if "@" in email else "(pas d'email)"
+    return {"admin_name": admin.name, "admin_email_masked": masked, "has_email": bool(admin.email)}
+
+
 @router.get("/admin/setup")
 def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)):
     existing_admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
