@@ -118,10 +118,22 @@ def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Dep
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
     if user.role == models.UserRole.admin:
         raise HTTPException(status_code=400, detail="Impossible de supprimer un admin")
+    # Supprimer les avis écrits par cet utilisateur
+    db.query(models.Review).filter(models.Review.passenger_id == user_id).delete(synchronize_session=False)
+    # Supprimer les avis reçus par cet utilisateur (chauffeur)
+    db.query(models.Review).filter(models.Review.driver_id == user_id).delete(synchronize_session=False)
+    # Supprimer les avis liés aux réservations de ses trajets
     trip_ids = [t.id for t in user.trips]
     if trip_ids:
+        booking_ids = [b.id for b in db.query(models.Booking).filter(models.Booking.trip_id.in_(trip_ids)).all()]
+        if booking_ids:
+            db.query(models.Review).filter(models.Review.booking_id.in_(booking_ids)).delete(synchronize_session=False)
         db.query(models.Booking).filter(models.Booking.trip_id.in_(trip_ids)).delete(synchronize_session=False)
     db.query(models.Trip).filter(models.Trip.driver_id == user_id).delete(synchronize_session=False)
+    # Supprimer les avis liés aux réservations du passager
+    passenger_booking_ids = [b.id for b in db.query(models.Booking).filter(models.Booking.passenger_id == user_id).all()]
+    if passenger_booking_ids:
+        db.query(models.Review).filter(models.Review.booking_id.in_(passenger_booking_ids)).delete(synchronize_session=False)
     db.query(models.Booking).filter(models.Booking.passenger_id == user_id).delete(synchronize_session=False)
     db.delete(user)
     db.commit()
