@@ -1679,5 +1679,12 @@ function showAlert(id, msg, type) {
   setTimeout(() => { if (el) el.innerHTML = ""; }, 4000);
 }
 </script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>
