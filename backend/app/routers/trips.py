@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
+from datetime import date
 from app.database import get_db
 from app import models, schemas
 from app.auth import get_current_user
@@ -83,9 +84,11 @@ def rechercher_trajets(
     date: Optional[str] = Query(None, description="Date (YYYY-MM-DD)"),
     db: Session = Depends(get_db)
 ):
+    today = date.today().strftime("%Y-%m-%d")
     query = db.query(models.Trip).filter(
         models.Trip.status == models.TripStatus.actif,
-        models.Trip.available_seats > 0
+        models.Trip.available_seats > 0,
+        models.Trip.departure_date >= today
     )
 
     if from_city:
