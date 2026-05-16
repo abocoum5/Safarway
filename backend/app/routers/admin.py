@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, text
 from typing import List
 from app.database import get_db
 from app import models, schemas
@@ -113,31 +113,34 @@ def desactiver_user(user_id: int, db: Session = Depends(get_db), current_user=De
 @router.post("/users/{user_id}/supprimer")
 def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)
-    user = db.query(models.User).filter(models.User.id == user_id).first()
-    if not user:
+    row = db.execute(text("SELECT id, name, role FROM users WHERE id = :uid"), {"uid": user_id}).fetchone()
+    if not row:
         raise HTTPException(status_code=404, detail="Utilisateur introuvable")
-    if user.role == models.UserRole.admin:
+    if row.role == "admin":
         raise HTTPException(status_code=400, detail="Impossible de supprimer un admin")
-    # Supprimer les avis écrits par cet utilisateur
-    db.query(models.Review).filter(models.Review.passenger_id == user_id).delete(synchronize_session=False)
-    # Supprimer les avis reçus par cet utilisateur (chauffeur)
-    db.query(models.Review).filter(models.Review.driver_id == user_id).delete(synchronize_session=False)
-    # Supprimer les avis liés aux réservations de ses trajets
-    trip_ids = [t.id for t in user.trips]
+    name = row.name
+    # Récupérer tous les IDs de trajets et réservations liés
+    trip_ids = [r[0] for r in db.execute(text("SELECT id FROM trips WHERE driver_id = :uid"), {"uid": user_id}).fetchall()]
+    trip_booking_ids = []
     if trip_ids:
-        booking_ids = [b.id for b in db.query(models.Booking).filter(models.Booking.trip_id.in_(trip_ids)).all()]
-        if booking_ids:
-            db.query(models.Review).filter(models.Review.booking_id.in_(booking_ids)).delete(synchronize_session=False)
-        db.query(models.Booking).filter(models.Booking.trip_id.in_(trip_ids)).delete(synchronize_session=False)
-    db.query(models.Trip).filter(models.Trip.driver_id == user_id).delete(synchronize_session=False)
-    # Supprimer les avis liés aux réservations du passager
-    passenger_booking_ids = [b.id for b in db.query(models.Booking).filter(models.Booking.passenger_id == user_id).all()]
-    if passenger_booking_ids:
-        db.query(models.Review).filter(models.Review.booking_id.in_(passenger_booking_ids)).delete(synchronize_session=False)
-    db.query(models.Booking).filter(models.Booking.passenger_id == user_id).delete(synchronize_session=False)
-    db.delete(user)
+        trip_booking_ids = [r[0] for r in db.execute(
+            text("SELECT id FROM bookings WHERE trip_id = ANY(:ids)"), {"ids": trip_ids}
+        ).fetchall()]
+    pass_booking_ids = [r[0] for r in db.execute(
+        text("SELECT id FROM bookings WHERE passenger_id = :uid"), {"uid": user_id}
+    ).fetchall()]
+    all_booking_ids = list(set(trip_booking_ids + pass_booking_ids))
+    # Supprimer dans l'ordre des dépendances
+    if all_booking_ids:
+        db.execute(text("DELETE FROM reviews WHERE booking_id = ANY(:ids)"), {"ids": all_booking_ids})
+    db.execute(text("DELETE FROM reviews WHERE passenger_id = :uid OR driver_id = :uid"), {"uid": user_id})
+    if all_booking_ids:
+        db.execute(text("DELETE FROM bookings WHERE id = ANY(:ids)"), {"ids": all_booking_ids})
+    if trip_ids:
+        db.execute(text("DELETE FROM trips WHERE id = ANY(:ids)"), {"ids": trip_ids})
+    db.execute(text("DELETE FROM users WHERE id = :uid"), {"uid": user_id})
     db.commit()
-    return {"message": f"Utilisateur {user.name} supprimé"}
+    return {"message": f"Utilisateur {name} supprimé"}
 
 
 @router.get("/trips", response_model=List[schemas.TripResponse])
