@@ -215,7 +215,6 @@
     .loading { text-align: center; padding: 40px; color: var(--text-3); font-size: 14px; }
     .empty { text-align: center; padding: 40px 20px; color: var(--text-3); }
     .empty-icon { font-size: 42px; margin-bottom: 12px; }
-    .empty-icon svg { width: 52px; height: 52px; }
     .text-gray { color: var(--text-3); font-size: 13px; }
     .driver-docs-notice { background: var(--green-light); border-left: 3px solid var(--green); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--green-dark); font-weight: 500; }
 
@@ -621,7 +620,7 @@
 <script>
 const API = "https://safarway.onrender.com";
 
-const BUS_SVG = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none"><rect x="4" y="12" width="32" height="22" rx="4" fill="#E8F5EE" stroke="#22C55E" stroke-width="2.5"/><rect x="36" y="18" width="8" height="12" rx="2" fill="#E8F5EE" stroke="#22C55E" stroke-width="2.5"/><rect x="8" y="16" width="10" height="8" rx="2" fill="#22C55E" opacity="0.4"/><rect x="22" y="16" width="10" height="8" rx="2" fill="#22C55E" opacity="0.4"/><circle cx="13" cy="36" r="4" fill="#22C55E"/><circle cx="31" cy="36" r="4" fill="#22C55E"/><line x1="4" y1="26" x2="36" y2="26" stroke="#22C55E" stroke-width="1.5" opacity="0.5"/></svg>';
+const BUS_SVG = '<span style="display:inline-block;filter:hue-rotate(-90deg) saturate(1.4) brightness(1.05)">🚌</span>';
 
 // ── TRADUCTIONS FR / AR ──
 const TRANSLATIONS = {
