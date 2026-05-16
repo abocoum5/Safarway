@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.goova.transport",
+    "sha256_cert_fingerprints": [
+      "1F:E3:BD:71:DE:BC:C5:71:CF:FB:87:61:28:DF:04:26:6D:6A:2C:09:8C:0F:13:E6:5F:65:98:4D:A8:85:79:05"
+    ]
+  }
+}]
