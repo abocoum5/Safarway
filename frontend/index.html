@@ -718,7 +718,7 @@ const VILLES_DATA = [
   { name: "Rachid",          wilaya: "Tagant" },
   { name: "Nbeika",          wilaya: "Hodh Chargui" },
   { name: "Hassi Cheggar",   wilaya: "Hodh Chargui" },
-  { name: "Dakar",           wilaya: "Sénégal" },
+  { name: "Dakar",           wilaya: "Sénégal", subtitle: "Sénégal" },
 ];
 
 function normalizeStr(s) {
@@ -766,7 +766,7 @@ function renderCpList(q) {
   list.innerHTML = filtered.map(v =>
     '<div class="cp-city-row" onclick="selectCity(\'' + v.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' +
       '<div class="cp-pin-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#34D186"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg></div>' +
-      '<div><div class="cp-city-name">' + v.name + '</div><div class="cp-city-wilaya">' + v.wilaya + ', Mauritanie</div></div>' +
+      '<div><div class="cp-city-name">' + v.name + '</div><div class="cp-city-wilaya">' + (v.subtitle || v.wilaya + ', Mauritanie') + '</div></div>' +
     '</div>'
   ).join("");
 }
