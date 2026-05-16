@@ -1,11 +1,11 @@
 {
-  "name": "SafarWay",
-  "short_name": "SafarWay",
+  "name": "Goova",
+  "short_name": "Goova",
   "description": "Transport interurbain en Mauritanie",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#E07B2A",
-  "theme_color": "#E07B2A",
+  "background_color": "#00B2FF",
+  "theme_color": "#00B2FF",
   "icons": [
     {
       "src": "icon-192.png",
