@@ -4,8 +4,8 @@
   "description": "Transport interurbain en Mauritanie",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#00B2FF",
-  "theme_color": "#00B2FF",
+  "background_color": "#34D186",
+  "theme_color": "#34D186",
   "icons": [
     {
       "src": "icon-192.png",
