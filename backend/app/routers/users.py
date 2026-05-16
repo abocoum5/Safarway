@@ -220,7 +220,7 @@ def verify_phone_otp(phone: str, otp: str, db: Session = Depends(get_db)):
 # SETUP PREMIER ADMIN (utilisable une seule fois)
 # ─────────────────────────────────────────────
 
-@router.post("/admin/setup")
+@router.get("/admin/setup")
 def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)):
     existing_admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
     if existing_admin:
