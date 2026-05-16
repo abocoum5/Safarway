@@ -28,6 +28,7 @@ class UserResponse(BaseModel):
     name: str
     role: UserRole
     is_active: bool
+    is_approved: Optional[bool] = None
     created_at: datetime
     license_number: Optional[str] = None
     national_id_number: Optional[str] = None

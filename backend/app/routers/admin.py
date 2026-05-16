@@ -50,6 +50,19 @@ def get_user_documents(user_id: int, db: Session = Depends(get_db), current_user
     return user
 
 
+@router.patch("/users/{user_id}/approuver")
+def approuver_chauffeur(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+    if user.role != models.UserRole.chauffeur:
+        raise HTTPException(status_code=400, detail="Cet utilisateur n'est pas un chauffeur")
+    user.is_approved = True
+    db.commit()
+    return {"message": f"Chauffeur {user.name} approuvé"}
+
+
 @router.patch("/users/{user_id}/activer")
 def activer_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)

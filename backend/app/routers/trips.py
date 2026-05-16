@@ -34,6 +34,12 @@ def publier_trajet(
             detail="Seuls les chauffeurs peuvent publier des trajets"
         )
 
+    if current_user.role == models.UserRole.chauffeur and not current_user.is_approved:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Votre compte chauffeur est en attente de validation par un administrateur"
+        )
+
     # Valider les villes
     if trip_data.from_city not in VILLES or trip_data.to_city not in VILLES:
         raise HTTPException(

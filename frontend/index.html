@@ -220,6 +220,36 @@
     .admin-g { width: 56px; height: 56px; background: var(--green); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: white; margin: 0 auto 12px; }
     .admin-overlay-logo h2 { font-size: 22px; font-weight: 800; }
     .admin-overlay-logo p { font-size: 14px; color: var(--text-3); margin-top: 4px; }
+
+    /* ── SKELETON ── */
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .skeleton { background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
+    .sk-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
+
+    /* ── TRIP DETAIL OVERLAY ── */
+    #trip-detail { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; max-width: 480px; margin: 0 auto; padding-bottom: 100px; }
+    .td-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+    .td-body { padding: 20px; }
+    .td-route { background: var(--green); border-radius: var(--radius); padding: 24px 20px; color: white; margin-bottom: 16px; }
+    .td-route-cities { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .td-city { font-size: 21px; font-weight: 800; flex: 1; }
+    .td-arrow { font-size: 20px; opacity: 0.8; }
+    .td-route-info { font-size: 14px; opacity: 0.85; }
+    .td-price-box { display: flex; justify-content: space-between; align-items: center; background: var(--bg-2); border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 12px; }
+    .td-price-label { font-size: 12px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
+    .td-price-val { font-size: 28px; font-weight: 800; color: var(--green); }
+    .td-driver { display: flex; align-items: center; gap: 14px; background: var(--bg-2); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
+    .td-driver-av { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; flex-shrink: 0; }
+    .td-driver-name { font-size: 16px; font-weight: 700; }
+    .td-driver-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+    .td-info-grid { background: var(--bg-2); border-radius: var(--radius-sm); padding: 4px 16px; margin-bottom: 12px; }
+    .td-info-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .td-info-row:last-child { border-bottom: none; }
+    .td-info-icon { font-size: 16px; width: 24px; text-align: center; }
+    .td-info-label { color: var(--text-3); min-width: 90px; font-size: 13px; }
+    .td-info-val { font-weight: 600; }
+    .td-book-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); z-index: 10; }
+    .alert-warning { background: rgba(255,149,0,0.1); color: var(--warning); border: 1px solid rgba(255,149,0,0.25); }
   </style>
 </head>
 <body>
@@ -419,6 +449,9 @@
           <span class="pinfo-value" id="profile-license"></span>
         </div>
       </div>
+      <div id="driver-pending-notice" style="display:none" class="alert alert-warning">
+        ⏳ Votre compte chauffeur est en cours de validation. Vous pourrez publier des trajets une fois approuvé par un administrateur.
+      </div>
       <div id="driver-publish-btn" style="display:none">
         <button class="btn btn-green" onclick="openPublishForm()">+ Publier un nouveau trajet</button>
       </div>
@@ -506,6 +539,20 @@
   </div>
 </div>
 
+<!-- ─── TRIP DETAIL OVERLAY ─── -->
+<div id="trip-detail">
+  <div class="td-header">
+    <button class="back-btn" onclick="closeTripDetail()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div style="font-size:16px;font-weight:700">Détails du trajet</div>
+  </div>
+  <div class="td-body" id="td-body"></div>
+  <div class="td-book-bar">
+    <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()">Réserver ce trajet</button>
+  </div>
+</div>
+
 <!-- ─── BOTTOM NAV ─── -->
 <div class="bottom-nav" id="bottom-nav">
   <div class="bnav-item active" id="bnav-home" onclick="showPage('home')">
@@ -528,6 +575,20 @@ let currentUser = null, token = null;
 let allUsers = [], allBookings = [], allAdminTrips = [];
 let revenueChart = null, bookingsChart = null;
 let VILLES = [];
+let tripsCache = {};
+
+function skeletonTripRows(n = 4) {
+  return '<div class="trip-list">' + Array(n).fill(0).map(() =>
+    '<div class="sk-row">' +
+      '<div style="display:flex;gap:10px;margin-bottom:8px">' +
+        '<div class="skeleton" style="width:50px;height:14px;flex-shrink:0"></div>' +
+        '<div class="skeleton" style="flex:1;height:14px"></div>' +
+        '<div class="skeleton" style="width:72px;height:14px;flex-shrink:0"></div>' +
+      '</div>' +
+      '<div class="skeleton" style="width:55%;height:10px;margin-left:60px"></div>' +
+    '</div>'
+  ).join("") + '</div>';
+}
 
 window.onload = () => {
   token = localStorage.getItem("sw_token");
@@ -651,8 +712,9 @@ function getStars(id) {
 }
 
 function renderTripCard(t) {
+  tripsCache[t.id] = t;
   const meta = [t.driver_name || "Chauffeur", t.vehicle_type, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
-  return '<div class="trip-row" onclick="bookTrip(' + t.id + ',\'' + t.from_city.replace(/'/g,"\\&#39;") + '\',\'' + t.to_city.replace(/'/g,"\\&#39;") + '\',' + t.price_per_seat + ',' + t.available_seats + ')">' +
+  return '<div class="trip-row" onclick="showTripDetail(' + t.id + ')">' +
     '<div class="tr-main">' +
       '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
       '<div class="tr-route">' + t.from_city + ' → ' + t.to_city + '</div>' +
@@ -662,11 +724,60 @@ function renderTripCard(t) {
   '</div>';
 }
 
+function showTripDetail(tripId) {
+  const t = tripsCache[tripId];
+  if (!t) return;
+  const colors = ["#34D186","#28B870","#FF6B35","#9B59B6","#FF9500","#0078D4","#E91E63"];
+  const name = t.driver_name || "Chauffeur";
+  const color = colors[(name.charCodeAt(0) || 0) % colors.length];
+  const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+  document.getElementById("td-body").innerHTML =
+    '<div class="td-route">' +
+      '<div class="td-route-cities">' +
+        '<div class="td-city">' + t.from_city + '</div>' +
+        '<div class="td-arrow">→</div>' +
+        '<div class="td-city" style="text-align:right">' + t.to_city + '</div>' +
+      '</div>' +
+      '<div class="td-route-info">📅 ' + t.departure_date + '&nbsp;&nbsp;·&nbsp;&nbsp;🕐 ' + t.departure_time + '</div>' +
+    '</div>' +
+    '<div class="td-price-box">' +
+      '<div><div class="td-price-label">Prix par place</div><div class="td-price-val">' + t.price_per_seat.toLocaleString() + ' <span style="font-size:18px;font-weight:600">MRU</span></div></div>' +
+      '<div style="text-align:right"><div class="td-price-label">Places disponibles</div><div style="font-size:24px;font-weight:800;color:var(--text)">' + t.available_seats + '</div></div>' +
+    '</div>' +
+    '<div class="td-driver">' +
+      '<div class="td-driver-av" style="background:' + color + '">' + initials + '</div>' +
+      '<div><div class="td-driver-name">' + name + '</div><div class="td-driver-sub">Chauffeur Goova</div></div>' +
+    '</div>' +
+    '<div class="td-info-grid">' +
+      '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (t.vehicle_type || "—") + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + t.total_seats + ' places au total</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">📅</span><span class="td-info-label">Date</span><span class="td-info-val">' + t.departure_date + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + t.departure_time + '</span></div>' +
+    '</div>';
+  document.getElementById("td-book-btn").dataset.tripId = tripId;
+  document.getElementById("trip-detail").style.display = "block";
+  document.getElementById("bottom-nav").style.display = "none";
+  document.getElementById("trip-detail").scrollTo(0, 0);
+}
+
+function closeTripDetail() {
+  document.getElementById("trip-detail").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
+}
+
+function bookFromDetail() {
+  const tripId = parseInt(document.getElementById("td-book-btn").dataset.tripId);
+  const t = tripsCache[tripId];
+  if (!t) return;
+  closeTripDetail();
+  bookTrip(tripId, t.from_city, t.to_city, t.price_per_seat, t.available_seats);
+}
+
 // ── HOME TRIPS ──
 async function loadHomeTrips() {
   const c = document.getElementById("home-trips");
   if (!c) return;
-  c.innerHTML = '<div class="loading">Chargement des trajets...</div>';
+  c.innerHTML = skeletonTripRows();
   try {
     const r = await fetch(API + "/trips/");
     const trips = await r.json();
@@ -681,7 +792,7 @@ async function searchTrips() {
   const to = document.getElementById("sf-to").value.trim();
   const date = document.getElementById("sf-date").value;
   const c = document.getElementById("search-results");
-  c.innerHTML = '<div class="loading">Recherche en cours...</div>';
+  c.innerHTML = skeletonTripRows(3);
   let url = API + "/trips/?";
   if (from) url += "from_city=" + encodeURIComponent(from) + "&";
   if (to) url += "to_city=" + encodeURIComponent(to) + "&";
@@ -741,7 +852,7 @@ function switchTrajetsTab(tab) {
 async function loadMyBookings() {
   const c = document.getElementById("t-bookings");
   if (!c) return;
-  c.innerHTML = '<div class="loading">Chargement...</div>';
+  c.innerHTML = skeletonTripRows(2);
   try {
     const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
     const bookings = await r.json();
@@ -772,7 +883,7 @@ async function cancelBooking(id) {
 async function loadMyTrips() {
   const c = document.getElementById("t-mytrips");
   if (!c) return;
-  c.innerHTML = '<div class="loading">Chargement...</div>';
+  c.innerHTML = skeletonTripRows(2);
   try {
     const r = await fetch(API + "/trips/mes-trajets", { headers: { "Authorization": "Bearer " + token } });
     const trips = await r.json();
@@ -903,7 +1014,13 @@ function updateProfileSection() {
       document.getElementById("profile-license").textContent = currentUser.license_number;
     }
     if (currentUser.role === "chauffeur") {
-      document.getElementById("driver-publish-btn").style.display = "block";
+      if (currentUser.is_approved === false) {
+        document.getElementById("driver-pending-notice").style.display = "block";
+        document.getElementById("driver-publish-btn").style.display = "none";
+      } else {
+        document.getElementById("driver-pending-notice").style.display = "none";
+        document.getElementById("driver-publish-btn").style.display = "block";
+      }
     }
   } else {
     document.getElementById("auth-section").style.display = "block";
@@ -991,9 +1108,11 @@ async function loadAdminUsers() {
           '<div class="user-name">' + u.name + (u.is_active ? "" : " 🔴") + '</div>' +
           '<div class="user-phone">' + u.phone + '</div>' +
           (u.role === "chauffeur" && u.license_number ? '<div style="font-size:11px;color:var(--green-dark);margin-top:2px">Permis: ' + u.license_number + '</div>' : '') +
+          (u.role === "chauffeur" && !u.is_approved ? '<div style="font-size:11px;color:var(--warning);margin-top:2px;font-weight:600">⏳ En attente d\'approbation</div>' : '') +
         '</div>' +
         '<div class="user-actions">' +
           '<span class="badge ' + (u.role === "chauffeur" ? "badge-orange" : u.role === "admin" ? "badge-green" : "badge-green") + '">' + u.role + '</span>' +
+          (u.role === "chauffeur" && !u.is_approved ? '<button class="btn btn-ghost btn-sm" onclick="approveDriver(' + u.id + ')" style="background:var(--green-light);color:var(--green-dark)">✅ Approuver</button>' : '') +
           (u.role !== "admin" ? (u.is_active ? '<button class="btn btn-danger btn-sm" onclick="toggleUser(' + u.id + ',false)">Bloquer</button>' : '<button class="btn btn-ghost btn-sm" onclick="toggleUser(' + u.id + ',true)">Activer</button>') : "") +
           (u.role !== "admin" ? '<button class="btn-delete" onclick="deleteUser(' + u.id + ',\'' + u.name + '\')">🗑️</button>' : "") +
         '</div>' +
@@ -1031,6 +1150,16 @@ async function toggleUser(userId, activate) {
   if (!confirm((activate ? "Activer" : "Bloquer") + " cet utilisateur ?")) return;
   try {
     await fetch(API + "/admin/users/" + userId + "/" + (activate ? "activer" : "desactiver"), { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
+    loadAdminUsers();
+  } catch(e) { alert("Erreur: " + e.message); }
+}
+
+async function approveDriver(userId) {
+  if (!confirm("Approuver ce chauffeur ? Il pourra publier des trajets.")) return;
+  try {
+    const r = await fetch(API + "/admin/users/" + userId + "/approuver", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail);
     loadAdminUsers();
   } catch(e) { alert("Erreur: " + e.message); }
 }

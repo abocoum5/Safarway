@@ -40,6 +40,7 @@ class User(Base):
     national_id_number = Column(String, nullable=True)
     license_photo = Column(Text, nullable=True)
     national_id_photo = Column(Text, nullable=True)
+    is_approved = Column(Boolean, default=False)
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")
