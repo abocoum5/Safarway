@@ -1020,7 +1020,7 @@ async function searchTrips() {
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.nosearch") + '</p></div>'; return; }
     c.innerHTML = '<p style="font-size:13px;color:var(--text-3);margin-bottom:4px">' + trips.length + ' trajet(s) trouvé(s)</p><div class="trip-list">' + trips.map(trip => renderTripCard(trip)).join("") + '</div>';
-  } catch(e) { c.innerHTML = '<div class="empty"><p>' + t("err.connect") + '</p></div>'; }
+  } catch(e) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.nosearch") + '</p></div>'; }
 }
 
 // ── BOOKING ──
