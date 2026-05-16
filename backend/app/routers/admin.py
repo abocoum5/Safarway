@@ -119,3 +119,12 @@ def get_all_trips(db: Session = Depends(get_db), current_user=Depends(get_curren
 def get_all_bookings(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)
     return db.query(models.Booking).order_by(models.Booking.created_at.desc()).all()
+
+
+@router.post("/send-reminders")
+def envoyer_rappels(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    from app.database import SessionLocal
+    from app.reminders import send_daily_reminders
+    count = send_daily_reminders(SessionLocal)
+    return {"message": "Rappels envoyés", "passagers": count["passengers"], "chauffeurs": count["drivers"]}

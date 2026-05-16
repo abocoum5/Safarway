@@ -36,6 +36,33 @@ Paiement en espèces au départ."""
         print(f"SMS non envoyé: {e}")
 
 
+def send_trip_reminder_passenger(phone: str, data: dict):
+    message = (
+        f"Goova ⏰ Rappel trajet demain !\n"
+        f"{data['from_city']} → {data['to_city']}\n"
+        f"Le {data['date']} à {data['time']}\n"
+        f"Réf: {data['reference']}\n"
+        f"Chauffeur: {data['driver_name']} — {data['driver_phone']}"
+    )
+    try:
+        sms.send(message, [f"+222{phone}"])
+    except Exception as e:
+        print(f"SMS rappel passager non envoyé: {e}")
+
+
+def send_trip_reminder_driver(phone: str, data: dict):
+    message = (
+        f"Goova ⏰ Rappel chauffeur demain !\n"
+        f"{data['from_city']} → {data['to_city']}\n"
+        f"Le {data['date']} à {data['time']}\n"
+        f"{data['passengers']} passager(s) vous attendent."
+    )
+    try:
+        sms.send(message, [f"+222{phone}"])
+    except Exception as e:
+        print(f"SMS rappel chauffeur non envoyé: {e}")
+
+
 def send_cancellation(phone: str, reference: str):
     message = f"""Goova ❌
 Réservation {reference} annulée.

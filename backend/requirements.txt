@@ -9,3 +9,4 @@ python-dotenv==1.0.1
 python-multipart==0.0.9
 pydantic[email]==2.9.0
 africastalking==1.2.5
+apscheduler==3.10.4

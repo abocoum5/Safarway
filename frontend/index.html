@@ -231,6 +231,20 @@
     .admin-overlay-logo h2 { font-size: 22px; font-weight: 800; }
     .admin-overlay-logo p { font-size: 14px; color: var(--text-3); margin-top: 4px; }
 
+    /* ── LANGUE / RTL ── */
+    .lang-toggle { background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 4px 11px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--text-2); transition: all 0.15s; flex-shrink: 0; }
+    .lang-toggle:hover { border-color: var(--green); color: var(--green); }
+    [dir="rtl"] body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    [dir="rtl"] .tr-meta { padding-left: 0; padding-right: 62px; }
+    [dir="rtl"] .back-btn svg, [dir="rtl"] .cp-back svg { transform: scaleX(-1); }
+    [dir="rtl"] .phone-prefix { border-right: none; border-left: 1px solid var(--border); }
+    [dir="rtl"] .pinfo-row { flex-direction: row-reverse; }
+    [dir="rtl"] .user-actions { justify-content: flex-start; }
+    [dir="rtl"] .cib-icon { order: -1; }
+    [dir="rtl"] .td-city:last-child { text-align: left; }
+    [dir="rtl"] .tc-footer { justify-content: flex-end; }
+    [dir="rtl"] .tc-city.right { text-align: left; }
+
     /* ── SKELETON ── */
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
     .skeleton { background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
@@ -294,14 +308,15 @@
 <div class="page active" id="page-home">
   <div class="header">
     <div class="header-logo">Go<span>ova</span></div>
+    <button class="lang-toggle" id="lang-toggle-home" onclick="toggleLang()">عر</button>
     <div class="header-avatar" onclick="showPage('compte')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
     </div>
   </div>
 
   <div class="hero">
-    <div class="hero-title">C'est vous qui<br>choisissez.</div>
-    <div class="hero-sub">Voyagez ensemble en Mauritanie</div>
+    <div class="hero-title" id="hero-title">C'est vous qui<br>choisissez.</div>
+    <div class="hero-sub" id="hero-sub" data-i18n="hero.sub">Voyagez ensemble en Mauritanie</div>
   </div>
 
   <div class="service-cards">
@@ -309,27 +324,27 @@
       <div class="sc-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 5v4h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
       </div>
-      <div class="sc-title">Trajets</div>
-      <div class="sc-sub">Réservez maintenant</div>
+      <div class="sc-title" data-i18n="sc.trajets">Trajets</div>
+      <div class="sc-sub" data-i18n="sc.book">Réservez maintenant</div>
     </div>
     <div class="service-card" onclick="showPage('search')">
       <div class="sc-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       </div>
-      <div class="sc-title">Planifier</div>
-      <div class="sc-sub">Trajets à venir</div>
+      <div class="sc-title" data-i18n="sc.plan">Planifier</div>
+      <div class="sc-sub" data-i18n="sc.upcoming">Trajets à venir</div>
     </div>
   </div>
 
   <div class="search-bar-wrap">
     <div class="search-bar" onclick="showPage('search')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      <span class="search-bar-text">Où allez-vous ?</span>
+      <span class="search-bar-text" data-i18n="search.bar">Où allez-vous ?</span>
     </div>
   </div>
 
   <div class="section">
-    <div class="section-title">Trajets disponibles</div>
+    <div class="section-title" data-i18n="home.trips">Trajets disponibles</div>
     <div id="home-trips"><div class="loading">Chargement des trajets...</div></div>
   </div>
 </div>
@@ -340,7 +355,7 @@
     <button class="back-btn" onclick="showPage('home')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-    <div class="search-page-title">Chercher un trajet</div>
+    <div class="search-page-title" data-i18n="search.title">Chercher un trajet</div>
   </div>
 
   <div class="search-fields">
@@ -358,7 +373,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
       <input type="date" id="sf-date">
     </div>
-    <button class="btn btn-green" onclick="searchTrips()">Rechercher</button>
+    <button class="btn btn-green" onclick="searchTrips()" data-i18n="search.btn">Rechercher</button>
   </div>
 
   <div class="section">
@@ -370,6 +385,7 @@
 <div class="page" id="page-trajets">
   <div class="header">
     <div class="header-logo">Go<span>ova</span></div>
+    <button class="lang-toggle" id="lang-toggle-trajets" onclick="toggleLang()">عر</button>
   </div>
   <div style="padding: 0 20px;">
     <div id="trajets-content"><div class="loading">Chargement...</div></div>
@@ -380,30 +396,31 @@
 <div class="page" id="page-compte">
   <div class="header">
     <div class="header-logo">Go<span>ova</span></div>
+    <button class="lang-toggle" id="lang-toggle-compte" onclick="toggleLang()">عر</button>
   </div>
   <div style="padding: 0 20px;">
 
     <!-- AUTH -->
     <div id="auth-section">
       <div class="tabs">
-        <div class="tab active" onclick="switchAuthTab('login', this)">Connexion</div>
-        <div class="tab" onclick="switchAuthTab('register', this)">Inscription chauffeur</div>
+        <div class="tab active" onclick="switchAuthTab('login', this)" data-i18n="auth.login">Connexion</div>
+        <div class="tab" onclick="switchAuthTab('register', this)" data-i18n="auth.register">Inscription chauffeur</div>
       </div>
 
       <div id="login-form">
         <div class="card">
-          <div class="card-title">Bienvenue 👋</div>
+          <div class="card-title" data-i18n="auth.welcome">Bienvenue 👋</div>
           <div id="otp-step1">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:16px">Entrez votre numéro pour recevoir un code SMS.</p>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:16px" data-i18n="auth.otp.desc">Entrez votre numéro pour recevoir un code SMS.</p>
             <div class="form-group">
-              <label>Numéro de téléphone</label>
+              <label data-i18n="auth.phone">Numéro de téléphone</label>
               <div class="phone-wrap">
                 <span class="phone-prefix">🇲🇷 +222</span>
                 <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
               </div>
             </div>
             <div id="auth-alert"></div>
-            <button class="btn btn-green" onclick="requestPhoneOTP()">Recevoir un code SMS →</button>
+            <button class="btn btn-green" onclick="requestPhoneOTP()" data-i18n="auth.send.otp">Recevoir un code SMS →</button>
           </div>
           <div id="otp-step2" style="display:none">
             <div class="otp-info"><p>Code envoyé au</p><strong id="otp-phone-display"></strong></div>
@@ -412,15 +429,15 @@
               <input type="number" id="auth-otp" class="otp-input" placeholder="______" inputmode="numeric">
             </div>
             <div id="auth-alert2"></div>
-            <button class="btn btn-green" onclick="verifyPhoneOTP()">Confirmer →</button>
-            <button class="btn btn-ghost mt-10" onclick="resetOTPForm()">← Modifier le numéro</button>
+            <button class="btn btn-green" onclick="verifyPhoneOTP()" data-i18n="auth.confirm">Confirmer →</button>
+            <button class="btn btn-ghost mt-10" onclick="resetOTPForm()" data-i18n="auth.edit.phone">← Modifier le numéro</button>
           </div>
         </div>
       </div>
 
       <div id="register-form" style="display:none">
         <div class="card">
-          <div class="card-title">Inscription Chauffeur 🚗</div>
+          <div class="card-title" data-i18n="auth.driver.title">Inscription Chauffeur 🚗</div>
           <div class="form-group">
             <label>Numéro de téléphone</label>
             <div class="phone-wrap">
@@ -428,14 +445,14 @@
               <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
             </div>
           </div>
-          <div class="form-group"><label>Nom complet *</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
+          <div class="form-group"><label data-i18n="auth.fullname">Nom complet *</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
           <div class="driver-docs-notice">📋 Documents obligatoires pour les chauffeurs</div>
-          <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
-          <div class="form-group"><label>N° carte d'identité *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
-          <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
-          <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
+          <div class="form-group"><label data-i18n="auth.license.num">N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
+          <div class="form-group"><label data-i18n="auth.national.id">N° carte d'identité *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
+          <div class="form-group"><label data-i18n="auth.license.photo">Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
+          <div class="form-group"><label data-i18n="auth.id.photo">Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
           <div id="reg-alert"></div>
-          <button class="btn btn-green mt-10" onclick="registerChauffeur()">Créer mon compte</button>
+          <button class="btn btn-green mt-10" onclick="registerChauffeur()" data-i18n="auth.create.account">Créer mon compte</button>
         </div>
       </div>
     </div>
@@ -451,11 +468,11 @@
       </div>
       <div class="card">
         <div class="pinfo-row">
-          <span class="pinfo-label">Téléphone</span>
+          <span class="pinfo-label" data-i18n="profile.phone">Téléphone</span>
           <span class="pinfo-value" id="profile-phone"></span>
         </div>
         <div class="pinfo-row" id="pinfo-license-row" style="display:none">
-          <span class="pinfo-label">N° Permis</span>
+          <span class="pinfo-label" data-i18n="profile.license">N° Permis</span>
           <span class="pinfo-value" id="profile-license"></span>
         </div>
       </div>
@@ -463,11 +480,11 @@
         ⏳ Votre compte chauffeur est en cours de validation. Vous pourrez publier des trajets une fois approuvé par un administrateur.
       </div>
       <div id="driver-publish-btn" style="display:none">
-        <button class="btn btn-green" onclick="openPublishForm()">+ Publier un nouveau trajet</button>
+        <button class="btn btn-green" onclick="openPublishForm()" data-i18n="profile.publish">+ Publier un nouveau trajet</button>
       </div>
       <div id="publish-form" style="display:none;margin-top:12px">
         <div class="card">
-          <div class="card-title">Nouveau trajet 🚗</div>
+          <div class="card-title" data-i18n="publish.title">Nouveau trajet 🚗</div>
           <div class="form-group">
             <label>Ville de départ</label>
             <button class="city-input-btn" onclick="openCityPicker('trip-from')">
@@ -484,11 +501,11 @@
               <input type="hidden" id="trip-to">
             </button>
           </div>
-          <div class="form-group"><label>Date de départ</label><input type="date" id="trip-date"></div>
-          <div class="form-group"><label>Heure de départ</label><input type="time" id="trip-time"></div>
-          <div class="form-group"><label>Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
-          <div class="form-group"><label>Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
-          <div class="form-group"><label>Type de véhicule</label>
+          <div class="form-group"><label data-i18n="publish.date">Date de départ</label><input type="date" id="trip-date"></div>
+          <div class="form-group"><label data-i18n="publish.time">Heure de départ</label><input type="time" id="trip-time"></div>
+          <div class="form-group"><label data-i18n="publish.seats">Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
+          <div class="form-group"><label data-i18n="publish.price">Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
+          <div class="form-group"><label data-i18n="publish.vehicle">Type de véhicule</label>
             <select id="trip-vehicle">
               <option value="">Choisir...</option>
               <option>Peugeot 504</option><option>Minibus</option>
@@ -496,11 +513,11 @@
             </select>
           </div>
           <div id="publish-alert"></div>
-          <button class="btn btn-green mt-10" onclick="publishTrip()">Publier ce trajet</button>
-          <button class="btn btn-ghost mt-10" onclick="closePublishForm()">Annuler</button>
+          <button class="btn btn-green mt-10" onclick="publishTrip()" data-i18n="publish.btn">Publier ce trajet</button>
+          <button class="btn btn-ghost mt-10" onclick="closePublishForm()" data-i18n="publish.cancel">Annuler</button>
         </div>
       </div>
-      <button class="btn btn-ghost mt-16" onclick="logout()">Se déconnecter</button>
+      <button class="btn btn-ghost mt-16" onclick="logout()" data-i18n="profile.logout">Se déconnecter</button>
     </div>
   </div>
 </div>
@@ -541,6 +558,9 @@
     <div id="sms-count" class="text-gray mt-10"></div>
     <div id="sms-alert"></div>
     <button class="btn btn-green mt-10" onclick="sendGroupSMS()">Envoyer le SMS</button>
+    <div class="divider"></div>
+    <p class="text-gray" style="margin-bottom:10px">Rappel automatique J-1 (7h UTC) ou manuel :</p>
+    <button class="btn btn-ghost" onclick="sendReminders()">⏰ Envoyer rappels J-1 maintenant</button>
   </div>
   <div id="admin-export" class="card" style="display:none">
     <div class="card-title">📥 Exporter les données</div>
@@ -558,7 +578,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
     <div class="cp-search-row">
-      <input type="text" id="cp-input" placeholder="Chercher une ville..." autocomplete="off">
+      <input type="text" id="cp-input" placeholder="Chercher une ville..." autocomplete="off" data-i18n-placeholder="cp.search">
       <button class="cp-clear" id="cp-clear-btn" onclick="clearCpInput()" style="display:none">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
       </button>
@@ -573,11 +593,11 @@
     <button class="back-btn" onclick="closeTripDetail()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-    <div style="font-size:16px;font-weight:700">Détails du trajet</div>
+    <div style="font-size:16px;font-weight:700" data-i18n="detail.title">Détails du trajet</div>
   </div>
   <div class="td-body" id="td-body"></div>
   <div class="td-book-bar">
-    <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()">Réserver ce trajet</button>
+    <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()" data-i18n="book.btn">Réserver ce trajet</button>
   </div>
 </div>
 
@@ -585,20 +605,123 @@
 <div class="bottom-nav" id="bottom-nav">
   <div class="bnav-item active" id="bnav-home" onclick="showPage('home')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
-    Accueil
+    <span data-i18n="nav.home">Accueil</span>
   </div>
   <div class="bnav-item" id="bnav-trajets" onclick="showPage('trajets')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-    Trajets
+    <span data-i18n="nav.trajets">Trajets</span>
   </div>
   <div class="bnav-item" id="bnav-compte" onclick="showPage('compte')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    Compte
+    <span data-i18n="nav.compte">Compte</span>
   </div>
 </div>
 
 <script>
 const API = "https://safarway.onrender.com";
+
+// ── TRADUCTIONS FR / AR ──
+const TRANSLATIONS = {
+  fr: {
+    "nav.home":"Accueil","nav.trajets":"Trajets","nav.compte":"Compte",
+    "hero.sub":"Voyagez ensemble en Mauritanie",
+    "sc.trajets":"Trajets","sc.book":"Réservez maintenant","sc.plan":"Planifier","sc.upcoming":"Trajets à venir",
+    "search.bar":"Où allez-vous ?","home.trips":"Trajets disponibles",
+    "search.title":"Chercher un trajet","search.btn":"Rechercher",
+    "search.from":"Ville de départ","search.to":"Ville d'arrivée",
+    "cp.search":"Chercher une ville...",
+    "auth.login":"Connexion","auth.register":"Inscription chauffeur",
+    "auth.welcome":"Bienvenue 👋","auth.otp.desc":"Entrez votre numéro pour recevoir un code SMS.",
+    "auth.phone":"Numéro de téléphone","auth.send.otp":"Recevoir un code SMS →",
+    "auth.confirm":"Confirmer →","auth.edit.phone":"← Modifier le numéro",
+    "auth.driver.title":"Inscription Chauffeur 🚗",
+    "auth.fullname":"Nom complet *","auth.license.num":"N° permis de conduire *",
+    "auth.national.id":"N° carte d'identité *",
+    "auth.license.photo":"Photo du permis * (max 2MB)","auth.id.photo":"Photo carte d'identité * (max 2MB)",
+    "auth.create.account":"Créer mon compte",
+    "profile.phone":"Téléphone","profile.license":"N° Permis",
+    "profile.publish":"+ Publier un nouveau trajet","profile.logout":"Se déconnecter",
+    "profile.pending":"⏳ Votre compte chauffeur est en cours de validation. Vous pourrez publier des trajets une fois approuvé par un administrateur.",
+    "publish.title":"Nouveau trajet 🚗","publish.date":"Date de départ","publish.time":"Heure de départ",
+    "publish.seats":"Nombre de places","publish.price":"Prix par place (MRU)","publish.vehicle":"Type de véhicule",
+    "publish.btn":"Publier ce trajet","publish.cancel":"Annuler",
+    "mytrips.bookings":"Mes réservations","mytrips.trips":"Mes trajets",
+    "detail.title":"Détails du trajet","book.btn":"Réserver ce trajet",
+    "empty.notrips":"Aucun trajet disponible.","empty.nosearch":"Aucun trajet trouvé.","err.connect":"Erreur de connexion",
+    "driver.sub":"Chauffeur Goova","capacity":"places au total",
+  },
+  ar: {
+    "nav.home":"الرئيسية","nav.trajets":"رحلاتي","nav.compte":"حسابي",
+    "hero.sub":"سافروا معاً في موريتانيا",
+    "sc.trajets":"الرحلات","sc.book":"احجز الآن","sc.plan":"التخطيط","sc.upcoming":"رحلات قادمة",
+    "search.bar":"إلى أين تذهب؟","home.trips":"الرحلات المتاحة",
+    "search.title":"البحث عن رحلة","search.btn":"بحث",
+    "search.from":"مدينة الانطلاق","search.to":"مدينة الوصول",
+    "cp.search":"ابحث عن مدينة...",
+    "auth.login":"تسجيل الدخول","auth.register":"تسجيل سائق",
+    "auth.welcome":"أهلاً 👋","auth.otp.desc":"أدخل رقمك لاستلام رمز SMS.",
+    "auth.phone":"رقم الهاتف","auth.send.otp":"← استلام رمز SMS",
+    "auth.confirm":"← تأكيد","auth.edit.phone":"تعديل الرقم →",
+    "auth.driver.title":"تسجيل سائق 🚗",
+    "auth.fullname":"الاسم الكامل *","auth.license.num":"رقم رخصة القيادة *",
+    "auth.national.id":"رقم البطاقة الوطنية *",
+    "auth.license.photo":"صورة الرخصة * (أقل من 2MB)","auth.id.photo":"صورة البطاقة الوطنية * (أقل من 2MB)",
+    "auth.create.account":"إنشاء حسابي",
+    "profile.phone":"الهاتف","profile.license":"رقم الرخصة",
+    "profile.publish":"+ نشر رحلة جديدة","profile.logout":"تسجيل الخروج",
+    "profile.pending":"⏳ حسابك كسائق قيد المراجعة. يمكنك نشر الرحلات بعد موافقة المسؤول.",
+    "publish.title":"رحلة جديدة 🚗","publish.date":"تاريخ الانطلاق","publish.time":"وقت الانطلاق",
+    "publish.seats":"عدد المقاعد","publish.price":"السعر للمقعد (MRU)","publish.vehicle":"نوع المركبة",
+    "publish.btn":"نشر هذه الرحلة","publish.cancel":"إلغاء",
+    "mytrips.bookings":"حجوزاتي","mytrips.trips":"رحلاتي",
+    "detail.title":"تفاصيل الرحلة","book.btn":"حجز هذه الرحلة",
+    "empty.notrips":"لا توجد رحلات متاحة.","empty.nosearch":"لم يتم العثور على رحلات.","err.connect":"خطأ في الاتصال",
+    "driver.sub":"سائق Goova","capacity":"مقاعد إجمالاً",
+  }
+};
+
+let currentLang = "fr";
+
+function t(key) {
+  return (TRANSLATIONS[currentLang] || TRANSLATIONS.fr)[key] || TRANSLATIONS.fr[key] || key;
+}
+
+function applyLang() {
+  const isAr = currentLang === "ar";
+  document.documentElement.dir = isAr ? "rtl" : "ltr";
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll(".lang-toggle").forEach(el => { el.textContent = isAr ? "FR" : "عر"; });
+  const ht = document.getElementById("hero-title");
+  if (ht) ht.innerHTML = isAr ? "أنت من<br>يختار." : "C'est vous qui<br>choisissez.";
+  // Mettre à jour les labels des champs ville si non sélectionnés
+  [["sf-from","search.from"],["sf-to","search.to"],["trip-from","publish.from"],["trip-to","publish.to"]].forEach(([id, key]) => {
+    const lbl = document.getElementById(id + "-label");
+    if (lbl && lbl.classList.contains("cib-placeholder")) lbl.textContent = t(key);
+  });
+  if (currentUser) updateProfileSection();
+}
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem("sw_lang", lang);
+  applyLang();
+}
+
+function toggleLang() {
+  setLang(currentLang === "ar" ? "fr" : "ar");
+}
+
+async function sendReminders() {
+  if (!confirm("Envoyer les rappels SMS aux voyageurs dont le trajet est demain ?")) return;
+  try {
+    const r = await fetch(API + "/admin/send-reminders", { method: "POST", headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail);
+    showAlert("sms-alert", "✅ " + d.message + " — " + d.passagers + " passagers, " + d.chauffeurs + " chauffeurs", "success");
+  } catch(e) { showAlert("sms-alert", "Erreur: " + e.message, "error"); }
+}
 let currentUser = null, token = null;
 let allUsers = [], allBookings = [], allAdminTrips = [];
 let revenueChart = null, bookingsChart = null;
@@ -622,7 +745,9 @@ window.onload = () => {
   token = localStorage.getItem("sw_token");
   const s = localStorage.getItem("sw_user");
   if (token && s) { currentUser = JSON.parse(s); }
+  currentLang = localStorage.getItem("sw_lang") || "fr";
   loadVilles();
+  applyLang();
   setTodayDate();
   checkAdminRoute();
   loadHomeTrips();
@@ -839,11 +964,11 @@ function showTripDetail(tripId) {
     '</div>' +
     '<div class="td-driver">' +
       '<div class="td-driver-av" style="background:' + color + '">' + initials + '</div>' +
-      '<div><div class="td-driver-name">' + name + '</div><div class="td-driver-sub">Chauffeur Goova</div></div>' +
+      '<div><div class="td-driver-name">' + name + '</div><div class="td-driver-sub">' + t("driver.sub") + '</div></div>' +
     '</div>' +
     '<div class="td-info-grid">' +
       '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (t.vehicle_type || "—") + '</span></div>' +
-      '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + t.total_seats + ' places au total</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + t.total_seats + ' ' + t("capacity") + '</span></div>' +
       '<div class="td-info-row"><span class="td-info-icon">📅</span><span class="td-info-label">Date</span><span class="td-info-val">' + t.departure_date + '</span></div>' +
       '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + t.departure_time + '</span></div>' +
     '</div>';
@@ -874,9 +999,9 @@ async function loadHomeTrips() {
   try {
     const r = await fetch(API + "/trips/");
     const trips = await r.json();
-    if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>Aucun trajet disponible.</p></div>'; return; }
-    c.innerHTML = '<div class="trip-list">' + trips.slice(0, 8).map(t => renderTripCard(t)).join("") + '</div>';
-  } catch(e) { c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
+    if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.notrips") + '</p></div>'; return; }
+    c.innerHTML = '<div class="trip-list">' + trips.slice(0, 8).map(trip => renderTripCard(trip)).join("") + '</div>';
+  } catch(e) { c.innerHTML = '<div class="empty"><p>' + t("err.connect") + '</p></div>'; }
 }
 
 // ── SEARCH ──
@@ -893,9 +1018,9 @@ async function searchTrips() {
   try {
     const r = await fetch(url);
     const trips = await r.json();
-    if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>Aucun trajet trouvé.</p></div>'; return; }
-    c.innerHTML = '<p style="font-size:13px;color:var(--text-3);margin-bottom:4px">' + trips.length + ' trajet(s) trouvé(s)</p><div class="trip-list">' + trips.map(t => renderTripCard(t)).join("") + '</div>';
-  } catch(e) { c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
+    if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚌</div><p>' + t("empty.nosearch") + '</p></div>'; return; }
+    c.innerHTML = '<p style="font-size:13px;color:var(--text-3);margin-bottom:4px">' + trips.length + ' trajet(s) trouvé(s)</p><div class="trip-list">' + trips.map(trip => renderTripCard(trip)).join("") + '</div>';
+  } catch(e) { c.innerHTML = '<div class="empty"><p>' + t("err.connect") + '</p></div>'; }
 }
 
 // ── BOOKING ──
@@ -927,9 +1052,9 @@ function loadTrajetsPage() {
     return;
   }
   if (currentUser.role === "chauffeur" || currentUser.role === "admin") {
-    c.innerHTML = '<div class="tabs"><div class="tab active" id="t-tab-book" onclick="switchTrajetsTab(\'bookings\')">Mes réservations</div><div class="tab" id="t-tab-trips" onclick="switchTrajetsTab(\'mytrips\')">Mes trajets</div></div><div id="t-bookings"></div><div id="t-mytrips" style="display:none"></div>';
+    c.innerHTML = '<div class="tabs"><div class="tab active" id="t-tab-book" onclick="switchTrajetsTab(\'bookings\')">' + t("mytrips.bookings") + '</div><div class="tab" id="t-tab-trips" onclick="switchTrajetsTab(\'mytrips\')">' + t("mytrips.trips") + '</div></div><div id="t-bookings"></div><div id="t-mytrips" style="display:none"></div>';
   } else {
-    c.innerHTML = '<div style="font-size:17px;font-weight:700;margin-bottom:16px">Mes réservations</div><div id="t-bookings"></div>';
+    c.innerHTML = '<div style="font-size:17px;font-weight:700;margin-bottom:16px">' + t("mytrips.bookings") + '</div><div id="t-bookings"></div>';
   }
   loadMyBookings();
   if (currentUser.role === "chauffeur" || currentUser.role === "admin") loadMyTrips();
@@ -1108,7 +1233,9 @@ function updateProfileSection() {
     }
     if (currentUser.role === "chauffeur") {
       if (currentUser.is_approved === false) {
-        document.getElementById("driver-pending-notice").style.display = "block";
+        const notice = document.getElementById("driver-pending-notice");
+        notice.textContent = t("profile.pending");
+        notice.style.display = "block";
         document.getElementById("driver-publish-btn").style.display = "none";
       } else {
         document.getElementById("driver-pending-notice").style.display = "none";

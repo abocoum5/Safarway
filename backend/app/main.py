@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from app.database import engine
+from apscheduler.schedulers.background import BackgroundScheduler
+from app.database import engine, SessionLocal
 from app import models
 from app.routers import users, trips, bookings, admin
 
@@ -19,6 +20,14 @@ def run_migrations():
         conn.commit()
 
 run_migrations()
+
+def _run_reminders():
+    from app.reminders import send_daily_reminders
+    send_daily_reminders(SessionLocal)
+
+_scheduler = BackgroundScheduler(timezone="UTC")
+_scheduler.add_job(_run_reminders, "cron", hour=7, minute=0)
+_scheduler.start()
 
 app = FastAPI(
     title="SafarWay API",
