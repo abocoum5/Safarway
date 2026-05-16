@@ -102,9 +102,7 @@
     .search-fields { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
     .sf-box { background: var(--bg-2); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1.5px solid transparent; position: relative; transition: all 0.15s; }
     .sf-box:focus-within { border-color: var(--green); background: var(--green-light); }
-    .sf-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .dot-green { background: var(--green); }
-    .dot-black { background: var(--text); }
+    .sf-dot { font-size: 18px; flex-shrink: 0; line-height: 1; }
     .sf-box input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; color: var(--text); }
     .sf-box input::placeholder { color: var(--text-3); }
     .sf-date { background: var(--bg-2); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1.5px solid transparent; transition: all 0.15s; }
@@ -113,15 +111,17 @@
     .sf-date input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; color: var(--text); }
 
     /* ── AUTOCOMPLETE ── */
-    .autocomplete-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg); border: 1.5px solid var(--green); border-radius: var(--radius-sm); box-shadow: 0 8px 28px rgba(0,0,0,0.12); z-index: 200; max-height: 220px; overflow-y: auto; display: none; }
-    .autocomplete-item { padding: 13px 16px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.1s; display: flex; align-items: center; gap: 10px; }
+    .autocomplete-list { position: absolute; top: calc(100% + 6px); left: 0; right: 0; background: var(--bg); border: 1.5px solid var(--green); border-radius: var(--radius-sm); box-shadow: 0 8px 28px rgba(0,0,0,0.12); z-index: 200; max-height: 0; overflow: hidden; opacity: 0; pointer-events: none; transition: max-height 0.2s ease, opacity 0.18s ease; }
+    .autocomplete-list.show { max-height: 280px; overflow-y: auto; opacity: 1; pointer-events: auto; }
+    .autocomplete-item { padding: 12px 16px; font-size: 15px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.12s; display: flex; align-items: center; gap: 10px; }
     .autocomplete-item:last-child { border-bottom: none; }
     .autocomplete-item:hover, .autocomplete-item.ac-active { background: var(--green-light); color: var(--green-dark); }
     .autocomplete-item mark { background: none; color: var(--green-dark); font-weight: 700; font-style: normal; }
-    .autocomplete-item::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .autocomplete-item::before { content: '🚌'; font-size: 14px; flex-shrink: 0; }
     /* autocomplete in form-group */
     .ac-wrap { position: relative; width: 100%; }
-    .ac-wrap input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-2); color: var(--text); outline: none; transition: border 0.15s, background 0.15s; -webkit-appearance: none; }
+    .ac-wrap::before { content: '📍'; position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; pointer-events: none; z-index: 1; line-height: 1; }
+    .ac-wrap input { width: 100%; padding: 14px 16px 14px 42px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-2); color: var(--text); outline: none; transition: border 0.15s, background 0.15s; -webkit-appearance: none; }
     .ac-wrap input:focus { border-color: var(--green); background: var(--green-light); }
     .ac-wrap input::placeholder { color: var(--text-3); }
 
@@ -308,12 +308,12 @@
 
   <div class="search-fields">
     <div class="sf-box">
-      <div class="sf-dot dot-green"></div>
+      <span class="sf-dot">📍</span>
       <input type="text" id="sf-from" placeholder="Ville de départ" autocomplete="off">
       <div class="autocomplete-list" id="sf-from-list"></div>
     </div>
     <div class="sf-box">
-      <div class="sf-dot dot-black"></div>
+      <span class="sf-dot" style="opacity:0.5">📍</span>
       <input type="text" id="sf-to" placeholder="Ville d'arrivée" autocomplete="off">
       <div class="autocomplete-list" id="sf-to-list"></div>
     </div>
@@ -587,39 +587,55 @@ async function loadVilles() {
   } catch(e) {}
 }
 
+function normalizeStr(s) {
+  return s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+}
+
 function setupAutocomplete(inputId, listId) {
   const input = document.getElementById(inputId);
   const list = document.getElementById(listId);
   if (!input || !list) return;
   let activeIdx = -1;
 
+  function showList() { list.classList.add("show"); }
+  function hideList() { list.classList.remove("show"); }
+
   function render(val) {
-    const q = val.trim().toLowerCase();
+    const q = normalizeStr(val.trim());
+    const qRaw = val.trim().toLowerCase();
     list.innerHTML = ""; activeIdx = -1;
-    if (q.length < 2) { list.style.display = "none"; return; }
-    const matches = VILLES.filter(v => v.toLowerCase().includes(q)).slice(0, 12);
-    if (!matches.length) { list.style.display = "none"; return; }
+    if (q.length < 1) { hideList(); return; }
+    const matches = VILLES.filter(v => normalizeStr(v).includes(q)).slice(0, 8);
+    if (!matches.length) { hideList(); return; }
     matches.forEach(v => {
       const item = document.createElement("div");
       item.className = "autocomplete-item";
-      const idx = v.toLowerCase().indexOf(q);
-      item.innerHTML = v.substring(0, idx) + "<mark>" + v.substring(idx, idx + q.length) + "</mark>" + v.substring(idx + q.length);
-      item.addEventListener("mousedown", e => { e.preventDefault(); input.value = v; list.style.display = "none"; });
+      item.dataset.city = v;
+      const vLow = v.toLowerCase();
+      let html;
+      if (vLow.includes(qRaw)) {
+        const idx = vLow.indexOf(qRaw);
+        html = v.substring(0, idx) + "<mark>" + v.substring(idx, idx + qRaw.length) + "</mark>" + v.substring(idx + qRaw.length);
+      } else {
+        html = v;
+      }
+      item.innerHTML = html;
+      item.addEventListener("mousedown", e => { e.preventDefault(); input.value = v; hideList(); });
       list.appendChild(item);
     });
-    list.style.display = "block";
+    showList();
   }
 
   input.addEventListener("input", () => render(input.value));
-  input.addEventListener("focus", () => { if (input.value.trim().length >= 2) render(input.value); });
-  input.addEventListener("blur", () => setTimeout(() => { list.style.display = "none"; }, 150));
+  input.addEventListener("focus", () => { if (input.value.trim().length >= 1) render(input.value); });
+  input.addEventListener("blur", () => setTimeout(() => hideList(), 150));
   input.addEventListener("keydown", e => {
     const items = list.querySelectorAll(".autocomplete-item");
     if (!items.length) return;
     if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIdx)); }
     else if (e.key === "ArrowUp") { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); items.forEach((el, i) => el.classList.toggle("ac-active", i === activeIdx)); }
-    else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].textContent.trim(); list.style.display = "none"; }
-    else if (e.key === "Escape") { list.style.display = "none"; }
+    else if (e.key === "Enter" && activeIdx >= 0) { e.preventDefault(); input.value = items[activeIdx].dataset.city; hideList(); }
+    else if (e.key === "Escape") { hideList(); }
   });
 }
 
