@@ -14,7 +14,7 @@ sms = vonage.Sms(client)
 def _send(phone: str, message: str):
     to = f"222{phone}"
     response = sms.send_message({
-        "from": "Goova",
+        "from": "33674641066",
         "to": to,
         "text": message,
     })
