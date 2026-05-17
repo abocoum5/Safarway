@@ -1,39 +1,47 @@
-import africastalking
+import vonage
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
-africastalking.initialize(
-    username=os.getenv("AT_USERNAME"),
-    api_key=os.getenv("AT_API_KEY")
+client = vonage.Client(
+    key=os.getenv("VONAGE_API_KEY"),
+    secret=os.getenv("VONAGE_API_SECRET")
 )
+sms = vonage.Sms(client)
 
-sms = africastalking.SMS
+
+def _send(phone: str, message: str):
+    response = sms.send_message({
+        "from": "Goova",
+        "to": f"222{phone}",
+        "text": message,
+    })
+    if response["messages"][0]["status"] != "0":
+        raise Exception(response["messages"][0]["error-text"])
 
 
 def send_otp_sms(phone: str, otp: str):
-    message = f"Goova - Votre code de connexion : {otp}\nValide 10 minutes."
     try:
-        sms.send(message, [f"+222{phone}"])
+        _send(phone, f"Goova - Votre code de connexion : {otp}\nValide 10 minutes.")
     except Exception as e:
         print(f"OTP SMS non envoyé: {e}")
 
 
 def send_booking_confirmation(phone: str, data: dict):
-    message = f"""Goova ✅
-Réservation confirmée !
-Réf: {data['reference_code']}
-Trajet: {data['from_city']} → {data['to_city']}
-Date: {data['date']} à {data['time']}
-Places: {data['seats']} | Total: {data['total_price']} MRU
-Chauffeur: {data['driver_name']}
-Tel chauffeur: {data['driver_phone']}
-Paiement en espèces au départ."""
+    message = (
+        f"Goova ✅ Réservation confirmée !\n"
+        f"Réf: {data['reference_code']}\n"
+        f"Trajet: {data['from_city']} → {data['to_city']}\n"
+        f"Date: {data['date']} à {data['time']}\n"
+        f"Places: {data['seats']} | Total: {data['total_price']} MRU\n"
+        f"Chauffeur: {data['driver_name']} — {data['driver_phone']}\n"
+        f"Paiement en espèces au départ."
+    )
     try:
-        sms.send(message, [f"+222{phone}"])
+        _send(phone, message)
     except Exception as e:
-        print(f"SMS non envoyé: {e}")
+        print(f"SMS confirmation non envoyé: {e}")
 
 
 def send_trip_reminder_passenger(phone: str, data: dict):
@@ -45,7 +53,7 @@ def send_trip_reminder_passenger(phone: str, data: dict):
         f"Chauffeur: {data['driver_name']} — {data['driver_phone']}"
     )
     try:
-        sms.send(message, [f"+222{phone}"])
+        _send(phone, message)
     except Exception as e:
         print(f"SMS rappel passager non envoyé: {e}")
 
@@ -58,16 +66,13 @@ def send_trip_reminder_driver(phone: str, data: dict):
         f"{data['passengers']} passager(s) vous attendent."
     )
     try:
-        sms.send(message, [f"+222{phone}"])
+        _send(phone, message)
     except Exception as e:
         print(f"SMS rappel chauffeur non envoyé: {e}")
 
 
 def send_cancellation(phone: str, reference: str):
-    message = f"""Goova ❌
-Réservation {reference} annulée.
-Contactez-nous au besoin."""
     try:
-        sms.send(message, [f"+222{phone}"])
+        _send(phone, f"Goova ❌ Réservation {reference} annulée.\nContactez-nous au besoin.")
     except Exception as e:
-        print(f"SMS non envoyé: {e}")
+        print(f"SMS annulation non envoyé: {e}")
