@@ -37,7 +37,13 @@ def _send_whatsapp(phone: str, template: str, lang: str = "en_US", components: l
 
 def send_otp_sms(phone: str, otp: str):
     try:
-        _send_whatsapp(phone, "hello_world")
+        components = [
+            {
+                "type": "body",
+                "parameters": [{"type": "text", "text": otp}]
+            }
+        ]
+        _send_whatsapp(phone, "otp_verification", lang="fr", components=components)
     except Exception as e:
         print(f"OTP WhatsApp non envoyé: {e}")
 
