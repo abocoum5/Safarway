@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
-from datetime import date as date_type
+from datetime import date
 from app.database import get_db
 from app import models, schemas
 from app.auth import get_current_user
@@ -82,10 +82,10 @@ def publier_trajet(
 def rechercher_trajets(
     from_city: Optional[str] = Query(None, description="Ville de départ"),
     to_city: Optional[str] = Query(None, description="Ville d'arrivée"),
-    date: Optional[str] = Query(None, description="Date (YYYY-MM-DD)"),
+    date_filter: Optional[str] = Query(None, description="Date (YYYY-MM-DD)", alias="date"),
     db: Session = Depends(get_db)
 ):
-    today = date_type.today().strftime("%Y-%m-%d")
+    today = date.today().strftime("%Y-%m-%d")
     query = db.query(models.Trip).filter(
         models.Trip.status == models.TripStatus.actif,
         models.Trip.available_seats > 0,
@@ -96,8 +96,8 @@ def rechercher_trajets(
         query = query.filter(models.Trip.from_city == from_city)
     if to_city:
         query = query.filter(models.Trip.to_city == to_city)
-    if date:
-        query = query.filter(models.Trip.departure_date == date)
+    if date_filter:
+        query = query.filter(models.Trip.departure_date == date_filter)
 
     trips = query.order_by(models.Trip.departure_date, models.Trip.departure_time).all()
 
