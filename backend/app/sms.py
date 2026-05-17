@@ -12,13 +12,16 @@ sms = vonage.Sms(client)
 
 
 def _send(phone: str, message: str):
+    to = f"222{phone}"
     response = sms.send_message({
         "from": "Goova",
-        "to": f"222{phone}",
+        "to": to,
         "text": message,
     })
-    if response["messages"][0]["status"] != "0":
-        raise Exception(response["messages"][0]["error-text"])
+    msg = response["messages"][0]
+    print(f"[SMS] to={to} status={msg['status']} remaining-balance={msg.get('remaining-balance')} error={msg.get('error-text')}")
+    if msg["status"] != "0":
+        raise Exception(msg["error-text"])
 
 
 def send_otp_sms(phone: str, otp: str):
