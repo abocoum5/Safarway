@@ -1,29 +1,27 @@
+import vonage
 import os
-import requests
 from dotenv import load_dotenv
 
 load_dotenv()
 
-BUDGETSMS_USERNAME = os.getenv("BUDGETSMS_USERNAME")
-BUDGETSMS_USERID = os.getenv("BUDGETSMS_USERID")
-BUDGETSMS_HANDLE = os.getenv("BUDGETSMS_HANDLE")
-API_URL = "https://api.budgetsms.net/sendsms/"
+client = vonage.Client(
+    key=os.getenv("VONAGE_API_KEY"),
+    secret=os.getenv("VONAGE_API_SECRET")
+)
+sms = vonage.Sms(client)
 
 
 def _send(phone: str, message: str):
     to = f"222{phone}"
-    params = {
-        "username": BUDGETSMS_USERNAME,
-        "handle": BUDGETSMS_HANDLE,
-        "userid": BUDGETSMS_USERID,
+    response = sms.send_message({
+        "from": "15017122661",
         "to": to,
-        "from": "Goova",
-        "msg": message,
-    }
-    response = requests.get(API_URL, params=params)
-    print(f"[BudgetSMS] to={to} status={response.status_code} response={response.text}")
-    if response.status_code != 200 or "OK" not in response.text:
-        raise Exception(response.text)
+        "text": message,
+    })
+    msg = response["messages"][0]
+    print(f"[Vonage] to={to} status={msg['status']} balance={msg.get('remaining-balance')} error={msg.get('error-text')}")
+    if msg["status"] != "0":
+        raise Exception(msg["error-text"])
 
 
 def send_otp_sms(phone: str, otp: str):
