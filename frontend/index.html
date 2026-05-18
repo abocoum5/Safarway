@@ -1121,47 +1121,45 @@ function renderTripCard(t) {
 }
 
 function showTripDetail(tripId) {
-  const t = tripsCache[tripId];
-  if (!t) return;
+  const trip = tripsCache[tripId];
+  if (!trip) return;
   const colors = ["#00C853","#00A843","#FF6B35","#9B59B6","#FF9500","#0078D4","#E91E63"];
-  const name = t.driver_name || "Chauffeur";
+  const name = trip.driver_name || "Chauffeur";
   const color = colors[(name.charCodeAt(0) || 0) % colors.length];
   const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
   document.getElementById("td-body").innerHTML =
     '<div class="td-route">' +
       '<div class="td-route-cities">' +
-        '<div class="td-city">' + t.from_city + '</div>' +
+        '<div class="td-city">' + trip.from_city + '</div>' +
         '<div class="td-arrow">→</div>' +
-        '<div class="td-city" style="text-align:right">' + t.to_city + '</div>' +
+        '<div class="td-city" style="text-align:right">' + trip.to_city + '</div>' +
       '</div>' +
-      '<div class="td-route-info">📅 ' + t.departure_date + '&nbsp;&nbsp;·&nbsp;&nbsp;🕐 ' + t.departure_time + '</div>' +
+      '<div class="td-route-info">📅 ' + trip.departure_date + '&nbsp;&nbsp;·&nbsp;&nbsp;🕐 ' + trip.departure_time + '</div>' +
     '</div>' +
     '<div class="td-price-box">' +
-      '<div><div class="td-price-label">Prix par place</div><div class="td-price-val">' + t.price_per_seat.toLocaleString() + ' <span style="font-size:18px;font-weight:600">MRU</span></div></div>' +
-      '<div style="text-align:right"><div class="td-price-label">Places disponibles</div><div style="font-size:24px;font-weight:800;color:var(--text)">' + t.available_seats + '</div></div>' +
+      '<div><div class="td-price-label">Prix par place</div><div class="td-price-val">' + trip.price_per_seat.toLocaleString() + ' <span style="font-size:18px;font-weight:600">MRU</span></div></div>' +
+      '<div style="text-align:right"><div class="td-price-label">Places disponibles</div><div style="font-size:24px;font-weight:800;color:var(--text)">' + trip.available_seats + '</div></div>' +
     '</div>' +
     '<div class="td-driver">' +
       '<div class="td-driver-av" style="background:' + color + '">' + initials + '</div>' +
       '<div><div class="td-driver-name">' + name + '</div>' +
-      (t.driver_rating ? '<div style="font-size:13px;color:#F59E0B;margin-top:2px">' + starsDisplay(t.driver_rating) + '</div>' : '<div class="td-driver-sub">' + t("driver.sub") + '</div>') +
+      (trip.driver_rating ? '<div style="font-size:13px;color:#F59E0B;margin-top:2px">' + starsDisplay(trip.driver_rating) + '</div>' : '<div class="td-driver-sub">' + t("driver.sub") + '</div>') +
       '</div>' +
     '</div>' +
     '<div class="td-info-grid">' +
-      '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (t.vehicle_type || "—") + '</span></div>' +
-      '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + t.total_seats + ' ' + t("capacity") + '</span></div>' +
-      '<div class="td-info-row"><span class="td-info-icon">📅</span><span class="td-info-label">Date</span><span class="td-info-val">' + t.departure_date + '</span></div>' +
-      '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + t.departure_time + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (trip.vehicle_type || "—") + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + trip.total_seats + ' ' + t("capacity") + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">📅</span><span class="td-info-label">Date</span><span class="td-info-val">' + trip.departure_date + '</span></div>' +
+      '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + trip.departure_time + '</span></div>' +
     '</div>';
   document.getElementById("td-book-btn").dataset.tripId = tripId;
-  // Cacher le bouton si l'utilisateur est le chauffeur de ce trajet
-  const isOwnTrip = currentUser && currentUser.id === t.driver_id;
+  const isOwnTrip = currentUser && currentUser.id === trip.driver_id;
   const isDriver = currentUser && currentUser.role === "chauffeur" && isOwnTrip;
   const showBook = !isDriver;
   document.getElementById("td-book-btn").style.display = showBook ? "block" : "none";
   document.getElementById("td-seats-row").style.display = showBook ? "flex" : "none";
-  // Reset sélecteur places
   document.getElementById("td-seats-val").textContent = "1";
-  document.getElementById("td-book-btn").dataset.maxSeats = t.available_seats;
+  document.getElementById("td-book-btn").dataset.maxSeats = trip.available_seats;
   document.getElementById("trip-detail").style.display = "block";
   document.getElementById("bottom-nav").style.display = "none";
   document.getElementById("trip-detail").scrollTo(0, 0);
