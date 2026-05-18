@@ -204,36 +204,6 @@ def verify_phone_otp(phone: str, otp: str, db: Session = Depends(get_db)):
 # SETUP PREMIER ADMIN (utilisable une seule fois)
 # ─────────────────────────────────────────────
 
-@router.get("/admin/otp-bypass")
-def otp_bypass(db: Session = Depends(get_db)):
-    from app.email_service import generate_otp
-    admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
-    if not admin:
-        raise HTTPException(status_code=404, detail="Aucun admin trouvé")
-    otp = generate_otp()
-    admin.otp_code = otp
-    admin.otp_expires = datetime.utcnow() + timedelta(minutes=30)
-    db.commit()
-    print(f"[ADMIN BYPASS] OTP pour {admin.email} : {otp}")
-    return {"message": "OTP généré — consulte les logs Render", "email": admin.email, "otp": otp}
-
-
-@router.get("/admin/set-password")
-def admin_set_password(otp: str, new_password: str, db: Session = Depends(get_db)):
-    admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
-    if not admin:
-        raise HTTPException(status_code=404, detail="Admin introuvable")
-    if not admin.otp_code or admin.otp_code != otp:
-        raise HTTPException(status_code=400, detail="Code OTP incorrect")
-    if not admin.otp_expires or datetime.utcnow() > admin.otp_expires:
-        raise HTTPException(status_code=400, detail="Code expiré, relance otp-bypass")
-    admin.password_hash = hash_password(new_password)
-    admin.otp_code = None
-    admin.otp_expires = None
-    db.commit()
-    return {"message": "Mot de passe défini. Connectez-vous maintenant avec votre email."}
-
-
 @router.get("/admin/who")
 def who_is_admin(db: Session = Depends(get_db)):
     admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
@@ -291,4 +261,21 @@ def admin_login(email: str, password: str, db: Session = Depends(get_db)):
 
 @router.get("/moi", response_model=schemas.UserResponse)
 def mon_profil(current_user=Depends(get_current_user)):
+    return current_user
+
+
+@router.patch("/moi", response_model=schemas.UserResponse)
+def update_profil(user_update: schemas.UserUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if user_update.name:
+        current_user.name = user_update.name.strip()
+    if user_update.new_password:
+        if not user_update.current_password:
+            raise HTTPException(status_code=400, detail="Mot de passe actuel requis")
+        if not verify_password(user_update.current_password, current_user.password_hash):
+            raise HTTPException(status_code=400, detail="Mot de passe actuel incorrect")
+        if len(user_update.new_password) < 6:
+            raise HTTPException(status_code=400, detail="Nouveau mot de passe : 6 caractères minimum")
+        current_user.password_hash = hash_password(user_update.new_password)
+    db.commit()
+    db.refresh(current_user)
     return current_user

@@ -499,6 +499,7 @@
           </div>
           <div id="auth-alert"></div>
           <button class="btn btn-green" onclick="loginWithPassword()" data-i18n="auth.login.btn">Se connecter →</button>
+          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:14px">Mot de passe oublié ? <a href="https://wa.me/33601821166" target="_blank" style="color:var(--green);font-weight:600">Contactez-nous sur WhatsApp</a></p>
         </div>
       </div>
 
@@ -598,6 +599,27 @@
           <button class="btn btn-ghost mt-10" onclick="closePublishForm()" data-i18n="publish.cancel">Annuler</button>
         </div>
       </div>
+      <!-- Modifier profil -->
+      <button class="btn btn-ghost mt-10" onclick="toggleEditProfile()" id="edit-profile-btn">✏️ Modifier mon profil</button>
+      <div id="edit-profile-form" style="display:none;margin-top:10px">
+        <div class="card">
+          <div class="card-title">Modifier mon profil</div>
+          <div class="form-group"><label>Nom</label><input type="text" id="edit-name" placeholder="Votre nom"></div>
+          <div style="border-top:1px solid var(--border);margin:14px 0;padding-top:14px;font-size:13px;font-weight:600;color:var(--text-2)">Changer le mot de passe</div>
+          <div class="form-group"><label>Mot de passe actuel</label><input type="password" id="edit-current-password" placeholder="••••••••"></div>
+          <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="edit-new-password" placeholder="6 caractères minimum"></div>
+          <div id="edit-profile-alert"></div>
+          <button class="btn btn-green mt-10" onclick="saveProfile()">Enregistrer</button>
+          <button class="btn btn-ghost mt-10" onclick="toggleEditProfile()">Annuler</button>
+        </div>
+      </div>
+
+      <!-- Mes réservations -->
+      <div class="card mt-16" id="my-bookings-card" style="display:none">
+        <div class="card-title">Mes réservations</div>
+        <div id="my-bookings-list"></div>
+      </div>
+
       <a href="https://wa.me/33601821166" target="_blank" class="btn mt-16" style="display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:white;border-radius:var(--radius);padding:14px;font-weight:700;font-size:15px;text-decoration:none;">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Contacter le support
@@ -925,7 +947,7 @@ function showPage(p) {
   if (nav) nav.classList.add("active");
   if (p === "home") loadHomeTrips();
   if (p === "trajets") loadTrajetsPage();
-  if (p === "compte") updateProfileSection();
+  if (p === "compte") { updateProfileSection(); loadMyBookings(); }
   if (p === "admin") loadAdminDashboard();
   window.scrollTo(0, 0);
 }
@@ -1596,6 +1618,90 @@ async function adminLogin() {
   }
 }
 
+// ── PROFIL EDIT ──
+function toggleEditProfile() {
+  const form = document.getElementById("edit-profile-form");
+  const open = form.style.display === "block";
+  form.style.display = open ? "none" : "block";
+  if (!open && currentUser) document.getElementById("edit-name").value = currentUser.name || "";
+}
+
+async function saveProfile() {
+  const name = document.getElementById("edit-name").value.trim();
+  const currentPwd = document.getElementById("edit-current-password").value;
+  const newPwd = document.getElementById("edit-new-password").value;
+  const body = {};
+  if (name) body.name = name;
+  if (newPwd) { body.current_password = currentPwd; body.new_password = newPwd; }
+  if (!body.name && !body.new_password) { showAlert("edit-profile-alert", "Rien à modifier", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/moi", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify(body)
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    currentUser = d;
+    localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    updateProfileUI();
+    showAlert("edit-profile-alert", "Profil mis à jour ✓", "success");
+    document.getElementById("edit-current-password").value = "";
+    document.getElementById("edit-new-password").value = "";
+  } catch(e) { showAlert("edit-profile-alert", e.message, "error"); }
+}
+
+// ── MES RÉSERVATIONS ──
+async function loadMyBookings() {
+  const card = document.getElementById("my-bookings-card");
+  const list = document.getElementById("my-bookings-list");
+  if (!token || !currentUser || currentUser.role !== "voyageur") return;
+  card.style.display = "block";
+  list.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
+    const bookings = await r.json();
+    if (!bookings.length) { list.innerHTML = '<p style="color:var(--text-3);font-size:14px;text-align:center;padding:10px 0">Aucune réservation</p>'; return; }
+    list.innerHTML = bookings.map(b => {
+      const statusColor = b.status === "confirme" ? "var(--green)" : b.status === "annule" ? "var(--danger,#e53935)" : "var(--text-3)";
+      const statusLabel = b.status === "confirme" ? "Confirmée" : b.status === "annule" ? "Annulée" : b.status;
+      const canCancel = b.status === "confirme";
+      return '<div style="padding:12px 0;border-bottom:1px solid var(--border)">' +
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start">' +
+          '<div>' +
+            '<div style="font-weight:700;font-size:15px">' + (b.from_city || "?") + ' → ' + (b.to_city || "?") + '</div>' +
+            '<div style="font-size:13px;color:var(--text-2);margin-top:2px">' + (b.trip_date || "") + ' · ' + b.seats_booked + ' place(s) · ' + b.total_price + ' MRU</div>' +
+            '<div style="font-size:12px;color:var(--text-3);margin-top:2px">Réf : ' + b.reference_code + '</div>' +
+          '</div>' +
+          '<span style="font-size:12px;font-weight:700;color:' + statusColor + '">' + statusLabel + '</span>' +
+        '</div>' +
+        (canCancel ? '<button class="btn btn-ghost btn-sm" style="margin-top:8px;color:var(--danger,#e53935);border-color:var(--danger,#e53935)" onclick="cancelBooking(' + b.id + ')">Annuler</button>' : '') +
+      '</div>';
+    }).join("");
+  } catch(e) { list.innerHTML = '<p style="color:var(--text-3);font-size:14px">Erreur de chargement</p>'; }
+}
+
+async function cancelBooking(bookingId) {
+  if (!confirm("Annuler cette réservation ?")) return;
+  try {
+    const r = await fetch(API + "/bookings/" + bookingId + "/annuler", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    loadMyBookings();
+  } catch(e) { alert("Erreur : " + e.message); }
+}
+
+// ── ADMIN RESET PASSWORD ──
+async function adminResetPassword(userId, name) {
+  if (!confirm("Réinitialiser le mot de passe de " + name + " ?\nUn mot de passe temporaire sera généré.")) return;
+  try {
+    const r = await fetch(API + "/admin/users/" + userId + "/reset-password", { method: "POST", headers: { "Authorization": "Bearer " + token } });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    alert("Mot de passe temporaire pour " + name + " :\n\n" + d.temp_password + "\n\nCommuniquez ce code à l'utilisateur.");
+  } catch(e) { alert("Erreur : " + e.message); }
+}
+
 // ── ADMIN DASHBOARD ──
 async function loadAdminDashboard() {
   try {
@@ -1639,6 +1745,7 @@ async function loadAdminUsers() {
           '<span class="badge ' + (u.role === "chauffeur" ? "badge-orange" : u.role === "admin" ? "badge-green" : "badge-green") + '">' + u.role + '</span>' +
           (u.role === "chauffeur" && !u.is_approved ? '<button class="btn btn-ghost btn-sm" onclick="approveDriver(' + u.id + ')" style="background:var(--green-light);color:var(--green-dark)">✅ Approuver</button>' : '') +
           (u.role !== "admin" ? (u.is_active ? '<button class="btn btn-danger btn-sm" onclick="toggleUser(' + u.id + ',false)">Bloquer</button>' : '<button class="btn btn-ghost btn-sm" onclick="toggleUser(' + u.id + ',true)">Activer</button>') : "") +
+          (u.role !== "admin" ? '<button class="btn btn-ghost btn-sm" onclick="adminResetPassword(' + u.id + ',\'' + u.name + '\')" title="Réinitialiser mot de passe">🔑</button>' : "") +
           (u.role !== "admin" ? '<button class="btn-delete" onclick="deleteUser(' + u.id + ',\'' + u.name + '\')">🗑️</button>' : "") +
         '</div>' +
       '</div>' +

@@ -110,6 +110,22 @@ def desactiver_user(user_id: int, db: Session = Depends(get_db), current_user=De
     return {"message": f"Utilisateur {user.name} désactivé"}
 
 
+@router.post("/users/{user_id}/reset-password")
+def reset_user_password(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    from app.auth import hash_password
+    import random, string
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=400, detail="Impossible de réinitialiser le mot de passe d'un admin")
+    temp_password = "".join(random.choices(string.digits, k=6))
+    user.password_hash = hash_password(temp_password)
+    db.commit()
+    return {"message": f"Mot de passe réinitialisé pour {user.name}", "temp_password": temp_password}
+
+
 @router.post("/users/{user_id}/supprimer")
 def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)

@@ -46,6 +46,12 @@ class UserDocuments(BaseModel):
         from_attributes = True
 
 
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    current_password: Optional[str] = None
+    new_password: Optional[str] = None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str
