@@ -271,6 +271,22 @@ def admin_login(email: str, password: str, db: Session = Depends(get_db)):
 # PROFIL
 # ─────────────────────────────────────────────
 
+@router.post("/reset-password")
+def reset_password(phone: str, new_password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Réinitialisation non autorisée pour les admins")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
+    if len(new_password) < 6:
+        raise HTTPException(status_code=400, detail="Mot de passe : 6 caractères minimum")
+    user.password_hash = hash_password(new_password)
+    db.commit()
+    return {"message": "Mot de passe réinitialisé"}
+
+
 @router.get("/moi", response_model=schemas.UserResponse)
 def mon_profil(current_user=Depends(get_current_user)):
     return current_user
