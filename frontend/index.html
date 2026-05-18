@@ -932,7 +932,7 @@ function showPage(p) {
   if (nav) nav.classList.add("active");
   if (p === "home") loadHomeTrips();
   if (p === "trajets") loadTrajetsPage();
-  if (p === "compte") { refreshCurrentUser().then(() => { updateProfileSection(); loadMyBookings(); }); }
+  if (p === "compte") { refreshCurrentUser().then(() => { updateProfileSection(); loadProfileBookings(); }); }
   if (p === "admin") loadAdminDashboard();
   window.scrollTo(0, 0);
 }
@@ -1142,6 +1142,10 @@ function showTripDetail(tripId) {
       '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + t.departure_time + '</span></div>' +
     '</div>';
   document.getElementById("td-book-btn").dataset.tripId = tripId;
+  // Cacher le bouton si l'utilisateur est le chauffeur de ce trajet
+  const isOwnTrip = currentUser && currentUser.id === t.driver_id;
+  const isDriver = currentUser && currentUser.role === "chauffeur" && isOwnTrip;
+  document.getElementById("td-book-btn").style.display = isDriver ? "none" : "block";
   document.getElementById("trip-detail").style.display = "block";
   document.getElementById("bottom-nav").style.display = "none";
   document.getElementById("trip-detail").scrollTo(0, 0);
@@ -1661,7 +1665,7 @@ async function saveProfile() {
 }
 
 // ── MES RÉSERVATIONS ──
-async function loadMyBookings() {
+async function loadProfileBookings() {
   const card = document.getElementById("my-bookings-card");
   const list = document.getElementById("my-bookings-list");
   if (!token || !currentUser || currentUser.role !== "voyageur") return;
@@ -1696,7 +1700,7 @@ async function cancelBooking(bookingId) {
     const r = await fetch(API + "/bookings/" + bookingId + "/annuler", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
-    loadMyBookings();
+    loadProfileBookings();
   } catch(e) { alert("Erreur : " + e.message); }
 }
 
