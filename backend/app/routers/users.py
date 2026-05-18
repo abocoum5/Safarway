@@ -270,7 +270,7 @@ def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)
     db.add(admin)
     db.commit()
     print(f"[ADMIN SETUP] Compte admin créé : {email} — OTP initial : {otp}")
-    return {"message": f"Admin créé. Récupère ton OTP dans les logs Render.", "email": email}
+    return {"message": "Admin créé.", "email": email, "otp": otp}
 
 
 # ─────────────────────────────────────────────
