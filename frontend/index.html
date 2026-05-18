@@ -351,8 +351,9 @@
     <div class="home-hero-top">
       <div class="home-hero-logo">G<span>oo</span>va</div>
       <button class="home-hero-langbtn lang-toggle" id="lang-toggle-home" onclick="toggleLang()">عر</button>
-      <button class="home-hero-avatarbtn" onclick="showPage('compte')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      <button class="home-hero-avatarbtn" onclick="showPage('compte')" id="hero-avatar-btn">
+        <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span id="hero-avatar-initials" style="display:none;color:white;font-weight:800;font-size:13px"></span>
       </button>
     </div>
     <div class="home-hero-main">
@@ -755,7 +756,7 @@
   </div>
   <div class="bnav-item" id="bnav-compte" onclick="showPage('compte')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    <span data-i18n="nav.compte">Compte</span>
+    <span id="bnav-compte-label" data-i18n="nav.compte">Compte</span>
   </div>
 </div>
 
@@ -1550,6 +1551,11 @@ async function submitReview() {
 function logout() {
   token = null; currentUser = null;
   localStorage.removeItem("sw_token"); localStorage.removeItem("sw_user");
+  const heroIcon = document.getElementById("hero-avatar-icon");
+  const heroInitials = document.getElementById("hero-avatar-initials");
+  if (heroIcon && heroInitials) { heroIcon.style.display = ""; heroInitials.style.display = "none"; }
+  const bnavLabel = document.getElementById("bnav-compte-label");
+  if (bnavLabel) bnavLabel.textContent = "Compte";
   showPage("home");
 }
 
@@ -1561,6 +1567,13 @@ function updateProfileSection() {
     document.getElementById("profile-av-letter").textContent = initials;
     document.getElementById("profile-name").textContent = currentUser.name;
     document.getElementById("profile-phone").textContent = currentUser.phone || "—";
+    // Avatar header + label nav
+    const firstName = (currentUser.name || "").split(" ")[0];
+    const heroIcon = document.getElementById("hero-avatar-icon");
+    const heroInitials = document.getElementById("hero-avatar-initials");
+    if (heroIcon && heroInitials) { heroIcon.style.display = "none"; heroInitials.style.display = "inline"; heroInitials.textContent = initials; }
+    const bnavLabel = document.getElementById("bnav-compte-label");
+    if (bnavLabel) bnavLabel.textContent = firstName || "Compte";
     document.getElementById("profile-role").textContent = currentUser.role;
     if (currentUser.license_number) {
       document.getElementById("pinfo-license-row").style.display = "flex";
