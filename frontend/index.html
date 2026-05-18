@@ -932,7 +932,7 @@ function showPage(p) {
   if (nav) nav.classList.add("active");
   if (p === "home") loadHomeTrips();
   if (p === "trajets") loadTrajetsPage();
-  if (p === "compte") { updateProfileSection(); loadMyBookings(); }
+  if (p === "compte") { refreshCurrentUser().then(() => { updateProfileSection(); loadMyBookings(); }); }
   if (p === "admin") loadAdminDashboard();
   window.scrollTo(0, 0);
 }
@@ -1533,6 +1533,17 @@ async function submitReview() {
 }
 
 // ── SESSION ──
+async function refreshCurrentUser() {
+  if (!token) return;
+  try {
+    const r = await fetch(API + "/users/moi", { headers: { "Authorization": "Bearer " + token } });
+    if (r.ok) {
+      currentUser = await r.json();
+      localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    }
+  } catch(e) {}
+}
+
 function logout() {
   token = null; currentUser = null;
   localStorage.removeItem("sw_token"); localStorage.removeItem("sw_user");
