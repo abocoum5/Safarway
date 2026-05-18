@@ -421,6 +421,9 @@
     </div>
     <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:6px" data-i18n="home.find">Trouver un trajet</button>
   </div>
+  <button id="home-publish-btn" onclick="openPublishForm();showPage('compte')" style="display:none;margin-top:12px;width:100%;background:white;border:1.5px solid var(--green);color:var(--green-dark);font-weight:700;font-size:15px;padding:13px;border-radius:var(--radius);cursor:pointer;">
+    + Publier un trajet
+  </button>
   </div>
 
   <div id="home-trips" style="display:none"></div>
@@ -1556,6 +1559,8 @@ function logout() {
   if (heroIcon && heroInitials) { heroIcon.style.display = ""; heroInitials.style.display = "none"; }
   const bnavLabel = document.getElementById("bnav-compte-label");
   if (bnavLabel) bnavLabel.textContent = "Compte";
+  const homePublishBtn = document.getElementById("home-publish-btn");
+  if (homePublishBtn) homePublishBtn.style.display = "none";
   showPage("home");
 }
 
@@ -1579,6 +1584,8 @@ function updateProfileSection() {
       document.getElementById("pinfo-license-row").style.display = "flex";
       document.getElementById("profile-license").textContent = currentUser.license_number;
     }
+    const homePublishBtn = document.getElementById("home-publish-btn");
+    if (homePublishBtn) homePublishBtn.style.display = (currentUser.role === "chauffeur" && currentUser.is_approved) ? "block" : "none";
     if (currentUser.role === "chauffeur") {
       if (currentUser.is_approved === false) {
         const notice = document.getElementById("driver-pending-notice");
