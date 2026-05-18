@@ -49,7 +49,7 @@
     #page-home { padding-bottom: 80px; }
     .home-hero { background: var(--green); position: relative; overflow: hidden; }
     .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
-    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(48px, env(safe-area-inset-top, 48px)) 20px 0; }
+    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(36px, env(safe-area-inset-top, 36px)) 20px 0; }
     .home-hero-logo { font-size: 24px; font-weight: 900; color: white; letter-spacing: -0.5px; }
     .home-hero-logo span { opacity: 0.8; }
     .home-hero-actions { display: flex; align-items: center; gap: 8px; }
@@ -58,10 +58,10 @@
     .home-hero-avatarbtn { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
     .home-hero-avatarbtn:hover { background: rgba(255,255,255,0.3); }
     .home-hero-avatarbtn svg { width: 18px; height: 18px; color: white; }
-    .home-hero-text { padding: 20px 20px 0; }
+    .home-hero-text { padding: 12px 20px 0; }
     .home-hero-title { font-size: 28px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
     .home-hero-sub { font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 6px; }
-    .home-hero-car { padding: 8px 0 0; display: flex; justify-content: center; }
+    .home-hero-car { padding: 4px 0 0; display: flex; justify-content: center; }
     /* ── HOME SEARCH CARD ── */
     .home-search-card { background: white; border-radius: 20px; margin: -18px 14px 0; padding: 18px 16px 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); position: relative; z-index: 10; }
     .hsc-row { display: flex; align-items: center; gap: 12px; padding: 11px 0; cursor: pointer; width: 100%; background: none; border: none; font-family: inherit; text-align: left; }
@@ -354,12 +354,10 @@
   <div class="home-hero">
     <div class="home-hero-top">
       <div class="home-hero-logo">G<span>oo</span>va</div>
-      <div class="home-hero-actions">
-        <button class="home-hero-langbtn" id="lang-toggle-home" onclick="toggleLang()">عر</button>
-        <button class="home-hero-avatarbtn" onclick="showPage('compte')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        </button>
-      </div>
+      <button class="home-hero-langbtn" id="lang-toggle-home" onclick="toggleLang()">عر</button>
+      <button class="home-hero-avatarbtn" onclick="showPage('compte')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </button>
     </div>
     <div class="home-hero-text">
       <div class="home-hero-title" id="hero-title">Où voulez-vous<br>aller ?</div>
@@ -368,7 +366,7 @@
     <!-- Voiture SVG -->
     <div class="home-hero-car">
       <svg fill="#ffffff" version="1.1" xmlns="http://www.w3.org/2000/svg"
-           width="180px" height="180px" viewBox="0 0 48.997 48.998"
+           width="110px" height="110px" viewBox="0 0 48.997 48.998"
            style="opacity:0.95;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.18))">
         <g>
           <path d="M45.961,18.702c-0.033-0.038-0.061-0.075-0.1-0.112l-1.717-1.657c1.424-0.323,2.957-1.516,2.957-2.74
