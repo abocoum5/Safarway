@@ -13,14 +13,14 @@ router = APIRouter(prefix="/users", tags=["Utilisateurs"])
 # INSCRIPTION
 # ─────────────────────────────────────────────
 
-@router.post("/inscription")
+@router.post("/inscription", response_model=schemas.Token)
 def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
-    from app.email_service import generate_otp
-    from app.sms import send_otp_sms
-
     existing = db.query(models.User).filter(models.User.phone == user_data.phone).first()
     if existing:
         raise HTTPException(status_code=400, detail="Ce numéro est déjà utilisé")
+
+    if not user_data.password or len(user_data.password) < 6:
+        raise HTTPException(status_code=400, detail="Mot de passe obligatoire (6 caractères minimum)")
 
     if user_data.role == models.UserRole.chauffeur:
         if not user_data.name:
@@ -30,31 +30,24 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
         if not user_data.license_photo or not user_data.national_id_photo:
             raise HTTPException(status_code=400, detail="Photos du permis et de la carte d'identité obligatoires pour les chauffeurs")
 
-    hashed = hash_password(user_data.password) if user_data.password else None
-    otp = generate_otp()
     new_user = models.User(
         name=user_data.name or ("Voyageur " + user_data.phone[-4:]),
         phone=user_data.phone,
-        password_hash=hashed,
+        password_hash=hash_password(user_data.password),
         role=user_data.role,
         license_number=user_data.license_number,
         national_id_number=user_data.national_id_number,
         license_photo=user_data.license_photo,
         national_id_photo=user_data.national_id_photo,
-        otp_code=otp,
-        otp_expires=datetime.utcnow() + timedelta(minutes=10),
-        is_phone_verified=False,
+        is_phone_verified=True,
+        is_active=True,
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
 
-    try:
-        send_otp_sms(new_user.phone, otp)
-    except Exception as e:
-        print(f"OTP inscription non envoyé: {e}")
-
-    return {"pending_verification": True, "phone": new_user.phone}
+    token = create_access_token({"sub": str(new_user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": new_user}
 
 
 @router.post("/verify-inscription", response_model=schemas.Token)
@@ -168,21 +161,12 @@ def request_phone_otp(phone: str, db: Session = Depends(get_db)):
 
     user = db.query(models.User).filter(models.User.phone == phone).first()
 
-    if user:
-        if user.role == models.UserRole.admin:
-            raise HTTPException(status_code=403, detail="Utilisez la connexion admin par email")
-        if not user.is_active:
-            raise HTTPException(status_code=403, detail="Compte désactivé")
-    else:
-        user = models.User(
-            phone=phone,
-            name="Voyageur " + phone[-4:],
-            password_hash=None,
-            role=models.UserRole.voyageur,
-            is_active=True,
-        )
-        db.add(user)
-        db.flush()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable. Créez d'abord un compte.")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Utilisez la connexion admin par email")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
 
     otp = generate_otp()
     user.otp_code = otp

@@ -258,6 +258,9 @@
     .empty-icon { font-size: 42px; margin-bottom: 12px; }
     .text-gray { color: var(--text-3); font-size: 13px; }
     .driver-docs-notice { background: var(--green-light); border-left: 3px solid var(--green); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--green-dark); font-weight: 500; }
+    .role-select-row { display: flex; gap: 8px; margin-bottom: 18px; }
+    .role-sel-btn { flex: 1; padding: 10px 8px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+    .role-sel-btn.active { border-color: var(--green); background: var(--green-light); color: var(--green-dark); }
 
     /* ── BOTTOM NAV ── */
     .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
@@ -477,40 +480,35 @@
     <div id="auth-section">
       <div class="tabs">
         <div class="tab active" onclick="switchAuthTab('login', this)" data-i18n="auth.login">Connexion</div>
-        <div class="tab" onclick="switchAuthTab('register', this)" data-i18n="auth.register">Inscription chauffeur</div>
+        <div class="tab" onclick="switchAuthTab('register', this)" data-i18n="auth.register">Inscription</div>
       </div>
 
       <div id="login-form">
         <div class="card">
           <div class="card-title" data-i18n="auth.welcome">Bienvenue 👋</div>
-          <div id="otp-step1">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:16px" data-i18n="auth.otp.desc">Entrez votre numéro pour recevoir un code SMS.</p>
-            <div class="form-group">
-              <label data-i18n="auth.phone">Numéro de téléphone</label>
-              <div class="phone-wrap">
-                <span class="phone-prefix">🇲🇷 +222</span>
-                <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
-              </div>
+          <div class="form-group">
+            <label data-i18n="auth.phone">Numéro de téléphone</label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">🇲🇷 +222</span>
+              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPassword()">
             </div>
-            <div id="auth-alert"></div>
-            <button class="btn btn-green" onclick="requestPhoneOTP()" data-i18n="auth.send.otp">Recevoir un code SMS →</button>
           </div>
-          <div id="otp-step2" style="display:none">
-            <div class="otp-info"><p>Code envoyé au</p><strong id="otp-phone-display"></strong></div>
-            <div class="form-group">
-              <label>Code à 6 chiffres</label>
-              <input type="number" id="auth-otp" class="otp-input" placeholder="______" inputmode="numeric">
-            </div>
-            <div id="auth-alert2"></div>
-            <button class="btn btn-green" onclick="verifyPhoneOTP()" data-i18n="auth.confirm">Confirmer →</button>
-            <button class="btn btn-ghost mt-10" onclick="resetOTPForm()" data-i18n="auth.edit.phone">← Modifier le numéro</button>
+          <div class="form-group">
+            <label data-i18n="auth.password">Mot de passe</label>
+            <input type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginWithPassword()">
           </div>
+          <div id="auth-alert"></div>
+          <button class="btn btn-green" onclick="loginWithPassword()" data-i18n="auth.login.btn">Se connecter →</button>
         </div>
       </div>
 
       <div id="register-form" style="display:none">
-        <div class="card" id="reg-fields-card">
-          <div class="card-title" data-i18n="auth.driver.title">Inscription Chauffeur 🚗</div>
+        <div class="card">
+          <div class="card-title">Créer un compte</div>
+          <div class="role-select-row">
+            <button class="role-sel-btn active" id="role-btn-voyageur" onclick="switchRegRole('voyageur')">👤 Voyageur</button>
+            <button class="role-sel-btn" id="role-btn-chauffeur" onclick="switchRegRole('chauffeur')">🚗 Chauffeur</button>
+          </div>
           <div class="form-group">
             <label>Numéro de téléphone</label>
             <div class="phone-wrap">
@@ -518,25 +516,20 @@
               <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
             </div>
           </div>
-          <div class="form-group"><label data-i18n="auth.fullname">Nom complet *</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
-          <div class="driver-docs-notice">📋 Documents obligatoires pour les chauffeurs</div>
-          <div class="form-group"><label data-i18n="auth.license.num">N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
-          <div class="form-group"><label data-i18n="auth.national.id">N° carte d'identité *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
-          <div class="form-group"><label data-i18n="auth.license.photo">Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
-          <div class="form-group"><label data-i18n="auth.id.photo">Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
-          <div id="reg-alert"></div>
-          <button class="btn btn-green mt-10" onclick="registerChauffeur()" data-i18n="auth.create.account">Créer mon compte</button>
-        </div>
-        <div class="card" id="reg-otp-card" style="display:none">
-          <div class="card-title">Vérification du numéro 📱</div>
-          <div class="otp-info"><p>Code envoyé au</p><strong id="reg-otp-phone-display"></strong></div>
+          <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
           <div class="form-group">
-            <label>Code à 6 chiffres</label>
-            <input type="number" id="reg-otp" class="otp-input" placeholder="______" inputmode="numeric">
+            <label>Mot de passe</label>
+            <input type="password" id="reg-password" placeholder="Minimum 6 caractères">
           </div>
-          <div id="reg-otp-alert"></div>
-          <button class="btn btn-green" onclick="verifyInscription()">Confirmer →</button>
-          <button class="btn btn-ghost mt-10" onclick="backToRegForm()">← Modifier le numéro</button>
+          <div id="reg-chauffeur-fields" style="display:none">
+            <div class="driver-docs-notice">📋 Documents obligatoires pour les chauffeurs</div>
+            <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
+            <div class="form-group"><label>N° carte d'identité *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
+            <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
+            <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
+          </div>
+          <div id="reg-alert"></div>
+          <button class="btn btn-green mt-10" onclick="registerUser()">Créer mon compte →</button>
         </div>
       </div>
     </div>
@@ -1373,89 +1366,72 @@ async function publishTrip() {
 }
 
 // ── AUTH ──
-async function requestPhoneOTP() {
-  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
-  if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
-  try {
-    const r = await fetch(API + "/users/phone-otp/request?phone=" + encodeURIComponent(phone), { method: "POST" });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.detail || "Erreur");
-    document.getElementById("otp-phone-display").textContent = "+222 " + phone;
-    document.getElementById("otp-step1").style.display = "none";
-    document.getElementById("otp-step2").style.display = "block";
-    if (d.otp) {
-      document.getElementById("auth-otp").value = d.otp;
-      showAlert("auth-alert2", "📱 Votre code : " + d.otp + " (pré-rempli automatiquement)", "success");
-    }
-  } catch(e) { showAlert("auth-alert", e.message, "error"); }
-}
-
-async function verifyPhoneOTP() {
-  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
-  const otp = document.getElementById("auth-otp").value.trim();
-  if (!otp || otp.length < 6) { showAlert("auth-alert2", "Entrez le code à 6 chiffres", "error"); return; }
-  try {
-    const r = await fetch(API + "/users/phone-otp/verify?phone=" + encodeURIComponent(phone) + "&otp=" + otp, { method: "POST" });
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.detail || "Code incorrect");
-    token = d.access_token; currentUser = d.user;
-    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    showPage("home");
-  } catch(e) { showAlert("auth-alert2", e.message, "error"); }
-}
-
-function resetOTPForm() {
-  document.getElementById("otp-step1").style.display = "block";
-  document.getElementById("otp-step2").style.display = "none";
-  document.getElementById("auth-otp").value = "";
-}
-
 function fileToBase64(file) {
   return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
 }
 
-let _regPhone = "";
+async function loginWithPassword() {
+  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
+  const password = document.getElementById("auth-password").value;
+  if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
+  if (!password) { showAlert("auth-alert", "Entrez votre mot de passe", "error"); return; }
+  try {
+    const r = await fetch(API + "/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, password })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    updateProfileUI();
+    showPage("home");
+  } catch(e) { showAlert("auth-alert", e.message, "error"); }
+}
 
-async function registerChauffeur() {
+let _regRole = "voyageur";
+
+function switchRegRole(role) {
+  _regRole = role;
+  document.getElementById("role-btn-voyageur").classList.toggle("active", role === "voyageur");
+  document.getElementById("role-btn-chauffeur").classList.toggle("active", role === "chauffeur");
+  document.getElementById("reg-chauffeur-fields").style.display = role === "chauffeur" ? "block" : "none";
+}
+
+async function registerUser() {
   const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
   const name = document.getElementById("reg-name").value.trim();
-  const licenseNum = document.getElementById("reg-license-num").value.trim();
-  const nationalId = document.getElementById("reg-national-id").value.trim();
-  const licenseFile = document.getElementById("reg-license-photo").files[0];
-  const nationalIdFile = document.getElementById("reg-national-id-photo").files[0];
-  if (!phone || !name || !licenseNum || !nationalId || !licenseFile || !nationalIdFile) { showAlert("reg-alert", "Tous les champs sont obligatoires", "error"); return; }
-  if (licenseFile.size > 2097152 || nationalIdFile.size > 2097152) { showAlert("reg-alert", "Chaque photo doit faire moins de 2MB", "error"); return; }
+  const password = document.getElementById("reg-password").value;
+  if (!phone || phone.length < 8) { showAlert("reg-alert", "Entrez un numéro valide", "error"); return; }
+  if (!name) { showAlert("reg-alert", "Nom requis", "error"); return; }
+  if (!password || password.length < 6) { showAlert("reg-alert", "Mot de passe : 6 caractères minimum", "error"); return; }
+  const body = { phone, name, password, role: _regRole };
+  if (_regRole === "chauffeur") {
+    const licenseNum = document.getElementById("reg-license-num").value.trim();
+    const nationalId = document.getElementById("reg-national-id").value.trim();
+    const licenseFile = document.getElementById("reg-license-photo").files[0];
+    const nationalIdFile = document.getElementById("reg-national-id-photo").files[0];
+    if (!licenseNum || !nationalId || !licenseFile || !nationalIdFile) { showAlert("reg-alert", "Tous les documents chauffeur sont obligatoires", "error"); return; }
+    if (licenseFile.size > 2097152 || nationalIdFile.size > 2097152) { showAlert("reg-alert", "Chaque photo doit faire moins de 2MB", "error"); return; }
+    body.license_number = licenseNum;
+    body.national_id_number = nationalId;
+    body.license_photo = await fileToBase64(licenseFile);
+    body.national_id_photo = await fileToBase64(nationalIdFile);
+  }
   try {
-    const license_photo = await fileToBase64(licenseFile);
-    const national_id_photo = await fileToBase64(nationalIdFile);
-    const body = { phone, name, role: "chauffeur", license_number: licenseNum, national_id_number: nationalId, license_photo, national_id_photo };
     const r = await fetch(API + "/users/inscription", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur inscription");
-    _regPhone = phone;
-    document.getElementById("reg-otp-phone-display").textContent = "+222 " + phone;
-    document.getElementById("reg-fields-card").style.display = "none";
-    document.getElementById("reg-otp-card").style.display = "block";
-  } catch(e) { showAlert("reg-alert", e.message, "error"); }
-}
-
-async function verifyInscription() {
-  const otp = document.getElementById("reg-otp").value.trim();
-  if (!otp || otp.length < 6) { showAlert("reg-otp-alert", "Entrez le code à 6 chiffres", "error"); return; }
-  try {
-    const r = await fetch(API + "/users/verify-inscription?phone=" + encodeURIComponent(_regPhone) + "&otp=" + otp, { method: "POST" });
-    const d = await r.json();
-    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    showPage("home");
-  } catch(e) { showAlert("reg-otp-alert", e.message, "error"); }
-}
-
-function backToRegForm() {
-  document.getElementById("reg-fields-card").style.display = "block";
-  document.getElementById("reg-otp-card").style.display = "none";
-  document.getElementById("reg-otp").value = "";
+    updateProfileUI();
+    if (_regRole === "chauffeur") {
+      showAlert("reg-alert", "Compte créé ! En attente de validation par l'admin.", "success");
+    } else {
+      showPage("home");
+    }
+  } catch(e) { showAlert("reg-alert", e.message, "error"); }
 }
 
 // ── PASSENGERS MODAL ──
