@@ -245,7 +245,7 @@ def who_is_admin(db: Session = Depends(get_db)):
 
 
 @router.get("/admin/setup")
-def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)):
+def setup_admin(email: str, phone: str, name: str, password: str, db: Session = Depends(get_db)):
     existing_admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
     if existing_admin:
         raise HTTPException(status_code=403, detail="Un admin existe déjà. Endpoint désactivé.")
@@ -253,24 +253,36 @@ def setup_admin(email: str, phone: str, name: str, db: Session = Depends(get_db)
     if db.query(models.User).filter(models.User.email == email).first():
         raise HTTPException(status_code=400, detail="Email déjà utilisé")
 
-    from app.email_service import generate_otp
-    otp = generate_otp()
-
     admin = models.User(
         phone=phone,
         name=name,
         email=email,
+        password_hash=hash_password(password),
         role=models.UserRole.admin,
         is_active=True,
         is_approved=True,
         is_phone_verified=True,
-        otp_code=otp,
-        otp_expires=datetime.utcnow() + timedelta(minutes=30),
     )
     db.add(admin)
     db.commit()
-    print(f"[ADMIN SETUP] Compte admin créé : {email} — OTP initial : {otp}")
-    return {"message": "Admin créé.", "email": email, "otp": otp}
+    print(f"[ADMIN SETUP] Compte admin créé : {email}")
+    return {"message": "Admin créé. Connectez-vous avec votre email et mot de passe.", "email": email}
+
+
+@router.post("/admin/login")
+def admin_login(email: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(
+        models.User.email == email,
+        models.User.role == models.UserRole.admin
+    ).first()
+    if not user:
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    if not user.password_hash or not verify_password(password, user.password_hash):
+        raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": user}
 
 
 # ─────────────────────────────────────────────
