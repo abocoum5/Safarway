@@ -729,6 +729,12 @@
   </div>
   <div class="td-body" id="td-body"></div>
   <div class="td-book-bar">
+    <div id="td-seats-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span style="font-size:14px;color:var(--text-2);flex:1">Nombre de places</span>
+      <button onclick="changeSeat(-1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+      <span id="td-seats-val" style="font-size:18px;font-weight:800;min-width:24px;text-align:center">1</span>
+      <button onclick="changeSeat(1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+    </div>
     <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()" data-i18n="book.btn">Réserver ce trajet</button>
   </div>
 </div>
@@ -1150,7 +1156,12 @@ function showTripDetail(tripId) {
   // Cacher le bouton si l'utilisateur est le chauffeur de ce trajet
   const isOwnTrip = currentUser && currentUser.id === t.driver_id;
   const isDriver = currentUser && currentUser.role === "chauffeur" && isOwnTrip;
-  document.getElementById("td-book-btn").style.display = isDriver ? "none" : "block";
+  const showBook = !isDriver;
+  document.getElementById("td-book-btn").style.display = showBook ? "block" : "none";
+  document.getElementById("td-seats-row").style.display = showBook ? "flex" : "none";
+  // Reset sélecteur places
+  document.getElementById("td-seats-val").textContent = "1";
+  document.getElementById("td-book-btn").dataset.maxSeats = t.available_seats;
   document.getElementById("trip-detail").style.display = "block";
   document.getElementById("bottom-nav").style.display = "none";
   document.getElementById("trip-detail").scrollTo(0, 0);
@@ -1161,12 +1172,22 @@ function closeTripDetail() {
   document.getElementById("bottom-nav").style.display = "flex";
 }
 
+function changeSeat(delta) {
+  const el = document.getElementById("td-seats-val");
+  const max = parseInt(document.getElementById("td-book-btn").dataset.maxSeats) || 10;
+  const current = parseInt(el.textContent) || 1;
+  const next = Math.max(1, Math.min(max, current + delta));
+  el.textContent = next;
+}
+
 function bookFromDetail() {
   const tripId = parseInt(document.getElementById("td-book-btn").dataset.tripId);
   const t = tripsCache[tripId];
   if (!t) return;
-  closeTripDetail();
-  bookTrip(tripId, t.from_city, t.to_city, t.price_per_seat, t.available_seats);
+  const seats = parseInt(document.getElementById("td-seats-val").textContent) || 1;
+  if (!currentUser) { closeTripDetail(); showPage("compte"); return; }
+  if (!confirm("Confirmer la réservation ?\n\n" + t.from_city + " → " + t.to_city + "\n" + seats + " place(s) × " + t.price_per_seat + " MRU = " + (seats * t.price_per_seat) + " MRU")) return;
+  confirmBooking(tripId, seats);
 }
 
 function renderHomeTripCard(trip) {
