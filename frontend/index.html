@@ -49,23 +49,22 @@
     #page-home { padding-bottom: 80px; }
     .home-hero { background: var(--green); position: relative; overflow: hidden; }
     .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
-    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(36px, env(safe-area-inset-top, 36px)) 20px 0; }
-    .home-hero-logo { font-size: 24px; font-weight: 900; color: white; letter-spacing: -0.5px; }
+    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(28px, env(safe-area-inset-top, 28px)) 18px 0; }
+    .home-hero-logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; }
     .home-hero-logo span { opacity: 0.8; }
-    .home-hero-actions { display: flex; align-items: center; gap: 8px; }
-    .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
+    .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
     .home-hero-langbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
+    .home-hero-avatarbtn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
     .home-hero-avatarbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn svg { width: 18px; height: 18px; color: white; }
-    .home-hero-main { display: flex; align-items: flex-end; padding: 8px 16px 0; gap: 6px; }
+    .home-hero-avatarbtn svg { width: 16px; height: 16px; color: white; }
+    .home-hero-main { display: flex; align-items: center; padding: 6px 14px 0; gap: 4px; }
     .home-hero-text { flex: 1; padding: 0; }
-    .home-hero-title { font-size: 24px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
-    .home-hero-sub { font-size: 13px; color: rgba(255,255,255,0.75); margin-top: 5px; }
-    .home-hero-car { flex-shrink: 0; display: flex; align-items: flex-end; padding-right: 0; }
+    .home-hero-title { font-size: 22px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
+    .home-hero-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
+    .home-hero-car { flex-shrink: 0; display: flex; align-items: center; }
     /* ── HOME SEARCH CARD ── */
-    .home-search-card { background: white; border-radius: 20px; margin: 12px 14px 0; padding: 14px 16px 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); position: relative; z-index: 10; }
-    .hsc-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; cursor: pointer; width: 100%; background: none; border: none; font-family: inherit; text-align: left; }
+    .home-search-card { background: white; border-radius: 20px; margin: -10px 14px 0; padding: 12px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); position: relative; z-index: 10; }
+    .hsc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; width: 100%; background: none; border: none; font-family: inherit; text-align: left; }
     .hsc-row:active { opacity: 0.75; }
     .hsc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
     .hsc-dot-from { background: var(--green); }
@@ -76,7 +75,7 @@
     .hsc-val { font-size: 15px; font-weight: 600; color: var(--text); }
     .hsc-placeholder { font-size: 15px; color: var(--text-3); }
     .hsc-divider { height: 1px; background: var(--border); margin: 2px 0; }
-    .hsc-date-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; }
+    .hsc-date-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
     .hsc-date-row svg { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; }
     .hsc-date-row input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text); background: transparent; }
     .hsc-date-row input::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
@@ -368,7 +367,7 @@
       <!-- Voiture SVG à droite -->
       <div class="home-hero-car">
       <svg fill="#ffffff" version="1.1" xmlns="http://www.w3.org/2000/svg"
-           width="130px" height="130px" viewBox="0 0 48.997 48.998"
+           width="95px" height="95px" viewBox="0 0 48.997 48.998"
            style="opacity:0.92;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.2))">
         <g>
           <path d="M45.961,18.702c-0.033-0.038-0.061-0.075-0.1-0.112l-1.717-1.657c1.424-0.323,2.957-1.516,2.957-2.74
@@ -422,7 +421,7 @@
       <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
       <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
     </div>
-    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Trouver un trajet</button>
+    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:6px">Trouver un trajet</button>
   </div>
 
   <!-- LISTE DES TRAJETS -->
