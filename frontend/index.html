@@ -432,27 +432,11 @@
     <button class="back-btn" onclick="showPage('home')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-    <div class="search-page-title" data-i18n="search.title">Chercher un trajet</div>
+    <div class="search-page-title" id="search-page-title">Trajets disponibles</div>
   </div>
-
-  <div class="search-fields">
-    <button class="city-input-btn" onclick="openCityPicker('sf-from')">
-      <span class="cib-icon">📍</span>
-      <span id="sf-from-label" class="cib-placeholder">Ville de départ</span>
-      <input type="hidden" id="sf-from">
-    </button>
-    <button class="city-input-btn" onclick="openCityPicker('sf-to')">
-      <span class="cib-icon" style="opacity:0.5">📍</span>
-      <span id="sf-to-label" class="cib-placeholder">Ville d'arrivée</span>
-      <input type="hidden" id="sf-to">
-    </button>
-    <div class="sf-date">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <input type="date" id="sf-date">
-    </div>
-    <button class="btn btn-green" onclick="searchTrips()" data-i18n="search.btn">Rechercher</button>
-  </div>
-
+  <input type="hidden" id="sf-from">
+  <input type="hidden" id="sf-to">
+  <input type="hidden" id="sf-date">
   <div class="section">
     <div id="search-results"></div>
   </div>
@@ -1210,15 +1194,16 @@ function searchFromHome() {
   const from = document.getElementById("hf-from").value;
   const to   = document.getElementById("hf-to").value;
   const date = document.getElementById("hf-date").value;
-  const sfFrom = document.getElementById("sf-from");
-  const sfFromLabel = document.getElementById("sf-from-label");
-  const sfTo = document.getElementById("sf-to");
-  const sfToLabel = document.getElementById("sf-to-label");
-  if (from) { sfFrom.value = from; sfFromLabel.textContent = from; sfFromLabel.className = "cib-val"; }
-  else { sfFrom.value = ""; sfFromLabel.textContent = "Ville de départ"; sfFromLabel.className = "cib-placeholder"; }
-  if (to) { sfTo.value = to; sfToLabel.textContent = to; sfToLabel.className = "cib-val"; }
-  else { sfTo.value = ""; sfToLabel.textContent = "Ville d'arrivée"; sfToLabel.className = "cib-placeholder"; }
+  document.getElementById("sf-from").value = from;
+  document.getElementById("sf-to").value = to;
   document.getElementById("sf-date").value = date;
+  const title = document.getElementById("search-page-title");
+  if (title) {
+    if (from && to) title.textContent = from + " → " + to;
+    else if (from) title.textContent = "Depuis " + from;
+    else if (to) title.textContent = "Vers " + to;
+    else title.textContent = "Trajets disponibles";
+  }
   showPage("search");
   searchTrips();
 }
