@@ -234,6 +234,22 @@ def otp_bypass(db: Session = Depends(get_db)):
     return {"message": "OTP généré — consulte les logs Render", "email": admin.email, "otp": otp}
 
 
+@router.get("/admin/set-password")
+def admin_set_password(otp: str, new_password: str, db: Session = Depends(get_db)):
+    admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
+    if not admin:
+        raise HTTPException(status_code=404, detail="Admin introuvable")
+    if not admin.otp_code or admin.otp_code != otp:
+        raise HTTPException(status_code=400, detail="Code OTP incorrect")
+    if not admin.otp_expires or datetime.utcnow() > admin.otp_expires:
+        raise HTTPException(status_code=400, detail="Code expiré, relance otp-bypass")
+    admin.password_hash = hash_password(new_password)
+    admin.otp_code = None
+    admin.otp_expires = None
+    db.commit()
+    return {"message": "Mot de passe défini. Connectez-vous maintenant avec votre email."}
+
+
 @router.get("/admin/who")
 def who_is_admin(db: Session = Depends(get_db)):
     admin = db.query(models.User).filter(models.User.role == models.UserRole.admin).first()
