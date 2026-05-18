@@ -401,7 +401,7 @@
     <!-- Champ DE -->
     <button class="hsc-row" onclick="openCityPicker('hf-from')">
       <div class="hsc-dot hsc-dot-from"></div>
-      <span class="hsc-code">DE</span>
+      <span class="hsc-code" id="hf-from-code">DE</span>
       <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
       <input type="hidden" id="hf-from">
     </button>
@@ -413,7 +413,7 @@
     <!-- Champ À -->
     <button class="hsc-row" onclick="openCityPicker('hf-to')">
       <div class="hsc-dot hsc-dot-to"></div>
-      <span class="hsc-code">À</span>
+      <span class="hsc-code" id="hf-to-code">À</span>
       <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
       <input type="hidden" id="hf-to">
     </button>
@@ -424,7 +424,7 @@
       <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
       <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
     </div>
-    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:6px">Trouver un trajet</button>
+    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:6px" data-i18n="home.find">Trouver un trajet</button>
   </div>
   </div>
 
@@ -783,6 +783,9 @@ const TRANSLATIONS = {
     "detail.title":"Détails du trajet","book.btn":"Réserver ce trajet",
     "empty.notrips":"Aucun trajet disponible.","empty.nosearch":"Aucun trajet trouvé.","err.connect":"Erreur de connexion",
     "driver.sub":"Chauffeur Goova","capacity":"places au total",
+    "home.find":"Trouver un trajet","home.date":"Choisir une date",
+    "home.from.code":"DE","home.to.code":"À",
+    "home.from.ph":"Ville de départ","home.to.ph":"Ville d'arrivée",
   },
   ar: {
     "nav.home":"الرئيسية","nav.trajets":"رحلاتي","nav.compte":"حسابي",
@@ -811,6 +814,9 @@ const TRANSLATIONS = {
     "detail.title":"تفاصيل الرحلة","book.btn":"حجز هذه الرحلة",
     "empty.notrips":"لا توجد رحلات متاحة.","empty.nosearch":"لم يتم العثور على رحلات.","err.connect":"خطأ في الاتصال",
     "driver.sub":"سائق Goova","capacity":"مقاعد إجمالاً",
+    "home.find":"ابحث عن رحلة","home.date":"اختر تاريخاً",
+    "home.from.code":"من","home.to.code":"إلى",
+    "home.from.ph":"مدينة الانطلاق","home.to.ph":"مدينة الوصول",
   }
 };
 
@@ -829,11 +835,19 @@ function applyLang() {
   document.querySelectorAll(".lang-toggle").forEach(el => { el.textContent = isAr ? "FR" : "عر"; });
   const ht = document.getElementById("hero-title");
   if (ht) ht.innerHTML = isAr ? "إلى أين<br>تريد الذهاب ؟" : "Où voulez-vous<br>aller ?";
-  // Mettre à jour les labels des champs ville si non sélectionnés
+  // Labels champs ville (si non sélectionnés)
   [["sf-from","search.from"],["sf-to","search.to"],["trip-from","publish.from"],["trip-to","publish.to"]].forEach(([id, key]) => {
     const lbl = document.getElementById(id + "-label");
     if (lbl && lbl.classList.contains("cib-placeholder")) lbl.textContent = t(key);
   });
+  // Carte accueil : codes DE/À, placeholders villes, date
+  const fcCode = document.getElementById("hf-from-code"); if (fcCode) fcCode.textContent = t("home.from.code");
+  const tcCode = document.getElementById("hf-to-code"); if (tcCode) tcCode.textContent = t("home.to.code");
+  const flbl = document.getElementById("hf-from-label"); if (flbl && flbl.classList.contains("hsc-placeholder")) flbl.textContent = t("home.from.ph");
+  const tlbl = document.getElementById("hf-to-label"); if (tlbl && tlbl.classList.contains("hsc-placeholder")) tlbl.textContent = t("home.to.ph");
+  const ddsp = document.getElementById("hf-date-display"); if (ddsp && ddsp.classList.contains("hsc-placeholder")) ddsp.textContent = t("home.date");
+  // RTL : inverser la direction du logo Goova
+  const hnav = document.getElementById("bottom-nav"); if (hnav) hnav.style.direction = "ltr";
   if (currentUser) updateProfileSection();
 }
 
