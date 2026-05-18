@@ -54,8 +54,6 @@
     .service-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 20px 16px; }
     .service-card { border-radius: 16px; padding: 14px 14px 16px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; overflow: hidden; background: #fff; box-shadow: 0 4px 18px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.04); }
     .service-card:active { transform: scale(0.96); }
-    .sc-trajets { border-top: 3px solid #34D186; }
-    .sc-planifier { border-top: 3px solid #E0E0E0; }
     .sc-car { width: 100%; margin: 0 0 8px; }
     .sc-car svg { width: 100%; height: auto; display: block; }
     .sc-title { font-size: 15px; font-weight: 800; color: #1A1A1A; line-height: 1.2; }
@@ -340,7 +338,7 @@
 
   <div class="service-cards">
     <!-- Card Trajets : fond blanc, accent vert, voiture verte -->
-    <div class="service-card sc-trajets" onclick="showPage('search')">
+    <div class="service-card" onclick="showPage('search')">
       <div class="sc-car">
         <svg viewBox="0 0 160 78" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="80" cy="74" rx="62" ry="4" fill="rgba(0,0,0,0.08)"/>
@@ -372,34 +370,38 @@
       <div class="sc-title" data-i18n="sc.trajets">Trajets</div>
       <div class="sc-sub" data-i18n="sc.book">Réservez maintenant</div>
     </div>
-    <!-- Card Planifier : fond blanc, accent gris, voiture grise -->
-    <div class="service-card sc-planifier" onclick="showPage('search')">
+    <!-- Card Planifier : fond blanc, voiture blanche avec détails verts -->
+    <div class="service-card" onclick="showPage('search')">
       <div class="sc-car">
         <svg viewBox="0 0 160 78" xmlns="http://www.w3.org/2000/svg">
           <ellipse cx="80" cy="74" rx="62" ry="4" fill="rgba(0,0,0,0.07)"/>
-          <path d="M12,63 Q12,69 18,71 L142,71 Q149,71 153,65 L153,53 Q147,49 137,49 L124,49 Q116,35 109,33 L70,31 Q55,31 46,37 L34,49 L18,55 Q12,58 12,63Z" fill="#4A4A5A"/>
-          <circle cx="42" cy="63" r="17" fill="#4A4A5A"/>
-          <circle cx="124" cy="63" r="17" fill="#4A4A5A"/>
-          <path d="M48,38 L70,32 L70,49 L36,49Z" fill="rgba(160,200,230,0.65)"/>
-          <path d="M72,32 L108,32 L112,49 L72,49Z" fill="rgba(160,200,230,0.65)"/>
-          <path d="M110,34 L120,36 L124,49 L113,49Z" fill="rgba(160,200,230,0.65)"/>
-          <line x1="72" y1="32" x2="72" y2="49" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
-          <line x1="110" y1="34" x2="113" y2="49" stroke="rgba(0,0,0,0.12)" stroke-width="2"/>
-          <path d="M20,56 Q80,50 150,54" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M58,33 Q90,29 106,33" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <circle cx="42" cy="65" r="14" fill="#111"/><circle cx="42" cy="65" r="10" fill="#2a2a2a"/>
-          <line x1="42" y1="55" x2="42" y2="75" stroke="#444" stroke-width="2"/><line x1="32" y1="65" x2="52" y2="65" stroke="#444" stroke-width="2"/>
-          <line x1="35" y1="58" x2="49" y2="72" stroke="#444" stroke-width="1.5"/><line x1="49" y1="58" x2="35" y2="72" stroke="#444" stroke-width="1.5"/>
-          <circle cx="42" cy="65" r="4" fill="#555"/><circle cx="42" cy="65" r="2" fill="#999"/>
-          <circle cx="124" cy="65" r="14" fill="#111"/><circle cx="124" cy="65" r="10" fill="#2a2a2a"/>
-          <line x1="124" y1="55" x2="124" y2="75" stroke="#444" stroke-width="2"/><line x1="114" y1="65" x2="134" y2="65" stroke="#444" stroke-width="2"/>
-          <line x1="117" y1="58" x2="131" y2="72" stroke="#444" stroke-width="1.5"/><line x1="131" y1="58" x2="117" y2="72" stroke="#444" stroke-width="1.5"/>
-          <circle cx="124" cy="65" r="4" fill="#555"/><circle cx="124" cy="65" r="2" fill="#999"/>
+          <path d="M12,63 Q12,69 18,71 L142,71 Q149,71 153,65 L153,53 Q147,49 137,49 L124,49 Q116,35 109,33 L70,31 Q55,31 46,37 L34,49 L18,55 Q12,58 12,63Z" fill="#FFFFFF" stroke="#E8E8E8" stroke-width="1"/>
+          <circle cx="42" cy="63" r="17" fill="#FFFFFF"/>
+          <circle cx="124" cy="63" r="17" fill="#FFFFFF"/>
+          <path d="M48,38 L70,32 L70,49 L36,49Z" fill="rgba(150,210,255,0.6)"/>
+          <path d="M72,32 L108,32 L112,49 L72,49Z" fill="rgba(150,210,255,0.6)"/>
+          <path d="M110,34 L120,36 L124,49 L113,49Z" fill="rgba(150,210,255,0.6)"/>
+          <line x1="72" y1="32" x2="72" y2="49" stroke="rgba(0,0,0,0.08)" stroke-width="2"/>
+          <line x1="110" y1="34" x2="113" y2="49" stroke="rgba(0,0,0,0.08)" stroke-width="2"/>
+          <!-- Bande verte latérale -->
+          <path d="M20,60 Q80,56 150,60" stroke="#34D186" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <!-- Toit léger -->
+          <path d="M58,33 Q90,29 106,33" stroke="#34D186" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.5"/>
+          <!-- Roues avec jantes vertes -->
+          <circle cx="42" cy="65" r="14" fill="#1c1c2e"/><circle cx="42" cy="65" r="10" fill="#2a2a2a"/>
+          <line x1="42" y1="55" x2="42" y2="75" stroke="#34D186" stroke-width="2"/><line x1="32" y1="65" x2="52" y2="65" stroke="#34D186" stroke-width="2"/>
+          <line x1="35" y1="58" x2="49" y2="72" stroke="#34D186" stroke-width="1.5"/><line x1="49" y1="58" x2="35" y2="72" stroke="#34D186" stroke-width="1.5"/>
+          <circle cx="42" cy="65" r="4" fill="#34D186"/><circle cx="42" cy="65" r="2" fill="#fff"/>
+          <circle cx="124" cy="65" r="14" fill="#1c1c2e"/><circle cx="124" cy="65" r="10" fill="#2a2a2a"/>
+          <line x1="124" y1="55" x2="124" y2="75" stroke="#34D186" stroke-width="2"/><line x1="114" y1="65" x2="134" y2="65" stroke="#34D186" stroke-width="2"/>
+          <line x1="117" y1="58" x2="131" y2="72" stroke="#34D186" stroke-width="1.5"/><line x1="131" y1="58" x2="117" y2="72" stroke="#34D186" stroke-width="1.5"/>
+          <circle cx="124" cy="65" r="4" fill="#34D186"/><circle cx="124" cy="65" r="2" fill="#fff"/>
           <path d="M149,54 L153,54 L153,63 L149,64Z" fill="#FFE566"/>
           <path d="M149,54 L153,54 L153,58 L149,58Z" fill="white" opacity="0.6"/>
           <rect x="12" y="57" width="5" height="11" rx="2" fill="#FF3333"/>
-          <rect x="84" y="52" width="11" height="2.5" rx="1.25" fill="rgba(255,255,255,0.3)"/>
-          <rect x="116" y="52" width="11" height="2.5" rx="1.25" fill="rgba(255,255,255,0.3)"/>
+          <!-- Poignées vertes -->
+          <rect x="84" y="52" width="11" height="2.5" rx="1.25" fill="#34D186" opacity="0.7"/>
+          <rect x="116" y="52" width="11" height="2.5" rx="1.25" fill="#34D186" opacity="0.7"/>
         </svg>
       </div>
       <div class="sc-title" data-i18n="sc.plan">Planifier</div>
