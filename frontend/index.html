@@ -846,7 +846,16 @@ function applyLang() {
   const flbl = document.getElementById("hf-from-label"); if (flbl && flbl.classList.contains("hsc-placeholder")) flbl.textContent = t("home.from.ph");
   const tlbl = document.getElementById("hf-to-label"); if (tlbl && tlbl.classList.contains("hsc-placeholder")) tlbl.textContent = t("home.to.ph");
   const ddsp = document.getElementById("hf-date-display"); if (ddsp && ddsp.classList.contains("hsc-placeholder")) ddsp.textContent = t("home.date");
-  // RTL : inverser la direction du logo Goova
+  // Re-traduire les villes déjà sélectionnées
+  ["hf-from","hf-to","sf-from","sf-to","trip-from","trip-to"].forEach(id => {
+    const inp = document.getElementById(id);
+    const lbl = document.getElementById(id + "-label");
+    if (inp && inp.value && lbl && !lbl.classList.contains("cib-placeholder") && !lbl.classList.contains("hsc-placeholder")) {
+      const v = VILLES_DATA.find(c => c.name === inp.value);
+      if (v) lbl.textContent = cityDisplayName(v);
+    }
+  });
+  // RTL : barre nav toujours LTR pour les icônes
   const hnav = document.getElementById("bottom-nav"); if (hnav) hnav.style.direction = "ltr";
   if (currentUser) updateProfileSection();
 }
@@ -935,63 +944,63 @@ function showPage(p) {
 
 // ── VILLES DATA ──
 const VILLES_DATA = [
-  { name: "Nouakchott",      wilaya: "Capitale" },
-  { name: "Nouadhibou",      wilaya: "Dakhlet Nouadhibou" },
-  { name: "Rosso",           wilaya: "Trarza" },
-  { name: "Kaédi",           wilaya: "Gorgol" },
-  { name: "Kiffa",           wilaya: "Assaba" },
-  { name: "Néma",            wilaya: "Hodh Chargui" },
-  { name: "Ayoun el Atrous", wilaya: "Hodh Gharbi" },
-  { name: "Atar",            wilaya: "Adrar" },
-  { name: "Tidjikja",        wilaya: "Tagant" },
-  { name: "Sélibaby",        wilaya: "Guidimagha" },
-  { name: "Zouerate",        wilaya: "Tiris Zemmour" },
-  { name: "Akjoujt",         wilaya: "Inchiri" },
-  { name: "Aleg",            wilaya: "Brakna" },
-  { name: "Boghé",           wilaya: "Brakna" },
-  { name: "Boutilimit",      wilaya: "Trarza" },
-  { name: "Timbedra",        wilaya: "Hodh Chargui" },
-  { name: "Bassikounou",     wilaya: "Hodh Chargui" },
-  { name: "Oualata",         wilaya: "Hodh Chargui" },
-  { name: "Chinguetti",      wilaya: "Adrar" },
-  { name: "Ouadane",         wilaya: "Adrar" },
-  { name: "Fdérik",          wilaya: "Tiris Zemmour" },
-  { name: "Bir Moghrein",    wilaya: "Tiris Zemmour" },
-  { name: "Kayes",           wilaya: "Gorgol" },
-  { name: "Monguel",         wilaya: "Gorgol" },
-  { name: "Maghama",         wilaya: "Gorgol" },
-  { name: "M'Bout",          wilaya: "Gorgol" },
-  { name: "Guerou",          wilaya: "Assaba" },
-  { name: "Kankossa",        wilaya: "Assaba" },
-  { name: "Barkéol",         wilaya: "Assaba" },
-  { name: "Moudjeria",       wilaya: "Tagant" },
-  { name: "Ould Yengé",      wilaya: "Guidimagha" },
-  { name: "Ghabou",          wilaya: "Guidimagha" },
-  { name: "Diaguily",        wilaya: "Guidimagha" },
-  { name: "Mederdra",        wilaya: "Trarza" },
-  { name: "Tekane",          wilaya: "Trarza" },
-  { name: "R'Kiz",           wilaya: "Trarza" },
-  { name: "Keur Macène",     wilaya: "Trarza" },
-  { name: "Amourj",          wilaya: "Hodh Chargui" },
-  { name: "Djiguenni",       wilaya: "Hodh Chargui" },
-  { name: "Kobenni",         wilaya: "Hodh Gharbi" },
-  { name: "Tamchakett",      wilaya: "Hodh Gharbi" },
-  { name: "Tintane",         wilaya: "Hodh Gharbi" },
-  { name: "Boumdeid",        wilaya: "Assaba" },
-  { name: "Tichitt",         wilaya: "Tagant" },
-  { name: "Aoujeft",         wilaya: "Adrar" },
-  { name: "Choum",           wilaya: "Tiris Zemmour" },
-  { name: "Adel Bagrou",     wilaya: "Hodh Chargui" },
-  { name: "Bababe",          wilaya: "Brakna" },
-  { name: "Bir Gandouz",     wilaya: "Dakhlet Nouadhibou" },
-  { name: "Benichab",        wilaya: "Inchiri" },
-  { name: "El Ain",          wilaya: "Inchiri" },
-  { name: "Terjit",          wilaya: "Adrar" },
-  { name: "Aghreijit",       wilaya: "Tagant" },
-  { name: "Rachid",          wilaya: "Tagant" },
-  { name: "Nbeika",          wilaya: "Hodh Chargui" },
-  { name: "Hassi Cheggar",   wilaya: "Hodh Chargui" },
-  { name: "Dakar",           wilaya: "Sénégal", subtitle: "Sénégal" },
+  { name: "Nouakchott",      nameAr: "نواكشوط",      wilaya: "Capitale",              wilayaAr: "العاصمة" },
+  { name: "Nouadhibou",      nameAr: "نواذيبو",      wilaya: "Dakhlet Nouadhibou",    wilayaAr: "داخلت نواذيبو" },
+  { name: "Rosso",           nameAr: "روصو",         wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "Kaédi",           nameAr: "كيهيدي",       wilaya: "Gorgol",               wilayaAr: "الكركول" },
+  { name: "Kiffa",           nameAr: "كيفة",         wilaya: "Assaba",               wilayaAr: "العصابة" },
+  { name: "Néma",            nameAr: "نعمة",         wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Ayoun el Atrous", nameAr: "العيون",       wilaya: "Hodh Gharbi",          wilayaAr: "الحوض الغربي" },
+  { name: "Atar",            nameAr: "آتار",         wilaya: "Adrar",                wilayaAr: "آدرار" },
+  { name: "Tidjikja",        nameAr: "تيجيكجة",      wilaya: "Tagant",               wilayaAr: "التاكانت" },
+  { name: "Sélibaby",        nameAr: "سيليبابي",     wilaya: "Guidimagha",           wilayaAr: "كيدي ماغه" },
+  { name: "Zouerate",        nameAr: "زويرات",       wilaya: "Tiris Zemmour",        wilayaAr: "تيرس زمور" },
+  { name: "Akjoujt",         nameAr: "أكجوجت",       wilaya: "Inchiri",              wilayaAr: "إينشيري" },
+  { name: "Aleg",            nameAr: "ألاك",         wilaya: "Brakna",               wilayaAr: "البراكنة" },
+  { name: "Boghé",           nameAr: "بوكي",         wilaya: "Brakna",               wilayaAr: "البراكنة" },
+  { name: "Boutilimit",      nameAr: "بوتلميت",      wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "Timbedra",        nameAr: "تمبدغة",       wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Bassikounou",     nameAr: "باسكنو",       wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Oualata",         nameAr: "ولاته",        wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Chinguetti",      nameAr: "شنقيط",        wilaya: "Adrar",                wilayaAr: "آدرار" },
+  { name: "Ouadane",         nameAr: "وادان",        wilaya: "Adrar",                wilayaAr: "آدرار" },
+  { name: "Fdérik",          nameAr: "الفديرك",      wilaya: "Tiris Zemmour",        wilayaAr: "تيرس زمور" },
+  { name: "Bir Moghrein",    nameAr: "بير مغرين",    wilaya: "Tiris Zemmour",        wilayaAr: "تيرس زمور" },
+  { name: "Kayes",           nameAr: "كييس",         wilaya: "Gorgol",               wilayaAr: "الكركول" },
+  { name: "Monguel",         nameAr: "مونكال",       wilaya: "Gorgol",               wilayaAr: "الكركول" },
+  { name: "Maghama",         nameAr: "ماغاما",       wilaya: "Gorgol",               wilayaAr: "الكركول" },
+  { name: "M'Bout",          nameAr: "مبوت",         wilaya: "Gorgol",               wilayaAr: "الكركول" },
+  { name: "Guerou",          nameAr: "غيرو",         wilaya: "Assaba",               wilayaAr: "العصابة" },
+  { name: "Kankossa",        nameAr: "كنكوصة",       wilaya: "Assaba",               wilayaAr: "العصابة" },
+  { name: "Barkéol",         nameAr: "باركيول",      wilaya: "Assaba",               wilayaAr: "العصابة" },
+  { name: "Moudjeria",       nameAr: "مجرية",        wilaya: "Tagant",               wilayaAr: "التاكانت" },
+  { name: "Ould Yengé",      nameAr: "ولد ينجي",     wilaya: "Guidimagha",           wilayaAr: "كيدي ماغه" },
+  { name: "Ghabou",          nameAr: "غابو",         wilaya: "Guidimagha",           wilayaAr: "كيدي ماغه" },
+  { name: "Diaguily",        nameAr: "جكيلي",        wilaya: "Guidimagha",           wilayaAr: "كيدي ماغه" },
+  { name: "Mederdra",        nameAr: "مدردرة",       wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "Tekane",          nameAr: "تكانت",        wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "R'Kiz",           nameAr: "الركيز",       wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "Keur Macène",     nameAr: "كور ماصن",     wilaya: "Trarza",               wilayaAr: "الترارزة" },
+  { name: "Amourj",          nameAr: "أمورج",        wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Djiguenni",       nameAr: "جكني",         wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Kobenni",         nameAr: "كوبني",        wilaya: "Hodh Gharbi",          wilayaAr: "الحوض الغربي" },
+  { name: "Tamchakett",      nameAr: "تمشكط",        wilaya: "Hodh Gharbi",          wilayaAr: "الحوض الغربي" },
+  { name: "Tintane",         nameAr: "تينتان",       wilaya: "Hodh Gharbi",          wilayaAr: "الحوض الغربي" },
+  { name: "Boumdeid",        nameAr: "بومديد",       wilaya: "Assaba",               wilayaAr: "العصابة" },
+  { name: "Tichitt",         nameAr: "تيشيت",        wilaya: "Tagant",               wilayaAr: "التاكانت" },
+  { name: "Aoujeft",         nameAr: "أوجفت",        wilaya: "Adrar",                wilayaAr: "آدرار" },
+  { name: "Choum",           nameAr: "الشوم",        wilaya: "Tiris Zemmour",        wilayaAr: "تيرس زمور" },
+  { name: "Adel Bagrou",     nameAr: "عدل باقرو",    wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Bababe",          nameAr: "بابابي",       wilaya: "Brakna",               wilayaAr: "البراكنة" },
+  { name: "Bir Gandouz",     nameAr: "بئر گندوز",    wilaya: "Dakhlet Nouadhibou",   wilayaAr: "داخلت نواذيبو" },
+  { name: "Benichab",        nameAr: "بنيشاب",       wilaya: "Inchiri",              wilayaAr: "إينشيري" },
+  { name: "El Ain",          nameAr: "العيينة",      wilaya: "Inchiri",              wilayaAr: "إينشيري" },
+  { name: "Terjit",          nameAr: "تيرجيت",       wilaya: "Adrar",                wilayaAr: "آدرار" },
+  { name: "Aghreijit",       nameAr: "أغريجيت",      wilaya: "Tagant",               wilayaAr: "التاكانت" },
+  { name: "Rachid",          nameAr: "رشيد",         wilaya: "Tagant",               wilayaAr: "التاكانت" },
+  { name: "Nbeika",          nameAr: "نبيكة",        wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Hassi Cheggar",   nameAr: "حاسي شقر",     wilaya: "Hodh Chargui",         wilayaAr: "الحوض الشرقي" },
+  { name: "Dakar",           nameAr: "داكار",        wilaya: "Sénégal",              wilayaAr: "السنغال", subtitle: "Sénégal", subtitleAr: "السنغال" },
 ];
 
 function normalizeStr(s) {
@@ -1028,18 +1037,28 @@ function clearCpInput() {
   document.getElementById("cp-input").focus();
 }
 
+function cityDisplayName(v) {
+  return (currentLang === "ar" && v.nameAr) ? v.nameAr : v.name;
+}
+function cityDisplayWilaya(v) {
+  if (currentLang === "ar") return (v.subtitleAr || v.wilayaAr || v.wilaya) + "، موريتانيا";
+  return v.subtitle || (v.wilaya + ", Mauritanie");
+}
+
 function renderCpList(q) {
   const norm = normalizeStr(q.trim());
-  const filtered = norm.length === 0 ? VILLES_DATA : VILLES_DATA.filter(v => normalizeStr(v.name).includes(norm));
+  const filtered = norm.length === 0 ? VILLES_DATA : VILLES_DATA.filter(v =>
+    normalizeStr(v.name).includes(norm) || (v.nameAr && v.nameAr.includes(q.trim()))
+  );
   const list = document.getElementById("cp-list");
   if (!filtered.length) {
-    list.innerHTML = '<div class="cp-empty">Aucune ville trouvée pour « ' + q + ' »</div>';
+    list.innerHTML = '<div class="cp-empty">' + (currentLang === "ar" ? "لا توجد مدينة بهذا الاسم" : 'Aucune ville trouvée pour « ' + q + ' »') + '</div>';
     return;
   }
   list.innerHTML = filtered.map(v =>
     '<div class="cp-city-row" onclick="selectCity(\'' + v.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'") + '\')">' +
-      '<div class="cp-pin-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#00C853"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg></div>' +
-      '<div><div class="cp-city-name">' + v.name + '</div><div class="cp-city-wilaya">' + (v.subtitle || v.wilaya + ', Mauritanie') + '</div></div>' +
+      '<div class="cp-pin-box"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" fill="#00C853"/><circle cx="12" cy="9" r="2.5" fill="white"/></svg></div>' +
+      '<div><div class="cp-city-name">' + cityDisplayName(v) + '</div><div class="cp-city-wilaya">' + cityDisplayWilaya(v) + '</div></div>' +
     '</div>'
   ).join("");
 }
@@ -1049,7 +1068,11 @@ function selectCity(name) {
   const hiddenInput = document.getElementById(cityPickerTarget);
   const labelEl = document.getElementById(cityPickerTarget + "-label");
   if (hiddenInput) hiddenInput.value = name;
-  if (labelEl) { labelEl.textContent = name; labelEl.className = "cib-val"; }
+  if (labelEl) {
+    const v = VILLES_DATA.find(c => c.name === name);
+    labelEl.textContent = cityDisplayName(v || { name });
+    labelEl.className = labelEl.className.includes("hsc-") ? "hsc-val" : "cib-val";
+  }
   closeCityPicker();
 }
 
