@@ -194,7 +194,7 @@ def request_phone_otp(phone: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"OTP SMS non envoyé: {e}")
 
-    return {"message": "Code envoyé par SMS"}
+    return {"message": "Code envoyé", "otp": otp}
 
 
 @router.post("/phone-otp/verify", response_model=schemas.Token)

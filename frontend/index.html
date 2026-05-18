@@ -1392,6 +1392,10 @@ async function requestPhoneOTP() {
     document.getElementById("otp-phone-display").textContent = "+222 " + phone;
     document.getElementById("otp-step1").style.display = "none";
     document.getElementById("otp-step2").style.display = "block";
+    if (d.otp) {
+      document.getElementById("auth-otp").value = d.otp;
+      showAlert("auth-alert2", "📱 Votre code : " + d.otp + " (pré-rempli automatiquement)", "success");
+    }
   } catch(e) { showAlert("auth-alert", e.message, "error"); }
 }
 
