@@ -1,8 +1,24 @@
 import vonage
 import os
+import urllib.request
+import urllib.parse
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def send_whatsapp_admin(message: str):
+    phone = os.getenv("WHATSAPP_ADMIN_PHONE")
+    apikey = os.getenv("WHATSAPP_CALLMEBOT_KEY")
+    if not phone or not apikey:
+        print("[WhatsApp] Variables WHATSAPP_ADMIN_PHONE ou WHATSAPP_CALLMEBOT_KEY manquantes")
+        return
+    url = f"https://api.callmebot.com/whatsapp.php?phone={phone}&text={urllib.parse.quote(message)}&apikey={apikey}"
+    try:
+        urllib.request.urlopen(url, timeout=10)
+        print(f"[WhatsApp] Notification envoyée : {message[:60]}")
+    except Exception as e:
+        print(f"[WhatsApp] Erreur envoi : {e}")
 
 client = vonage.Client(
     key=os.getenv("VONAGE_API_KEY"),

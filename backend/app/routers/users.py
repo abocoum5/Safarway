@@ -46,6 +46,18 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_user)
 
+    if new_user.role == models.UserRole.chauffeur:
+        try:
+            from app.sms import send_whatsapp_admin
+            send_whatsapp_admin(
+                f"Goova - Nouveau chauffeur inscrit !\n"
+                f"Nom : {new_user.name}\n"
+                f"Tel : {new_user.phone}\n"
+                f"Approuvez-le depuis le panel admin."
+            )
+        except Exception as e:
+            print(f"[WhatsApp notif] {e}")
+
     token = create_access_token({"sub": str(new_user.id)})
     return {"access_token": token, "token_type": "bearer", "user": new_user}
 
