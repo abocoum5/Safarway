@@ -1411,7 +1411,7 @@ async function loginWithPassword() {
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    updateProfileUI();
+    updateProfileSection();
     showPage("home");
   } catch(e) { showAlert("auth-alert", e.message, "error"); }
 }
@@ -1453,7 +1453,7 @@ async function registerUser() {
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur inscription");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    updateProfileUI();
+    updateProfileSection();
     if (_regRole === "chauffeur") {
       showAlert("reg-alert", "Compte créé ! En attente de validation par l'admin.", "success");
     } else {
@@ -1644,7 +1644,7 @@ async function saveProfile() {
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
     currentUser = d;
     localStorage.setItem("sw_user", JSON.stringify(currentUser));
-    updateProfileUI();
+    updateProfileSection();
     showAlert("edit-profile-alert", "Profil mis à jour ✓", "success");
     document.getElementById("edit-current-password").value = "";
     document.getElementById("edit-new-password").value = "";
