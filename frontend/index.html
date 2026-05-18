@@ -729,13 +729,31 @@
   </div>
   <div class="td-body" id="td-body"></div>
   <div class="td-book-bar">
+    <div id="td-already-booked" style="display:none;text-align:center;padding:12px 14px;background:#e8f5e9;border-radius:10px;margin-bottom:10px">
+      <span style="font-size:22px">✅</span>
+      <div style="font-size:14px;font-weight:700;color:#00C853;margin-top:4px">Vous avez déjà réservé ce trajet</div>
+      <div style="font-size:12px;color:var(--text-3);margin-top:2px">Retrouvez-le dans vos réservations</div>
+    </div>
     <div id="td-seats-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
       <span style="font-size:14px;color:var(--text-2);flex:1">Nombre de places</span>
       <button onclick="changeSeat(-1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
       <span id="td-seats-val" style="font-size:18px;font-weight:800;min-width:24px;text-align:center">1</span>
       <button onclick="changeSeat(1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
     </div>
+    <div id="td-book-error" style="display:none;color:#e53935;font-size:13px;margin-bottom:8px;text-align:center;padding:8px 12px;background:rgba(229,57,53,0.08);border-radius:8px"></div>
     <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()" data-i18n="book.btn">Réserver ce trajet</button>
+  </div>
+</div>
+
+<!-- ─── BOOKING SUCCESS OVERLAY ─── -->
+<div id="booking-success-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
+  <div style="background:var(--bg);border-radius:var(--radius);padding:36px 24px;margin:20px;text-align:center;max-width:400px;width:100%;box-sizing:border-box">
+    <div style="font-size:56px;margin-bottom:12px">✅</div>
+    <div style="font-size:20px;font-weight:800;margin-bottom:8px">Réservation confirmée !</div>
+    <div id="bso-ref" style="font-size:14px;color:var(--text-2);margin-bottom:4px"></div>
+    <div id="bso-total" style="font-size:28px;font-weight:800;color:var(--green);margin:12px 0"></div>
+    <div id="bso-driver" style="font-size:14px;color:var(--text-2);margin-bottom:24px;line-height:1.5"></div>
+    <button class="btn btn-green" onclick="closeBookingSuccess()">Voir mes réservations</button>
   </div>
 </div>
 
@@ -890,6 +908,7 @@ let allUsers = [], allBookings = [], allAdminTrips = [];
 let revenueChart = null, bookingsChart = null, gmvChart = null;
 let VILLES = [];
 let tripsCache = {};
+let bookedTripIds = new Set();
 
 function skeletonTripRows(n = 4) {
   return '<div class="trip-list">' + Array(n).fill(0).map(() =>
@@ -904,6 +923,16 @@ function skeletonTripRows(n = 4) {
   ).join("") + '</div>';
 }
 
+async function loadUserBookedTripIds() {
+  if (!token || !currentUser || currentUser.role !== "voyageur") return;
+  try {
+    const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
+    if (!r.ok) return;
+    const bookings = await r.json();
+    bookedTripIds = new Set(bookings.filter(b => b.status === "confirme").map(b => b.trip_id));
+  } catch(e) {}
+}
+
 window.onload = () => {
   token = localStorage.getItem("sw_token");
   const s = localStorage.getItem("sw_user");
@@ -914,6 +943,7 @@ window.onload = () => {
   setTodayDate();
   checkAdminRoute();
   loadHomeTrips();
+  if (token && currentUser) loadUserBookedTripIds();
 };
 
 function checkAdminRoute() {
@@ -1156,8 +1186,11 @@ function showTripDetail(tripId) {
   const isOwnTrip = currentUser && currentUser.id === trip.driver_id;
   const isDriver = currentUser && currentUser.role === "chauffeur" && isOwnTrip;
   const showBook = !isDriver;
-  document.getElementById("td-book-btn").style.display = showBook ? "block" : "none";
-  document.getElementById("td-seats-row").style.display = showBook ? "flex" : "none";
+  const alreadyBooked = currentUser && currentUser.role === "voyageur" && bookedTripIds.has(tripId);
+  document.getElementById("td-book-btn").style.display = (showBook && !alreadyBooked) ? "block" : "none";
+  document.getElementById("td-seats-row").style.display = (showBook && !alreadyBooked) ? "flex" : "none";
+  document.getElementById("td-already-booked").style.display = (showBook && alreadyBooked) ? "block" : "none";
+  document.getElementById("td-book-error").style.display = "none";
   document.getElementById("td-seats-val").textContent = "1";
   document.getElementById("td-book-btn").dataset.maxSeats = trip.available_seats;
   document.getElementById("trip-detail").style.display = "block";
@@ -1180,11 +1213,10 @@ function changeSeat(delta) {
 
 function bookFromDetail() {
   const tripId = parseInt(document.getElementById("td-book-btn").dataset.tripId);
-  const t = tripsCache[tripId];
-  if (!t) return;
+  const trip = tripsCache[tripId];
+  if (!trip) return;
   const seats = parseInt(document.getElementById("td-seats-val").textContent) || 1;
   if (!currentUser) { closeTripDetail(); showPage("compte"); return; }
-  if (!confirm("Confirmer la réservation ?\n\n" + t.from_city + " → " + t.to_city + "\n" + seats + " place(s) × " + t.price_per_seat + " MRU = " + (seats * t.price_per_seat) + " MRU")) return;
   confirmBooking(tripId, seats);
 }
 
@@ -1280,13 +1312,40 @@ function bookTrip(tripId, from, to, price, available) {
 }
 
 async function confirmBooking(tripId, seats) {
+  const btn = document.getElementById("td-book-btn");
+  const origText = btn.textContent;
+  btn.textContent = "Réservation en cours..."; btn.disabled = true;
+  document.getElementById("td-book-error").style.display = "none";
   try {
     const r = await fetch(API + "/bookings/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify({ trip_id: tripId, seats_booked: seats }) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur réservation");
-    alert("✅ Réservation confirmée !\nCode: " + d.reference_code + "\nTotal: " + d.total_price + " MRU\n\n📞 Chauffeur: " + (d.driver_phone || "Voir SMS"));
-    showPage("trajets");
-  } catch(e) { alert("Erreur: " + e.message); }
+    if (tripsCache[tripId]) tripsCache[tripId].available_seats -= seats;
+    bookedTripIds.add(tripId);
+    showBookingSuccess(d.reference_code, d.total_price, d.driver_phone, d.driver_name);
+  } catch(e) {
+    const errEl = document.getElementById("td-book-error");
+    errEl.textContent = e.message;
+    errEl.style.display = "block";
+    btn.textContent = origText; btn.disabled = false;
+  }
+}
+
+function showBookingSuccess(ref, total, driverPhone, driverName) {
+  document.getElementById("bso-ref").textContent = "Référence : " + ref;
+  document.getElementById("bso-total").textContent = total + " MRU";
+  document.getElementById("bso-driver").innerHTML = driverPhone
+    ? '📞 Chauffeur : <a href="tel:+222' + driverPhone + '" style="color:var(--green);font-weight:700">' + (driverName || driverPhone) + ' — ' + driverPhone + '</a>'
+    : "📞 Contact chauffeur disponible dans vos réservations";
+  document.getElementById("booking-success-overlay").style.display = "flex";
+  document.getElementById("trip-detail").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "none";
+}
+
+function closeBookingSuccess() {
+  document.getElementById("booking-success-overlay").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
+  showPage("trajets");
 }
 
 // ── TRAJETS PAGE ──
@@ -1319,6 +1378,7 @@ async function loadMyBookings() {
   try {
     const r = await fetch(API + "/bookings/mes-reservations", { headers: { "Authorization": "Bearer " + token } });
     const bookings = await r.json();
+    bookedTripIds = new Set(bookings.filter(b => b.status === "confirme").map(b => b.trip_id));
     if (!bookings.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🎫</div><p>Aucune réservation</p></div>'; return; }
     const today = new Date().toISOString().split("T")[0];
     c.innerHTML = bookings.map(b => {
@@ -1357,20 +1417,39 @@ async function loadMyTrips() {
     const r = await fetch(API + "/trips/mes-trajets", { headers: { "Authorization": "Bearer " + token } });
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚗</div><p>Aucun trajet publié</p></div>'; return; }
-    c.innerHTML = trips.map(t =>
-      '<div class="trip-card">' +
-        '<div class="tc-route"><div class="tc-city">' + t.from_city + '</div><div class="tc-arrow">→</div><div class="tc-city right">' + t.to_city + '</div></div>' +
+    c.innerHTML = trips.map(trip => {
+      const booked = trip.total_seats - trip.available_seats;
+      const pct = trip.total_seats > 0 ? Math.round((booked / trip.total_seats) * 100) : 0;
+      const hasBookings = booked > 0;
+      return '<div class="trip-card">' +
+        (hasBookings
+          ? '<div style="display:flex;align-items:center;gap:8px;background:#e8f5e9;border-radius:8px;padding:9px 12px;margin-bottom:10px">' +
+              '<span style="font-size:20px">🔔</span>' +
+              '<div><div style="font-size:13px;font-weight:700;color:#00C853">' + booked + ' passager(s) ont réservé</div>' +
+              '<div style="font-size:12px;color:var(--text-3)">Trajet rempli à ' + pct + '%</div></div>' +
+            '</div>'
+          : '') +
+        '<div class="tc-route"><div class="tc-city">' + trip.from_city + '</div><div class="tc-arrow">→</div><div class="tc-city right">' + trip.to_city + '</div></div>' +
         '<div class="tc-footer">' +
-          '<span class="tc-tag">📅 ' + t.departure_date + '</span>' +
-          '<span class="tc-tag">🕐 ' + t.departure_time + '</span>' +
-          '<span class="badge ' + (t.status === "actif" ? "badge-green" : "badge-red") + '">' + t.status + '</span>' +
-          '<span style="font-size:17px;font-weight:700;color:var(--green);margin-left:auto">' + t.price_per_seat + ' MRU</span>' +
+          '<span class="tc-tag">📅 ' + trip.departure_date + '</span>' +
+          '<span class="tc-tag">🕐 ' + trip.departure_time + '</span>' +
+          '<span class="badge ' + (trip.status === "actif" ? "badge-green" : "badge-red") + '">' + trip.status + '</span>' +
+          '<span style="font-size:17px;font-weight:700;color:var(--green);margin-left:auto">' + trip.price_per_seat + ' MRU</span>' +
         '</div>' +
-        '<div style="margin-top:10px">' +
-          '<button class="btn btn-ghost btn-sm" onclick="openPaxModal(' + t.id + ',\'' + t.from_city + '\',\'' + t.to_city + '\',\'' + t.departure_date + '\')">👥 Voir passagers (' + (t.total_seats - t.available_seats) + '/' + t.total_seats + ')</button>' +
+        '<div style="margin-top:12px">' +
+          '<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px">' +
+            '<span style="color:var(--text-2)">Places réservées</span>' +
+            '<span style="font-weight:700;color:' + (hasBookings ? 'var(--green)' : 'var(--text-3)') + '">' + booked + ' / ' + trip.total_seats + '</span>' +
+          '</div>' +
+          '<div style="height:7px;background:var(--border);border-radius:4px;margin-bottom:10px">' +
+            '<div style="height:100%;border-radius:4px;background:var(--green);width:' + pct + '%"></div>' +
+          '</div>' +
+          '<button class="btn ' + (hasBookings ? 'btn-green' : 'btn-ghost') + ' btn-sm" style="width:100%" onclick="openPaxModal(' + trip.id + ',\'' + trip.from_city + '\',\'' + trip.to_city + '\',\'' + trip.departure_date + '\')">' +
+            (hasBookings ? '👥 Voir les ' + booked + ' passager(s)' : '👥 Aucune réservation') +
+          '</button>' +
         '</div>' +
-      '</div>'
-    ).join("");
+      '</div>';
+    }).join("");
   } catch(e) { if (c) c.innerHTML = '<div class="empty"><p>Erreur de connexion</p></div>'; }
 }
 
@@ -1426,6 +1505,7 @@ async function loginWithPassword() {
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     updateProfileSection();
+    loadUserBookedTripIds();
     showPage("home");
   } catch(e) { showAlert("auth-alert", e.message, "error"); }
 }
@@ -1468,6 +1548,7 @@ async function registerUser() {
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     updateProfileSection();
+    loadUserBookedTripIds();
     if (_regRole === "chauffeur") {
       showAlert("reg-alert", "Compte créé ! En attente de validation par l'admin.", "success");
     } else {

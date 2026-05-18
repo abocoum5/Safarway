@@ -37,6 +37,14 @@ def creer_reservation(
     if trip.driver_id == current_user.id:
         raise HTTPException(status_code=400, detail="Impossible de reserver votre propre trajet")
 
+    existing_booking = db.query(models.Booking).filter(
+        models.Booking.trip_id == booking_data.trip_id,
+        models.Booking.passenger_id == current_user.id,
+        models.Booking.status == models.BookingStatus.confirme
+    ).first()
+    if existing_booking:
+        raise HTTPException(status_code=400, detail=f"Vous avez déjà réservé ce trajet (réf: {existing_booking.reference_code})")
+
     total_price = trip.price_per_seat * booking_data.seats_booked
     commission = booking_data.seats_booked * COMMISSION_RATE
 
@@ -79,6 +87,32 @@ def creer_reservation(
         })
     except Exception as e:
         print(f"SMS non envoye: {e}")
+
+    # Notifier le chauffeur par SMS
+    try:
+        from app.sms import _send
+        if trip.driver:
+            _send(trip.driver.phone,
+                f"Goova - Nouvelle reservation !\n"
+                f"{current_user.name} a reserve {booking_data.seats_booked} place(s)\n"
+                f"Trajet {trip.from_city}>{trip.to_city} le {trip.departure_date}.\n"
+                f"Ref: {new_booking.reference_code}"
+            )
+    except Exception as e:
+        print(f"[SMS chauffeur notif] {e}")
+
+    # Notifier l'admin via WhatsApp
+    try:
+        from app.sms import send_whatsapp_admin
+        send_whatsapp_admin(
+            f"Goova - Nouvelle reservation !\n"
+            f"Trajet: {trip.from_city} -> {trip.to_city} le {trip.departure_date}\n"
+            f"Passager: {current_user.name} ({current_user.phone})\n"
+            f"Chauffeur: {trip.driver.name} ({trip.driver.phone})\n"
+            f"Places: {booking_data.seats_booked} | Ref: {new_booking.reference_code}"
+        )
+    except Exception as e:
+        print(f"[WhatsApp booking notif] {e}")
 
     return new_booking
 
