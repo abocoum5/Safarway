@@ -46,12 +46,11 @@
     .header-avatar svg { width: 18px; height: 18px; color: var(--text-2); }
 
     /* ── HOME HERO ── */
-    #page-home.active { height: 100vh; height: 100svh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; min-height: unset; }
-    .home-hero { background: var(--green); position: relative; overflow: hidden; flex-shrink: 0; }
+    #page-home.active { height: auto; min-height: 100svh; overflow-y: auto; display: block; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .home-hero { background: var(--green); position: relative; overflow: hidden; }
     .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
     .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(28px, env(safe-area-inset-top, 28px)) 18px 0; }
-    /* Zone flexible entre hero et nav → centre la carte */
-    .home-search-area { flex: 1; display: flex; align-items: center; padding: 0 14px calc(80px + env(safe-area-inset-bottom, 0px)); }
+    .home-search-area { padding: 16px 16px 0; }
     .home-hero-logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; }
     .home-hero-logo span { opacity: 0.8; }
     .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
@@ -64,7 +63,19 @@
     .home-hero-title { font-size: 22px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
     .home-hero-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
     .home-hero-car { flex-shrink: 0; display: flex; align-items: center; }
-    /* ── HOME SEARCH CARD ── */
+    /* ── HOME ACTION BUTTONS ── */
+    .home-action-btn { width: 100%; padding: 15px 18px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 14px; border: none; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s; text-align: left; box-sizing: border-box; }
+    .home-action-btn:active { transform: scale(0.98); }
+    .home-action-btn.publish { background: var(--green); color: white; box-shadow: 0 4px 18px rgba(0,200,83,0.35); margin-bottom: 12px; }
+    .home-action-btn.find { background: var(--bg); color: var(--text); border: 2px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
+    .home-action-btn.find.open { border-color: var(--green); border-radius: 16px 16px 0 0; }
+    .home-action-icon { font-size: 26px; flex-shrink: 0; }
+    .home-action-label { font-size: 15px; font-weight: 700; }
+    .home-action-sub { font-size: 12px; opacity: 0.65; font-weight: 500; margin-top: 1px; }
+    .home-action-arrow { margin-left: auto; flex-shrink: 0; transition: transform 0.25s; }
+    /* ── HOME SEARCH EXPANDED ── */
+    .home-search-expanded { background: var(--bg); border: 2px solid var(--green); border-top: none; border-radius: 0 0 16px 16px; padding: 4px 14px 14px; margin-bottom: 16px; }
+    /* ── HOME SEARCH CARD (legacy, kept for city-picker inputs) ── */
     .home-search-card { background: white; border-radius: 20px; margin: 0; padding: 12px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); position: relative; z-index: 10; width: 100%; }
     .hsc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; width: 100%; background: none; border: none; font-family: inherit; text-align: left; }
     .hsc-row:active { opacity: 0.75; }
@@ -390,45 +401,56 @@
     </div>
   </div>
 
-  <!-- CARTE RECHERCHE BLANCHE centrée dans l'espace restant -->
+  <!-- BOUTONS D'ACTION -->
   <div class="home-search-area">
-  <div class="home-search-card">
-    <!-- Bouton publier trajet — visible uniquement pour chauffeurs approuvés -->
-    <button id="home-publish-btn" onclick="openPublishForm();showPage('compte')" style="display:none;width:100%;background:var(--green);color:white;font-weight:700;font-size:15px;padding:13px;border-radius:var(--radius-sm);border:none;cursor:pointer;margin-bottom:12px;">
-      + Publier un trajet
+    <!-- Publier — visible uniquement pour chauffeurs approuvés -->
+    <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
+      <span class="home-action-icon">🚗</span>
+      <div>
+        <div class="home-action-label">Publier un trajet</div>
+        <div class="home-action-sub">Proposez vos places disponibles</div>
+      </div>
     </button>
-    <div id="home-publish-divider" style="display:none;height:1px;background:var(--border);margin-bottom:12px;"></div>
-    <!-- Champ DE -->
-    <button class="hsc-row" onclick="openCityPicker('hf-from')">
-      <div class="hsc-dot hsc-dot-from"></div>
-      <span class="hsc-code" id="hf-from-code">DE</span>
-      <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
-      <input type="hidden" id="hf-from">
+    <!-- Trouver — toujours visible -->
+    <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
+      <span class="home-action-icon">🔍</span>
+      <div>
+        <div class="home-action-label">Trouver un trajet</div>
+        <div class="home-action-sub">Rechercher par ville et date</div>
+      </div>
+      <svg class="home-action-arrow" id="find-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M6 9l6 6 6-6"/></svg>
     </button>
-    <!-- Connecteur visuel -->
-    <div style="display:flex;align-items:center;gap:12px;padding:0 0 0 0;">
-      <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
-      <div style="flex:1;height:1px;background:var(--border);"></div>
+
+    <!-- Formulaire de recherche (masqué par défaut) -->
+    <div id="home-search-form" style="display:none" class="home-search-expanded">
+      <button class="hsc-row" onclick="openCityPicker('hf-from')">
+        <div class="hsc-dot hsc-dot-from"></div>
+        <span class="hsc-code" id="hf-from-code">DE</span>
+        <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
+        <input type="hidden" id="hf-from">
+      </button>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <button class="hsc-row" onclick="openCityPicker('hf-to')">
+        <div class="hsc-dot hsc-dot-to"></div>
+        <span class="hsc-code" id="hf-to-code">À</span>
+        <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
+        <input type="hidden" id="hf-to">
+      </button>
+      <div class="hsc-divider"></div>
+      <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
+        <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
+      </div>
+      <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Rechercher →</button>
     </div>
-    <!-- Champ À -->
-    <button class="hsc-row" onclick="openCityPicker('hf-to')">
-      <div class="hsc-dot hsc-dot-to"></div>
-      <span class="hsc-code" id="hf-to-code">À</span>
-      <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
-      <input type="hidden" id="hf-to">
-    </button>
-    <div class="hsc-divider"></div>
-    <!-- Date -->
-    <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-      <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
-      <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
-    </div>
-    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:6px" data-i18n="home.find">Trouver un trajet</button>
-  </div>
   </div>
 
-  <div id="home-trips" style="display:none"></div>
+  <!-- TRAJETS RÉCENTS -->
+  <div id="home-trips" style="padding:16px 16px 0"></div>
 </div>
 
 <!-- ─── PAGE : RECHERCHE ─── -->
@@ -589,42 +611,7 @@
         ⏳ Dossier soumis — en cours de validation par l'admin. Vous pourrez publier des trajets une fois approuvé.
       </div>
       <div id="driver-publish-btn" style="display:none">
-        <button class="btn btn-green" onclick="openPublishForm()" data-i18n="profile.publish">+ Publier un nouveau trajet</button>
-      </div>
-      <div id="publish-form" style="display:none;margin-top:12px">
-        <div class="card">
-          <div class="card-title" data-i18n="publish.title">Nouveau trajet 🚗</div>
-          <div class="form-group">
-            <label>Ville de départ</label>
-            <button class="city-input-btn" onclick="openCityPicker('trip-from')">
-              <span class="cib-icon">📍</span>
-              <span id="trip-from-label" class="cib-placeholder">Choisir une ville...</span>
-              <input type="hidden" id="trip-from">
-            </button>
-          </div>
-          <div class="form-group">
-            <label>Ville d'arrivée</label>
-            <button class="city-input-btn" onclick="openCityPicker('trip-to')">
-              <span class="cib-icon" style="opacity:0.5">📍</span>
-              <span id="trip-to-label" class="cib-placeholder">Choisir une ville...</span>
-              <input type="hidden" id="trip-to">
-            </button>
-          </div>
-          <div class="form-group"><label data-i18n="publish.date">Date de départ</label><input type="date" id="trip-date"></div>
-          <div class="form-group"><label data-i18n="publish.time">Heure de départ</label><input type="time" id="trip-time"></div>
-          <div class="form-group"><label data-i18n="publish.seats">Nombre de places</label><input type="number" id="trip-seats" min="1" max="50" placeholder="7"></div>
-          <div class="form-group"><label data-i18n="publish.price">Prix par place (MRU)</label><input type="number" id="trip-price" min="1" placeholder="800"></div>
-          <div class="form-group"><label data-i18n="publish.vehicle">Type de véhicule</label>
-            <select id="trip-vehicle">
-              <option value="">Choisir...</option>
-              <option>Peugeot 504</option><option>Minibus</option>
-              <option>4x4</option><option>Bus climatisé</option><option>Toyota Hilux</option>
-            </select>
-          </div>
-          <div id="publish-alert"></div>
-          <button class="btn btn-green mt-10" onclick="publishTrip()" data-i18n="publish.btn">Publier ce trajet</button>
-          <button class="btn btn-ghost mt-10" onclick="closePublishForm()" data-i18n="publish.cancel">Annuler</button>
-        </div>
+        <button class="btn btn-green" onclick="openPublishModal()" data-i18n="profile.publish">+ Publier un nouveau trajet</button>
       </div>
       <!-- Modifier profil -->
       <button class="btn btn-ghost mt-10" onclick="toggleEditProfile()" id="edit-profile-btn">✏️ Modifier mon profil</button>
@@ -782,6 +769,49 @@
   </div>
 </div>
 
+<!-- ─── PUBLISH MODAL ─── -->
+<div id="publish-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:flex-end">
+  <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:22px 20px calc(32px + env(safe-area-inset-bottom,0px));width:100%;max-height:92vh;overflow-y:auto;box-sizing:border-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+      <div style="font-size:17px;font-weight:800">🚗 Publier un trajet</div>
+      <button onclick="closePublishModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-3);line-height:1">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Ville de départ</label>
+      <button class="city-input-btn" onclick="openCityPicker('pm-from')">
+        <span class="cib-icon">📍</span>
+        <span id="pm-from-label" class="cib-placeholder">Choisir une ville...</span>
+        <input type="hidden" id="pm-from">
+      </button>
+    </div>
+    <div class="form-group">
+      <label>Ville d'arrivée</label>
+      <button class="city-input-btn" onclick="openCityPicker('pm-to')">
+        <span class="cib-icon" style="opacity:0.5">📍</span>
+        <span id="pm-to-label" class="cib-placeholder">Choisir une ville...</span>
+        <input type="hidden" id="pm-to">
+      </button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Date de départ</label><input type="date" id="pm-date"></div>
+      <div class="form-group"><label>Heure</label><input type="time" id="pm-time"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      <div class="form-group"><label>Places</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
+      <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
+    </div>
+    <div class="form-group"><label>Type de véhicule</label>
+      <select id="pm-vehicle">
+        <option value="">Choisir...</option>
+        <option>Peugeot 504</option><option>Minibus</option>
+        <option>4x4</option><option>Bus climatisé</option><option>Toyota Hilux</option>
+      </select>
+    </div>
+    <div id="publish-modal-alert"></div>
+    <button class="btn btn-green mt-10" onclick="publishTripFromModal()">Publier ce trajet →</button>
+  </div>
+</div>
+
 <!-- ─── BOOKING SUCCESS OVERLAY ─── -->
 <div id="booking-success-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
   <div style="background:var(--bg);border-radius:var(--radius);padding:36px 24px;margin:20px;text-align:center;max-width:400px;width:100%;box-sizing:border-box">
@@ -897,7 +927,7 @@ function applyLang() {
   const ht = document.getElementById("hero-title");
   if (ht) ht.innerHTML = isAr ? "إلى أين<br>تريد الذهاب ؟" : "Où voulez-vous<br>aller ?";
   // Labels champs ville (si non sélectionnés)
-  [["sf-from","search.from"],["sf-to","search.to"],["trip-from","publish.from"],["trip-to","publish.to"]].forEach(([id, key]) => {
+  [["sf-from","search.from"],["sf-to","search.to"],["pm-from","publish.from"],["pm-to","publish.to"]].forEach(([id, key]) => {
     const lbl = document.getElementById(id + "-label");
     if (lbl && lbl.classList.contains("cib-placeholder")) lbl.textContent = t(key);
   });
@@ -908,7 +938,7 @@ function applyLang() {
   const tlbl = document.getElementById("hf-to-label"); if (tlbl && tlbl.classList.contains("hsc-placeholder")) tlbl.textContent = t("home.to.ph");
   const ddsp = document.getElementById("hf-date-display"); if (ddsp && ddsp.classList.contains("hsc-placeholder")) ddsp.textContent = t("home.date");
   // Re-traduire les villes déjà sélectionnées
-  ["hf-from","hf-to","sf-from","sf-to","trip-from","trip-to"].forEach(id => {
+  ["hf-from","hf-to","sf-from","sf-to","pm-from","pm-to"].forEach(id => {
     const inp = document.getElementById(id);
     const lbl = document.getElementById(id + "-label");
     if (inp && inp.value && lbl && !lbl.classList.contains("cib-placeholder") && !lbl.classList.contains("hsc-placeholder")) {
@@ -993,9 +1023,9 @@ function checkAdminRoute() {
 function setTodayDate() {
   const t = new Date().toISOString().split("T")[0];
   const sfDate = document.getElementById("sf-date");
-  const tripDate = document.getElementById("trip-date");
+  const pmDate = document.getElementById("pm-date");
   if (sfDate) sfDate.value = t;
-  if (tripDate) tripDate.value = t;
+  if (pmDate) pmDate.value = t;
 }
 
 // ── NAVIGATION ──
@@ -1491,34 +1521,55 @@ async function loadMyTrips() {
 }
 
 // ── PUBLISH TRIP ──
-function openPublishForm() {
-  document.getElementById("publish-form").style.display = "block";
-  document.getElementById("driver-publish-btn").style.display = "none";
-  document.getElementById("publish-form").scrollIntoView({ behavior: "smooth" });
+function toggleSearchForm(btn) {
+  const form = document.getElementById("home-search-form");
+  const arrow = document.getElementById("find-arrow");
+  const open = form.style.display !== "none";
+  form.style.display = open ? "none" : "block";
+  arrow.style.transform = open ? "" : "rotate(180deg)";
+  btn.classList.toggle("open", !open);
 }
 
-function closePublishForm() {
-  document.getElementById("publish-form").style.display = "none";
-  document.getElementById("driver-publish-btn").style.display = "block";
+function openPublishModal() {
+  document.getElementById("publish-modal-alert").innerHTML = "";
+  document.getElementById("publish-modal").style.display = "flex";
+  document.getElementById("bottom-nav").style.display = "none";
 }
 
-async function publishTrip() {
-  const from = (document.getElementById("trip-from").value || "").trim();
-  const to = (document.getElementById("trip-to").value || "").trim();
-  const date = document.getElementById("trip-date").value;
-  const time = document.getElementById("trip-time").value;
-  const seats = document.getElementById("trip-seats").value;
-  const price = document.getElementById("trip-price").value;
-  const vehicle = document.getElementById("trip-vehicle").value;
-  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-alert", "Veuillez remplir tous les champs", "error"); return; }
+function closePublishModal() {
+  document.getElementById("publish-modal").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
+}
+
+async function publishTripFromModal() {
+  const from = (document.getElementById("pm-from").value || "").trim();
+  const to = (document.getElementById("pm-to").value || "").trim();
+  const date = document.getElementById("pm-date").value;
+  const time = document.getElementById("pm-time").value;
+  const seats = document.getElementById("pm-seats").value;
+  const price = document.getElementById("pm-price").value;
+  const vehicle = document.getElementById("pm-vehicle").value;
+  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
+  const btn = document.querySelector("#publish-modal .btn-green");
+  const origText = btn.textContent; btn.textContent = "Publication..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/trips/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
       body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price), vehicle_type: vehicle }) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
-    showAlert("publish-alert", "✅ Trajet publié : " + d.from_city + " → " + d.to_city, "success");
-    setTimeout(() => closePublishForm(), 1500);
-  } catch(e) { showAlert("publish-alert", e.message, "error"); }
+    showAlert("publish-modal-alert", "✅ Trajet publié : " + d.from_city + " → " + d.to_city, "success");
+    // Reset form
+    ["pm-from","pm-to","pm-date","pm-time","pm-seats","pm-price"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    document.getElementById("pm-vehicle").value = "";
+    document.getElementById("pm-from-label").textContent = "Choisir une ville...";
+    document.getElementById("pm-from-label").className = "cib-placeholder";
+    document.getElementById("pm-to-label").textContent = "Choisir une ville...";
+    document.getElementById("pm-to-label").className = "cib-placeholder";
+    setTimeout(() => closePublishModal(), 1800);
+  } catch(e) {
+    showAlert("publish-modal-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
 }
 
 // ── AUTH ──
@@ -1757,9 +1808,7 @@ function logout() {
   const bnavLabel = document.getElementById("bnav-compte-label");
   if (bnavLabel) bnavLabel.textContent = "Compte";
   const homePublishBtn = document.getElementById("home-publish-btn");
-  const homePublishDiv = document.getElementById("home-publish-divider");
   if (homePublishBtn) homePublishBtn.style.display = "none";
-  if (homePublishDiv) homePublishDiv.style.display = "none";
   showPage("home");
 }
 
@@ -1768,7 +1817,6 @@ function updateProfileSection() {
     document.getElementById("auth-section").style.display = "none";
     document.getElementById("profile-section").style.display = "block";
     // Fermer les sous-formulaires ouverts (changement de session)
-    document.getElementById("publish-form").style.display = "none";
     document.getElementById("edit-profile-form").style.display = "none";
     document.getElementById("my-bookings-card").style.display = "none";
     const initials = (currentUser.name || "G").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
@@ -1789,9 +1837,7 @@ function updateProfileSection() {
     }
     const isApprovedDriver = currentUser.role === "chauffeur" && currentUser.is_approved;
     const homePublishBtn = document.getElementById("home-publish-btn");
-    const homePublishDiv = document.getElementById("home-publish-divider");
-    if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "block" : "none";
-    if (homePublishDiv) homePublishDiv.style.display = isApprovedDriver ? "block" : "none";
+    if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "flex" : "none";
     if (currentUser.role === "chauffeur") {
       const hasDocs = !!(currentUser.license_number && currentUser.national_id_number);
       const isApproved = currentUser.is_approved;
