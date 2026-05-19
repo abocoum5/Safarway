@@ -1,4 +1,4 @@
-const CACHE = "goova-v1";
+const CACHE = "goova-v2";
 const SHELL = [
   "/",
   "/index.html",
@@ -20,6 +20,28 @@ self.addEventListener("activate", e => {
     )
   );
   self.clients.claim();
+});
+
+self.addEventListener("push", e => {
+  const data = e.data ? e.data.json() : {};
+  const title = data.title || "Goova";
+  const body = data.body || "Vous avez une nouvelle notification";
+  e.waitUntil(
+    self.registration.showNotification(title, {
+      body,
+      icon: "/icon-192.png",
+      badge: "/icon-192.png",
+      vibrate: [200, 100, 200],
+    })
+  );
+});
+
+self.addEventListener("notificationclick", e => {
+  e.notification.close();
+  e.waitUntil(clients.matchAll({ type: "window" }).then(cs => {
+    if (cs.length) { cs[0].focus(); return; }
+    clients.openWindow("/");
+  }));
 });
 
 self.addEventListener("fetch", e => {

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import func
 from typing import List, Optional
 from datetime import date
@@ -172,6 +172,100 @@ def changer_statut(
     trip.status = statut
     db.commit()
     return {"message": f"Statut mis à jour: {statut}"}
+
+
+@router.patch("/{trip_id}/annuler")
+def annuler_trajet(
+    trip_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    trip = db.query(models.Trip).options(joinedload(models.Trip.driver)).filter(models.Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trajet introuvable")
+    if trip.driver_id != current_user.id and current_user.role != models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    if trip.status in [models.TripStatus.annule, models.TripStatus.termine]:
+        raise HTTPException(status_code=400, detail="Trajet déjà annulé ou terminé")
+
+    confirmed_bookings = (
+        db.query(models.Booking)
+        .options(joinedload(models.Booking.passenger))
+        .filter(
+            models.Booking.trip_id == trip_id,
+            models.Booking.status == models.BookingStatus.confirme
+        )
+        .all()
+    )
+
+    for b in confirmed_bookings:
+        b.status = models.BookingStatus.annule
+
+    trip.status = models.TripStatus.annule
+    db.commit()
+
+    for b in confirmed_bookings:
+        if b.passenger:
+            try:
+                from app.sms import _send
+                _send(b.passenger.phone,
+                    f"Goova - Trajet annulé !\n"
+                    f"{trip.from_city} > {trip.to_city} le {trip.departure_date}\n"
+                    f"Votre réservation {b.reference_code} est annulée par le chauffeur."
+                )
+            except Exception as e:
+                print(f"[SMS annulation chauffeur] {e}")
+            try:
+                from app.push import send_push_to_user
+                send_push_to_user(db, b.passenger_id, {
+                    "title": "Trajet annulé",
+                    "body": f"{trip.from_city} → {trip.to_city} le {trip.departure_date} a été annulé par le chauffeur",
+                })
+            except Exception as e:
+                print(f"[Push annulation] {e}")
+
+    return {"message": f"Trajet annulé. {len(confirmed_bookings)} passager(s) notifié(s)."}
+
+
+@router.patch("/{trip_id}/terminer")
+def terminer_trajet(
+    trip_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    trip = db.query(models.Trip).filter(models.Trip.id == trip_id).first()
+    if not trip:
+        raise HTTPException(status_code=404, detail="Trajet introuvable")
+    if trip.driver_id != current_user.id and current_user.role != models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Non autorisé")
+    if trip.status == models.TripStatus.annule:
+        raise HTTPException(status_code=400, detail="Trajet annulé")
+    if trip.status == models.TripStatus.termine:
+        raise HTTPException(status_code=400, detail="Trajet déjà terminé")
+
+    trip.status = models.TripStatus.termine
+    db.commit()
+
+    confirmed_bookings = (
+        db.query(models.Booking)
+        .filter(
+            models.Booking.trip_id == trip_id,
+            models.Booking.status == models.BookingStatus.confirme
+        )
+        .all()
+    )
+
+    for b in confirmed_bookings:
+        try:
+            from app.push import send_push_to_user
+            send_push_to_user(db, b.passenger_id, {
+                "title": "Trajet terminé !",
+                "body": f"Comment était votre trajet {trip.from_city} → {trip.to_city} ? Laissez un avis.",
+            })
+        except Exception as e:
+            print(f"[Push terminer] {e}")
+
+    return {"message": "Trajet marqué comme terminé"}
 
 
 @router.get("/villes/liste")

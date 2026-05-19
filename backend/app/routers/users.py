@@ -312,6 +312,43 @@ def soumettre_documents(doc: schemas.UserDocumentSubmit, db: Session = Depends(g
     return {"message": "Dossier soumis, en attente de validation"}
 
 
+@router.get("/{user_id}/profil")
+def get_driver_profil(user_id: int, db: Session = Depends(get_db)):
+    from sqlalchemy import func as sqlfunc
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user or user.role != models.UserRole.chauffeur:
+        raise HTTPException(status_code=404, detail="Profil chauffeur introuvable")
+
+    avg = db.query(sqlfunc.avg(models.Review.rating)).filter(models.Review.driver_id == user_id).scalar()
+    total_reviews = db.query(models.Review).filter(models.Review.driver_id == user_id).count()
+    total_trips = db.query(models.Trip).filter(models.Trip.driver_id == user_id).count()
+
+    reviews = (
+        db.query(models.Review)
+        .filter(models.Review.driver_id == user_id)
+        .order_by(models.Review.created_at.desc())
+        .limit(10)
+        .all()
+    )
+
+    return {
+        "id": user.id,
+        "name": user.name,
+        "member_since": user.created_at.strftime("%B %Y") if user.created_at else None,
+        "total_trips": total_trips,
+        "average_rating": round(float(avg), 1) if avg else None,
+        "total_reviews": total_reviews,
+        "reviews": [
+            {
+                "rating": r.rating,
+                "comment": r.comment,
+                "created_at": r.created_at.strftime("%d/%m/%Y") if r.created_at else None,
+            }
+            for r in reviews
+        ],
+    }
+
+
 @router.patch("/moi", response_model=schemas.UserResponse)
 def update_profil(user_update: schemas.UserUpdate, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     if user_update.name:

@@ -5,6 +5,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from app.database import engine, SessionLocal
 from app import models
 from app.routers import users, trips, bookings, admin, reviews
+from app.routers import push
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -18,6 +19,17 @@ def run_migrations():
         conn.execute(text("ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_approved BOOLEAN DEFAULT TRUE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_phone_verified BOOLEAN DEFAULT TRUE"))
+        conn.execute(text("ALTER TYPE tripstatus ADD VALUE IF NOT EXISTS 'termine'"))
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS push_subscriptions (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                endpoint TEXT NOT NULL UNIQUE,
+                p256dh TEXT NOT NULL,
+                auth TEXT NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT NOW()
+            )
+        """))
         conn.commit()
 
 run_migrations()
@@ -54,6 +66,7 @@ app.include_router(trips.router)
 app.include_router(bookings.router)
 app.include_router(admin.router)
 app.include_router(reviews.router)
+app.include_router(push.router)
 
 @app.get("/")
 def root():

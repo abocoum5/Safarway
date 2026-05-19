@@ -242,6 +242,7 @@
     .badge-green { background: var(--green-light); color: var(--green-dark); }
     .badge-orange { background: rgba(255,149,0,0.12); color: var(--warning); }
     .badge-red { background: rgba(255,59,92,0.08); color: var(--danger); }
+    .badge-grey { background: var(--bg-2); color: var(--text-3); }
 
     /* ── ADMIN ── */
     .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
@@ -773,6 +774,17 @@
   <div class="cp-list" id="cp-list"></div>
 </div>
 
+<!-- ─── PROFIL CHAUFFEUR MODAL ─── -->
+<div id="driver-profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:250;align-items:flex-end" onclick="if(event.target===this)closeDriverProfile()">
+  <div style="background:var(--bg);border-radius:20px 20px 0 0;max-height:85vh;overflow-y:auto;width:100%;max-width:480px;margin:0 auto;padding:20px 20px calc(32px + env(safe-area-inset-bottom,0px))">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+      <div style="font-size:17px;font-weight:800">Profil chauffeur</div>
+      <button onclick="closeDriverProfile()" style="background:var(--bg-2);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+    </div>
+    <div id="driver-profile-body"><div class="loading">Chargement...</div></div>
+  </div>
+</div>
+
 <!-- ─── TRIP DETAIL OVERLAY ─── -->
 <div id="trip-detail">
   <div class="td-header">
@@ -1275,11 +1287,12 @@ function showTripDetail(tripId) {
       '<div><div class="td-price-label">Prix par place</div><div class="td-price-val">' + trip.price_per_seat.toLocaleString() + ' <span style="font-size:18px;font-weight:600">MRU</span></div></div>' +
       '<div style="text-align:right"><div class="td-price-label">Places disponibles</div><div style="font-size:24px;font-weight:800;color:var(--text)">' + trip.available_seats + '</div></div>' +
     '</div>' +
-    '<div class="td-driver">' +
+    '<div class="td-driver" style="cursor:pointer" onclick="openDriverProfile(' + trip.driver_id + ',\'' + name.replace(/'/g,"") + '\')">' +
       '<div class="td-driver-av" style="background:' + color + '">' + initials + '</div>' +
-      '<div><div class="td-driver-name">' + name + '</div>' +
+      '<div style="flex:1"><div class="td-driver-name">' + name + '</div>' +
       (trip.driver_rating ? '<div style="font-size:13px;color:#F59E0B;margin-top:2px">' + starsDisplay(trip.driver_rating) + '</div>' : '<div class="td-driver-sub">' + t("driver.sub") + '</div>') +
       '</div>' +
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--text-3)"><path d="M9 18l6-6-6-6"/></svg>' +
     '</div>' +
     '<div class="td-info-grid">' +
       '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (trip.vehicle_type || "—") + '</span></div>' +
@@ -1556,6 +1569,115 @@ async function cancelBooking(id) {
   loadMyBookings();
 }
 
+async function cancelTrip(tripId) {
+  if (!confirm("Annuler ce trajet ? Tous les passagers seront notifiés.")) return;
+  const r = await fetch(API + "/trips/" + tripId + "/annuler", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
+  const d = await r.json();
+  if (r.ok) { alert(d.message); loadMyTrips(); } else { alert(d.detail || "Erreur"); }
+}
+
+async function terminateTrip(tripId) {
+  if (!confirm("Marquer ce trajet comme terminé ?")) return;
+  const r = await fetch(API + "/trips/" + tripId + "/terminer", { method: "PATCH", headers: { "Authorization": "Bearer " + token } });
+  const d = await r.json();
+  if (r.ok) { loadMyTrips(); } else { alert(d.detail || "Erreur"); }
+}
+
+// ── PROFIL CHAUFFEUR ──
+async function openDriverProfile(driverId, driverName) {
+  const modal = document.getElementById("driver-profile-modal");
+  const body = document.getElementById("driver-profile-body");
+  modal.style.display = "flex";
+  document.getElementById("bottom-nav").style.display = "none";
+  body.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/users/" + driverId + "/profil");
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    const stars = n => n ? "★".repeat(Math.round(n)) + "☆".repeat(5 - Math.round(n)) : "—";
+    const colors = ["#00C853","#00A843","#FF6B35","#9B59B6","#FF9500","#0078D4","#E91E63"];
+    const name = d.name || driverName || "Chauffeur";
+    const color = colors[(name.charCodeAt(0) || 0) % colors.length];
+    const initials = name.split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
+    body.innerHTML =
+      '<div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">' +
+        '<div style="width:64px;height:64px;border-radius:50%;background:' + color + ';display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:white;flex-shrink:0">' + initials + '</div>' +
+        '<div>' +
+          '<div style="font-size:20px;font-weight:800">' + name + '</div>' +
+          '<div style="font-size:13px;color:var(--text-3);margin-top:2px">Membre depuis ' + (d.member_since || "—") + '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="display:flex;gap:10px;margin-bottom:20px">' +
+        '<div style="flex:1;background:var(--bg-2);border-radius:12px;padding:14px;text-align:center">' +
+          '<div style="font-size:22px;font-weight:800;color:var(--green)">' + d.total_trips + '</div>' +
+          '<div style="font-size:12px;color:var(--text-3);margin-top:2px">Trajets</div>' +
+        '</div>' +
+        '<div style="flex:1;background:var(--bg-2);border-radius:12px;padding:14px;text-align:center">' +
+          '<div style="font-size:22px;font-weight:800;color:#F59E0B">' + (d.average_rating ? d.average_rating.toFixed(1) : "—") + '</div>' +
+          '<div style="font-size:12px;color:var(--text-3);margin-top:2px">Note / 5</div>' +
+        '</div>' +
+        '<div style="flex:1;background:var(--bg-2);border-radius:12px;padding:14px;text-align:center">' +
+          '<div style="font-size:22px;font-weight:800">' + d.total_reviews + '</div>' +
+          '<div style="font-size:12px;color:var(--text-3);margin-top:2px">Avis</div>' +
+        '</div>' +
+      '</div>' +
+      (d.reviews.length ? '<div style="font-size:14px;font-weight:700;margin-bottom:10px">Avis récents</div>' +
+        d.reviews.map(rv =>
+          '<div style="background:var(--bg-2);border-radius:10px;padding:12px;margin-bottom:8px">' +
+            '<div style="color:#F59E0B;font-size:14px;margin-bottom:4px">' + stars(rv.rating) + '</div>' +
+            (rv.comment ? '<div style="font-size:14px;color:var(--text)">' + rv.comment + '</div>' : '') +
+            '<div style="font-size:12px;color:var(--text-3);margin-top:4px">' + (rv.created_at || "") + '</div>' +
+          '</div>'
+        ).join("")
+      : '<div style="color:var(--text-3);font-size:14px;text-align:center;padding:20px 0">Aucun avis pour le moment</div>');
+  } catch(e) {
+    body.innerHTML = '<div style="color:var(--text-3);text-align:center;padding:30px">Impossible de charger le profil</div>';
+  }
+}
+
+function closeDriverProfile() {
+  document.getElementById("driver-profile-modal").style.display = "none";
+  document.getElementById("bottom-nav").style.display = "flex";
+}
+
+// ── PUSH NOTIFICATIONS ──
+async function subscribeToPush() {
+  if (!("serviceWorker" in navigator) || !("PushManager" in window)) return;
+  try {
+    const r = await fetch(API + "/push/vapid-public-key");
+    const { public_key } = await r.json();
+    if (!public_key) return;
+    const reg = await navigator.serviceWorker.ready;
+    const existing = await reg.pushManager.getSubscription();
+    if (existing) { sendPushSubscriptionToServer(existing); return; }
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") return;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(public_key),
+    });
+    sendPushSubscriptionToServer(sub);
+  } catch(e) { console.log("[Push] Erreur abonnement:", e); }
+}
+
+async function sendPushSubscriptionToServer(sub) {
+  if (!token) return;
+  try {
+    await fetch(API + "/push/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify(sub.toJSON()),
+    });
+  } catch(e) {}
+}
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = "=".repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
 async function loadMyTrips() {
   const c = document.getElementById("t-mytrips");
   if (!c) return;
@@ -1564,12 +1686,14 @@ async function loadMyTrips() {
     const r = await fetch(API + "/trips/mes-trajets", { headers: { "Authorization": "Bearer " + token } });
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">🚗</div><p>Aucun trajet publié</p></div>'; return; }
+    const statusBadge = { actif: "badge-green", complet: "badge-orange", annule: "badge-red", termine: "badge-grey" };
     c.innerHTML = trips.map(trip => {
       const booked = trip.total_seats - trip.available_seats;
       const pct = trip.total_seats > 0 ? Math.round((booked / trip.total_seats) * 100) : 0;
       const hasBookings = booked > 0;
+      const canAct = trip.status === "actif" || trip.status === "complet";
       return '<div class="trip-card">' +
-        (hasBookings
+        (hasBookings && canAct
           ? '<div style="display:flex;align-items:center;gap:8px;background:#e8f5e9;border-radius:8px;padding:9px 12px;margin-bottom:10px">' +
               '<span style="font-size:20px">🔔</span>' +
               '<div><div style="font-size:13px;font-weight:700;color:#00C853">' + booked + ' passager(s) ont réservé</div>' +
@@ -1580,7 +1704,7 @@ async function loadMyTrips() {
         '<div class="tc-footer">' +
           '<span class="tc-tag">📅 ' + trip.departure_date + '</span>' +
           '<span class="tc-tag">🕐 ' + trip.departure_time + '</span>' +
-          '<span class="badge ' + (trip.status === "actif" ? "badge-green" : "badge-red") + '">' + trip.status + '</span>' +
+          '<span class="badge ' + (statusBadge[trip.status] || "badge-grey") + '">' + trip.status + '</span>' +
           '<span style="font-size:17px;font-weight:700;color:var(--green);margin-left:auto">' + trip.price_per_seat + ' MRU</span>' +
         '</div>' +
         '<div style="margin-top:12px">' +
@@ -1591,9 +1715,13 @@ async function loadMyTrips() {
           '<div style="height:7px;background:var(--border);border-radius:4px;margin-bottom:10px">' +
             '<div style="height:100%;border-radius:4px;background:var(--green);width:' + pct + '%"></div>' +
           '</div>' +
-          '<button class="btn ' + (hasBookings ? 'btn-green' : 'btn-ghost') + ' btn-sm" style="width:100%" onclick="openPaxModal(' + trip.id + ',\'' + trip.from_city + '\',\'' + trip.to_city + '\',\'' + trip.departure_date + '\')">' +
+          (canAct ? '<button class="btn ' + (hasBookings ? 'btn-green' : 'btn-ghost') + ' btn-sm" style="width:100%;margin-bottom:8px" onclick="openPaxModal(' + trip.id + ',\'' + trip.from_city + '\',\'' + trip.to_city + '\',\'' + trip.departure_date + '\')">' +
             (hasBookings ? '👥 Voir les ' + booked + ' passager(s)' : '👥 Aucune réservation') +
-          '</button>' +
+          '</button>' : '') +
+          (canAct ? '<div style="display:flex;gap:8px">' +
+            '<button class="btn btn-ghost btn-sm" style="flex:1" onclick="terminateTrip(' + trip.id + ')">✅ Terminer</button>' +
+            '<button class="btn btn-danger btn-sm" style="flex:1" onclick="cancelTrip(' + trip.id + ')">✕ Annuler</button>' +
+          '</div>' : '') +
         '</div>' +
       '</div>';
     }).join("");
@@ -1676,6 +1804,7 @@ async function loginWithPassword() {
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     updateProfileSection();
     loadUserBookedTripIds();
+    subscribeToPush();
     showPage("home");
   } catch(e) {
     showAlert("auth-alert", e.message, "error");
@@ -1712,6 +1841,7 @@ async function registerUser() {
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     updateProfileSection();
     loadUserBookedTripIds();
+    subscribeToPush();
     if (_regRole === "chauffeur") {
       showPage("compte"); // redirige vers le profil pour compléter le dossier
     } else {
