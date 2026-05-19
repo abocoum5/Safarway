@@ -544,11 +544,7 @@
             <input type="password" id="reg-password-confirm" placeholder="Répétez le mot de passe">
           </div>
           <div id="reg-chauffeur-fields" style="display:none">
-            <div class="driver-docs-notice">📋 Documents obligatoires pour les chauffeurs</div>
-            <div class="form-group"><label>N° permis de conduire *</label><input type="text" id="reg-license-num" placeholder="MR-XXXXXXXX"></div>
-            <div class="form-group"><label>N° carte d'identité *</label><input type="text" id="reg-national-id" placeholder="XXXXXXXXXX"></div>
-            <div class="form-group"><label>Photo du permis * (max 2MB)</label><input type="file" id="reg-license-photo" accept="image/*"></div>
-            <div class="form-group"><label>Photo carte d'identité * (max 2MB)</label><input type="file" id="reg-national-id-photo" accept="image/*"></div>
+            <div class="alert alert-warning" style="margin-top:4px">📋 Après inscription, vous devrez compléter votre dossier (permis, carte d'identité) pour être approuvé par l'admin.</div>
           </div>
           <div id="reg-alert"></div>
           <button class="btn btn-green mt-10" onclick="registerUser()">Créer mon compte →</button>
@@ -575,8 +571,22 @@
           <span class="pinfo-value" id="profile-license"></span>
         </div>
       </div>
+      <!-- Dossier chauffeur à compléter -->
+      <div id="driver-dossier-section" style="display:none">
+        <div class="card" style="border:2px solid var(--green)">
+          <div class="card-title" style="color:var(--green)">📋 Complétez votre dossier</div>
+          <p style="font-size:14px;color:var(--text-2);margin-bottom:16px">Pour être approuvé, renseignez vos documents. L'admin sera notifié et validera votre compte.</p>
+          <div class="form-group"><label>N° Permis de conduire *</label><input type="text" id="doc-license-num" placeholder="MR-XXXXXXXX"></div>
+          <div class="form-group"><label>N° Carte d'identité *</label><input type="text" id="doc-national-id" placeholder="XXXXXXXXXX"></div>
+          <div class="form-group"><label>Photo du permis (optionnel, max 2MB)</label><input type="file" id="doc-license-photo" accept="image/*"></div>
+          <div class="form-group"><label>Photo carte d'identité (optionnel, max 2MB)</label><input type="file" id="doc-national-id-photo" accept="image/*"></div>
+          <div id="doc-alert"></div>
+          <button class="btn btn-green mt-10" onclick="submitDriverDocuments()">Envoyer mon dossier →</button>
+        </div>
+      </div>
+      <!-- En attente après soumission -->
       <div id="driver-pending-notice" style="display:none" class="alert alert-warning">
-        ⏳ Votre compte chauffeur est en cours de validation. Vous pourrez publier des trajets une fois approuvé par un administrateur.
+        ⏳ Dossier soumis — en cours de validation par l'admin. Vous pourrez publier des trajets une fois approuvé.
       </div>
       <div id="driver-publish-btn" style="display:none">
         <button class="btn btn-green" onclick="openPublishForm()" data-i18n="profile.publish">+ Publier un nouveau trajet</button>
@@ -1561,18 +1571,6 @@ async function registerUser() {
   if (!password || password.length < 6) { showAlert("reg-alert", "Mot de passe : 6 caractères minimum", "error"); return; }
   if (password !== passwordConfirm) { showAlert("reg-alert", "Les mots de passe ne correspondent pas", "error"); return; }
   const body = { phone, name, password, role: _regRole };
-  if (_regRole === "chauffeur") {
-    const licenseNum = document.getElementById("reg-license-num").value.trim();
-    const nationalId = document.getElementById("reg-national-id").value.trim();
-    const licenseFile = document.getElementById("reg-license-photo").files[0];
-    const nationalIdFile = document.getElementById("reg-national-id-photo").files[0];
-    if (!licenseNum || !nationalId || !licenseFile || !nationalIdFile) { showAlert("reg-alert", "Tous les documents chauffeur sont obligatoires", "error"); return; }
-    if (licenseFile.size > 2097152 || nationalIdFile.size > 2097152) { showAlert("reg-alert", "Chaque photo doit faire moins de 2MB", "error"); return; }
-    body.license_number = licenseNum;
-    body.national_id_number = nationalId;
-    body.license_photo = await fileToBase64(licenseFile);
-    body.national_id_photo = await fileToBase64(nationalIdFile);
-  }
   const btn = document.querySelector("#register-form .btn-green");
   const origText = btn.textContent; btn.textContent = "Création..."; btn.disabled = true;
   try {
@@ -1584,13 +1582,44 @@ async function registerUser() {
     updateProfileSection();
     loadUserBookedTripIds();
     if (_regRole === "chauffeur") {
-      showAlert("reg-alert", "✅ Compte créé ! En attente de validation par l'admin.", "success");
-      btn.textContent = origText; btn.disabled = false;
+      showPage("compte"); // redirige vers le profil pour compléter le dossier
     } else {
       showPage("home");
     }
   } catch(e) {
     showAlert("reg-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
+}
+
+async function submitDriverDocuments() {
+  const licenseNum = document.getElementById("doc-license-num").value.trim();
+  const nationalId = document.getElementById("doc-national-id").value.trim();
+  const licenseFile = document.getElementById("doc-license-photo").files[0];
+  const nationalIdFile = document.getElementById("doc-national-id-photo").files[0];
+  if (!licenseNum) { showAlert("doc-alert", "N° permis obligatoire", "error"); return; }
+  if (!nationalId) { showAlert("doc-alert", "N° carte d'identité obligatoire", "error"); return; }
+  if (licenseFile && licenseFile.size > 2097152) { showAlert("doc-alert", "Photo permis : max 2MB", "error"); return; }
+  if (nationalIdFile && nationalIdFile.size > 2097152) { showAlert("doc-alert", "Photo carte d'identité : max 2MB", "error"); return; }
+  const btn = document.querySelector("#driver-dossier-section .btn-green");
+  const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
+  const body = { license_number: licenseNum, national_id_number: nationalId };
+  if (licenseFile) body.license_photo = await fileToBase64(licenseFile);
+  if (nationalIdFile) body.national_id_photo = await fileToBase64(nationalIdFile);
+  try {
+    const r = await fetch(API + "/users/moi/documents", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }, body: JSON.stringify(body) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    // Mettre à jour currentUser localement
+    currentUser.license_number = licenseNum;
+    currentUser.national_id_number = nationalId;
+    localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    updateProfileSection();
+    // Mettre à jour l'affichage des infos permis
+    document.getElementById("pinfo-license-row").style.display = "flex";
+    document.getElementById("profile-license").textContent = licenseNum;
+  } catch(e) {
+    showAlert("doc-alert", e.message, "error");
     btn.textContent = origText; btn.disabled = false;
   }
 }
@@ -1694,10 +1723,13 @@ async function refreshCurrentUser() {
 function clearAuthForms() {
   // Vider tous les champs
   ["auth-phone","auth-password"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  ["reg-phone","reg-name","reg-password","reg-password-confirm","reg-license-num","reg-national-id"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["reg-phone","reg-name","reg-password","reg-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   ["reset-phone","reset-password","reset-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  try { document.getElementById("reg-license-photo").value = ""; } catch(e) {}
-  try { document.getElementById("reg-national-id-photo").value = ""; } catch(e) {}
+  // Vider aussi le formulaire dossier chauffeur
+  ["doc-license-num","doc-national-id"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  try { document.getElementById("doc-license-photo").value = ""; } catch(e) {}
+  try { document.getElementById("doc-national-id-photo").value = ""; } catch(e) {}
+  const docAlert = document.getElementById("doc-alert"); if (docAlert) docAlert.innerHTML = "";
   // Vider les alertes
   ["auth-alert","reg-alert","reset-alert"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
   // Remettre le formulaire de connexion par défaut
@@ -1761,15 +1793,11 @@ function updateProfileSection() {
     if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "block" : "none";
     if (homePublishDiv) homePublishDiv.style.display = isApprovedDriver ? "block" : "none";
     if (currentUser.role === "chauffeur") {
-      if (currentUser.is_approved === false) {
-        const notice = document.getElementById("driver-pending-notice");
-        notice.textContent = t("profile.pending");
-        notice.style.display = "block";
-        document.getElementById("driver-publish-btn").style.display = "none";
-      } else {
-        document.getElementById("driver-pending-notice").style.display = "none";
-        document.getElementById("driver-publish-btn").style.display = "block";
-      }
+      const hasDocs = !!(currentUser.license_number && currentUser.national_id_number);
+      const isApproved = currentUser.is_approved;
+      document.getElementById("driver-dossier-section").style.display = (!isApproved && !hasDocs) ? "block" : "none";
+      document.getElementById("driver-pending-notice").style.display = (!isApproved && hasDocs) ? "block" : "none";
+      document.getElementById("driver-publish-btn").style.display = isApproved ? "block" : "none";
     }
   } else {
     document.getElementById("auth-section").style.display = "block";

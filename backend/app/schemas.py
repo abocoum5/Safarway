@@ -52,6 +52,13 @@ class UserUpdate(BaseModel):
     new_password: Optional[str] = None
 
 
+class UserDocumentSubmit(BaseModel):
+    license_number: str
+    national_id_number: str
+    license_photo: Optional[str] = None
+    national_id_photo: Optional[str] = None
+
+
 class Token(BaseModel):
     access_token: str
     token_type: str

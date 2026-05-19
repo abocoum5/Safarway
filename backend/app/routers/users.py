@@ -25,20 +25,12 @@ def inscription(user_data: schemas.UserCreate, db: Session = Depends(get_db)):
     if user_data.role == models.UserRole.chauffeur:
         if not user_data.name:
             raise HTTPException(status_code=400, detail="Nom obligatoire pour les chauffeurs")
-        if not user_data.license_number or not user_data.national_id_number:
-            raise HTTPException(status_code=400, detail="Numéro de permis et d'identité obligatoires pour les chauffeurs")
-        if not user_data.license_photo or not user_data.national_id_photo:
-            raise HTTPException(status_code=400, detail="Photos du permis et de la carte d'identité obligatoires pour les chauffeurs")
 
     new_user = models.User(
         name=user_data.name or ("Voyageur " + user_data.phone[-4:]),
         phone=user_data.phone,
         password_hash=hash_password(user_data.password),
         role=user_data.role,
-        license_number=user_data.license_number,
-        national_id_number=user_data.national_id_number,
-        license_photo=user_data.license_photo,
-        national_id_photo=user_data.national_id_photo,
         is_phone_verified=True,
         is_active=True,
     )
@@ -290,6 +282,34 @@ def reset_password(phone: str, new_password: str, db: Session = Depends(get_db))
 @router.get("/moi", response_model=schemas.UserResponse)
 def mon_profil(current_user=Depends(get_current_user)):
     return current_user
+
+
+@router.post("/moi/documents")
+def soumettre_documents(doc: schemas.UserDocumentSubmit, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if current_user.role != models.UserRole.chauffeur:
+        raise HTTPException(status_code=403, detail="Réservé aux chauffeurs")
+    if not doc.license_number or not doc.national_id_number:
+        raise HTTPException(status_code=400, detail="N° permis et N° carte d'identité obligatoires")
+    current_user.license_number = doc.license_number.strip()
+    current_user.national_id_number = doc.national_id_number.strip()
+    if doc.license_photo:
+        current_user.license_photo = doc.license_photo
+    if doc.national_id_photo:
+        current_user.national_id_photo = doc.national_id_photo
+    db.commit()
+    try:
+        from app.sms import send_whatsapp_admin
+        send_whatsapp_admin(
+            f"Goova - Dossier chauffeur soumis !\n"
+            f"Nom : {current_user.name}\n"
+            f"Tel : {current_user.phone}\n"
+            f"Permis : {current_user.license_number}\n"
+            f"CIN : {current_user.national_id_number}\n"
+            f"Approuvez-le depuis le panel admin."
+        )
+    except Exception as e:
+        print(f"[WhatsApp dossier] {e}")
+    return {"message": "Dossier soumis, en attente de validation"}
 
 
 @router.patch("/moi", response_model=schemas.UserResponse)
