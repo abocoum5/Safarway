@@ -1521,6 +1521,8 @@ async function loginWithPassword() {
   const password = document.getElementById("auth-password").value;
   if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
   if (!password) { showAlert("auth-alert", "Entrez votre mot de passe", "error"); return; }
+  const btn = document.querySelector("#login-form .btn-green");
+  const origText = btn.textContent; btn.textContent = "Connexion..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/users/login", {
       method: "POST",
@@ -1534,7 +1536,10 @@ async function loginWithPassword() {
     updateProfileSection();
     loadUserBookedTripIds();
     showPage("home");
-  } catch(e) { showAlert("auth-alert", e.message, "error"); }
+  } catch(e) {
+    showAlert("auth-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
 }
 
 let _regRole = "voyageur";
@@ -1568,6 +1573,8 @@ async function registerUser() {
     body.license_photo = await fileToBase64(licenseFile);
     body.national_id_photo = await fileToBase64(nationalIdFile);
   }
+  const btn = document.querySelector("#register-form .btn-green");
+  const origText = btn.textContent; btn.textContent = "Création..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/users/inscription", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const d = await r.json();
@@ -1577,11 +1584,15 @@ async function registerUser() {
     updateProfileSection();
     loadUserBookedTripIds();
     if (_regRole === "chauffeur") {
-      showAlert("reg-alert", "Compte créé ! En attente de validation par l'admin.", "success");
+      showAlert("reg-alert", "✅ Compte créé ! En attente de validation par l'admin.", "success");
+      btn.textContent = origText; btn.disabled = false;
     } else {
       showPage("home");
     }
-  } catch(e) { showAlert("reg-alert", e.message, "error"); }
+  } catch(e) {
+    showAlert("reg-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
 }
 
 // ── PASSENGERS MODAL ──
@@ -1680,9 +1691,34 @@ async function refreshCurrentUser() {
   } catch(e) {}
 }
 
+function clearAuthForms() {
+  // Vider tous les champs
+  ["auth-phone","auth-password"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["reg-phone","reg-name","reg-password","reg-password-confirm","reg-license-num","reg-national-id"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["reset-phone","reset-password","reset-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  try { document.getElementById("reg-license-photo").value = ""; } catch(e) {}
+  try { document.getElementById("reg-national-id-photo").value = ""; } catch(e) {}
+  // Vider les alertes
+  ["auth-alert","reg-alert","reset-alert"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
+  // Remettre le formulaire de connexion par défaut
+  document.getElementById("login-form").style.display = "block";
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("reset-form").style.display = "none";
+  document.querySelectorAll("#auth-section .tab").forEach((tab, i) => tab.classList.toggle("active", i === 0));
+  // Remettre le role inscription à voyageur
+  _regRole = "voyageur";
+  const btnV = document.getElementById("role-btn-voyageur");
+  const btnC = document.getElementById("role-btn-chauffeur");
+  if (btnV) btnV.classList.add("active");
+  if (btnC) btnC.classList.remove("active");
+  document.getElementById("reg-chauffeur-fields").style.display = "none";
+}
+
 function logout() {
   token = null; currentUser = null;
+  bookedTripIds = new Set();
   localStorage.removeItem("sw_token"); localStorage.removeItem("sw_user");
+  clearAuthForms();
   const heroIcon = document.getElementById("hero-avatar-icon");
   const heroInitials = document.getElementById("hero-avatar-initials");
   if (heroIcon && heroInitials) { heroIcon.style.display = ""; heroInitials.style.display = "none"; }
@@ -1699,6 +1735,10 @@ function updateProfileSection() {
   if (currentUser) {
     document.getElementById("auth-section").style.display = "none";
     document.getElementById("profile-section").style.display = "block";
+    // Fermer les sous-formulaires ouverts (changement de session)
+    document.getElementById("publish-form").style.display = "none";
+    document.getElementById("edit-profile-form").style.display = "none";
+    document.getElementById("my-bookings-card").style.display = "none";
     const initials = (currentUser.name || "G").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
     document.getElementById("profile-av-letter").textContent = initials;
     document.getElementById("profile-name").textContent = currentUser.name;
@@ -1743,6 +1783,9 @@ function switchAuthTab(tab, el) {
   document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
   document.getElementById("register-form").style.display = tab === "register" ? "block" : "none";
   document.getElementById("reset-form").style.display = "none";
+  // Effacer les alertes de l'autre tab
+  document.getElementById("auth-alert").innerHTML = "";
+  document.getElementById("reg-alert").innerHTML = "";
 }
 
 function showResetForm() {
@@ -1846,7 +1889,7 @@ async function saveProfile() {
 async function loadProfileBookings() {
   const card = document.getElementById("my-bookings-card");
   const list = document.getElementById("my-bookings-list");
-  if (!token || !currentUser || currentUser.role !== "voyageur") return;
+  if (!token || !currentUser || currentUser.role !== "voyageur") { if (card) card.style.display = "none"; return; }
   card.style.display = "block";
   list.innerHTML = '<div class="loading">Chargement...</div>';
   try {
