@@ -46,11 +46,12 @@
     .header-avatar svg { width: 18px; height: 18px; color: var(--text-2); }
 
     /* ── HOME HERO ── */
-    #page-home.active { height: auto; min-height: 100svh; overflow-y: auto; display: block; padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px)); }
-    .home-hero { background: var(--green); position: relative; overflow: hidden; }
+    #page-home.active { height: 100vh; height: 100svh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; min-height: unset; }
+    .home-hero { background: var(--green); position: relative; overflow: hidden; flex-shrink: 0; }
     .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
     .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(28px, env(safe-area-inset-top, 28px)) 18px 0; }
-    .home-search-area { padding: 16px 16px 0; }
+    /* flex:1 + padding-top > padding-bottom = contenu poussé vers le bas du centre */
+    .home-search-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 16px calc(28px + env(safe-area-inset-bottom, 0px)); }
     .home-hero-logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; }
     .home-hero-logo span { opacity: 0.8; }
     .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
@@ -449,8 +450,7 @@
     </div>
   </div>
 
-  <!-- TRAJETS RÉCENTS -->
-  <div id="home-trips" style="padding:16px 16px 0"></div>
+  <div id="home-trips" style="display:none"></div>
 </div>
 
 <!-- ─── PAGE : RECHERCHE ─── -->
