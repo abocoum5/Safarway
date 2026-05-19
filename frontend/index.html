@@ -428,8 +428,9 @@
         <div class="hsc-divider"></div>
         <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
+          <span id="hf-date-display" class="hsc-placeholder">Toutes les dates</span>
           <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
+          <button id="hf-date-clear" onclick="event.stopPropagation();clearHomeDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--text-3);font-size:18px;line-height:1">✕</button>
         </div>
         <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Rechercher →</button>
       </div>
@@ -472,8 +473,9 @@
         <div class="hsc-divider"></div>
         <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('df-date').showPicker ? document.getElementById('df-date').showPicker() : document.getElementById('df-date').click()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span id="df-date-display" class="hsc-placeholder">Choisir une date</span>
+          <span id="df-date-display" class="hsc-placeholder">Toutes les dates</span>
           <input type="date" id="df-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateDriverDateDisplay()">
+          <button id="df-date-clear" onclick="event.stopPropagation();clearDriverDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--text-3);font-size:18px;line-height:1">✕</button>
         </div>
         <button class="btn btn-green" onclick="searchFromDriver()" style="margin-top:10px">Rechercher →</button>
       </div>
@@ -1062,6 +1064,7 @@ window.onload = () => {
   applyLang();
   setTodayDate();
   checkAdminRoute();
+  checkDeepLink();
   loadHomeTrips();
   if (token && currentUser) loadUserBookedTripIds();
 };
@@ -1075,12 +1078,8 @@ function checkAdminRoute() {
 
 function setTodayDate() {
   const t = new Date().toISOString().split("T")[0];
-  const sfDate = document.getElementById("sf-date");
   const pmDate = document.getElementById("pm-date");
-  const dfDate = document.getElementById("df-date");
-  if (sfDate) sfDate.value = t;
   if (pmDate) pmDate.value = t;
-  if (dfDate) dfDate.value = t;
 }
 
 // ── NAVIGATION ──
@@ -1363,14 +1362,21 @@ function renderHomeTripCard(trip) {
 function updateHomeDateDisplay() {
   const val = document.getElementById("hf-date").value;
   const el = document.getElementById("hf-date-display");
+  const clr = document.getElementById("hf-date-clear");
   if (val) {
     const d = new Date(val + "T00:00:00");
     el.textContent = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" });
     el.className = "hsc-val";
+    if (clr) clr.style.display = "inline";
   } else {
-    el.textContent = "Choisir une date";
+    el.textContent = "Toutes les dates";
     el.className = "hsc-placeholder";
+    if (clr) clr.style.display = "none";
   }
+}
+function clearHomeDate() {
+  document.getElementById("hf-date").value = "";
+  updateHomeDateDisplay();
 }
 
 // ── SEARCH FROM HOME (voyageur) ──
@@ -1396,14 +1402,21 @@ function searchFromHome() {
 function updateDriverDateDisplay() {
   const val = document.getElementById("df-date").value;
   const el = document.getElementById("df-date-display");
+  const clr = document.getElementById("df-date-clear");
   if (val) {
     const d = new Date(val + "T00:00:00");
     el.textContent = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" });
     el.className = "hsc-val";
+    if (clr) clr.style.display = "inline";
   } else {
-    el.textContent = "Choisir une date";
+    el.textContent = "Toutes les dates";
     el.className = "hsc-placeholder";
+    if (clr) clr.style.display = "none";
   }
+}
+function clearDriverDate() {
+  document.getElementById("df-date").value = "";
+  updateDriverDateDisplay();
 }
 
 // ── SEARCH FROM DRIVER FORM ──
@@ -1655,14 +1668,29 @@ function shareCurrentTrip() {
 
 function shareTrip(trip) {
   if (!trip) return;
+  const tripUrl = APP_URL + "/?trip=" + trip.id;
   const msg =
     "🚗 Trajet disponible sur Goova !\n" +
     "📍 " + trip.from_city + " → " + trip.to_city + "\n" +
     "📅 " + trip.departure_date + " à " + trip.departure_time + "\n" +
     "💺 " + trip.available_seats + " place(s) dispo\n" +
     "💰 " + trip.price_per_seat + " MRU / place\n\n" +
-    "Réservez ici : " + APP_URL;
+    "Voir ce trajet : " + tripUrl;
   window.open("https://wa.me/?text=" + encodeURIComponent(msg), "_blank");
+}
+
+async function checkDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const tripId = parseInt(params.get("trip"));
+  if (!tripId) return;
+  window.history.replaceState({}, "", window.location.pathname);
+  try {
+    const r = await fetch(API + "/trips/" + tripId);
+    if (!r.ok) return;
+    const trip = await r.json();
+    tripsCache[trip.id] = trip;
+    showTripDetail(trip.id);
+  } catch(e) {}
 }
 
 // ── PUSH NOTIFICATIONS ──
