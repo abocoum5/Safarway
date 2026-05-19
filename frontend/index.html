@@ -402,52 +402,82 @@
     </div>
   </div>
 
-  <!-- BOUTONS D'ACTION -->
+  <!-- VUE ACCUEIL PAR RÔLE -->
   <div class="home-search-area">
-    <!-- Publier — visible uniquement pour chauffeurs approuvés -->
-    <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
-      <span class="home-action-icon">🚗</span>
-      <div>
-        <div class="home-action-label">Publier un trajet</div>
-        <div class="home-action-sub">Proposez vos places disponibles</div>
-      </div>
-    </button>
-    <!-- Trouver — toujours visible -->
-    <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
-      <span class="home-action-icon">🔍</span>
-      <div>
-        <div class="home-action-label">Trouver un trajet</div>
-        <div class="home-action-sub">Rechercher par ville et date</div>
-      </div>
-      <svg class="home-action-arrow" id="find-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M6 9l6 6 6-6"/></svg>
-    </button>
 
-    <!-- Formulaire de recherche (masqué par défaut) -->
-    <div id="home-search-form" style="display:none" class="home-search-expanded">
-      <button class="hsc-row" onclick="openCityPicker('hf-from')">
-        <div class="hsc-dot hsc-dot-from"></div>
-        <span class="hsc-code" id="hf-from-code">DE</span>
-        <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
-        <input type="hidden" id="hf-from">
-      </button>
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
-        <div style="flex:1;height:1px;background:var(--border)"></div>
+    <!-- VUE VOYAGEUR : carte de recherche directe (visible par défaut) -->
+    <div id="home-voyageur-view">
+      <div class="home-search-card">
+        <button class="hsc-row" onclick="openCityPicker('hf-from')">
+          <div class="hsc-dot hsc-dot-from"></div>
+          <span class="hsc-code" id="hf-from-code">DE</span>
+          <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
+          <input type="hidden" id="hf-from">
+        </button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <button class="hsc-row" onclick="openCityPicker('hf-to')">
+          <div class="hsc-dot hsc-dot-to"></div>
+          <span class="hsc-code" id="hf-to-code">À</span>
+          <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
+          <input type="hidden" id="hf-to">
+        </button>
+        <div class="hsc-divider"></div>
+        <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
+          <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
+        </div>
+        <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Rechercher →</button>
       </div>
-      <button class="hsc-row" onclick="openCityPicker('hf-to')">
-        <div class="hsc-dot hsc-dot-to"></div>
-        <span class="hsc-code" id="hf-to-code">À</span>
-        <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
-        <input type="hidden" id="hf-to">
-      </button>
-      <div class="hsc-divider"></div>
-      <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        <span id="hf-date-display" class="hsc-placeholder">Choisir une date</span>
-        <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
-      </div>
-      <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Rechercher →</button>
     </div>
+
+    <!-- VUE CHAUFFEUR : boutons Publier + Trouver -->
+    <div id="home-driver-view" style="display:none">
+      <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
+        <span class="home-action-icon">🚗</span>
+        <div>
+          <div class="home-action-label">Publier un trajet</div>
+          <div class="home-action-sub">Proposez vos places disponibles</div>
+        </div>
+      </button>
+      <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
+        <span class="home-action-icon">🔍</span>
+        <div>
+          <div class="home-action-label">Trouver un trajet</div>
+          <div class="home-action-sub">Rechercher par ville et date</div>
+        </div>
+        <svg class="home-action-arrow" id="find-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div id="home-search-form" style="display:none" class="home-search-expanded">
+        <button class="hsc-row" onclick="openCityPicker('df-from')">
+          <div class="hsc-dot hsc-dot-from"></div>
+          <span class="hsc-code" id="df-from-code">DE</span>
+          <span id="df-from-label" class="hsc-placeholder">Ville de départ</span>
+          <input type="hidden" id="df-from">
+        </button>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
+          <div style="flex:1;height:1px;background:var(--border)"></div>
+        </div>
+        <button class="hsc-row" onclick="openCityPicker('df-to')">
+          <div class="hsc-dot hsc-dot-to"></div>
+          <span class="hsc-code" id="df-to-code">À</span>
+          <span id="df-to-label" class="hsc-placeholder">Ville d'arrivée</span>
+          <input type="hidden" id="df-to">
+        </button>
+        <div class="hsc-divider"></div>
+        <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('df-date').showPicker ? document.getElementById('df-date').showPicker() : document.getElementById('df-date').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="df-date-display" class="hsc-placeholder">Choisir une date</span>
+          <input type="date" id="df-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateDriverDateDisplay()">
+        </div>
+        <button class="btn btn-green" onclick="searchFromDriver()" style="margin-top:10px">Rechercher →</button>
+      </div>
+    </div>
+
   </div>
 
   <div id="home-trips" style="display:none"></div>
@@ -931,14 +961,20 @@ function applyLang() {
     const lbl = document.getElementById(id + "-label");
     if (lbl && lbl.classList.contains("cib-placeholder")) lbl.textContent = t(key);
   });
-  // Carte accueil : codes DE/À, placeholders villes, date
+  // Carte accueil voyageur : codes DE/À, placeholders villes, date
   const fcCode = document.getElementById("hf-from-code"); if (fcCode) fcCode.textContent = t("home.from.code");
   const tcCode = document.getElementById("hf-to-code"); if (tcCode) tcCode.textContent = t("home.to.code");
   const flbl = document.getElementById("hf-from-label"); if (flbl && flbl.classList.contains("hsc-placeholder")) flbl.textContent = t("home.from.ph");
   const tlbl = document.getElementById("hf-to-label"); if (tlbl && tlbl.classList.contains("hsc-placeholder")) tlbl.textContent = t("home.to.ph");
   const ddsp = document.getElementById("hf-date-display"); if (ddsp && ddsp.classList.contains("hsc-placeholder")) ddsp.textContent = t("home.date");
+  // Formulaire chauffeur : mêmes labels
+  const dfcCode = document.getElementById("df-from-code"); if (dfcCode) dfcCode.textContent = t("home.from.code");
+  const dtcCode = document.getElementById("df-to-code"); if (dtcCode) dtcCode.textContent = t("home.to.code");
+  const dflbl = document.getElementById("df-from-label"); if (dflbl && dflbl.classList.contains("hsc-placeholder")) dflbl.textContent = t("home.from.ph");
+  const dtlbl = document.getElementById("df-to-label"); if (dtlbl && dtlbl.classList.contains("hsc-placeholder")) dtlbl.textContent = t("home.to.ph");
+  const dddsp = document.getElementById("df-date-display"); if (dddsp && dddsp.classList.contains("hsc-placeholder")) dddsp.textContent = t("home.date");
   // Re-traduire les villes déjà sélectionnées
-  ["hf-from","hf-to","sf-from","sf-to","pm-from","pm-to"].forEach(id => {
+  ["hf-from","hf-to","df-from","df-to","sf-from","sf-to","pm-from","pm-to"].forEach(id => {
     const inp = document.getElementById(id);
     const lbl = document.getElementById(id + "-label");
     if (inp && inp.value && lbl && !lbl.classList.contains("cib-placeholder") && !lbl.classList.contains("hsc-placeholder")) {
@@ -1024,8 +1060,10 @@ function setTodayDate() {
   const t = new Date().toISOString().split("T")[0];
   const sfDate = document.getElementById("sf-date");
   const pmDate = document.getElementById("pm-date");
+  const dfDate = document.getElementById("df-date");
   if (sfDate) sfDate.value = t;
   if (pmDate) pmDate.value = t;
+  if (dfDate) dfDate.value = t;
 }
 
 // ── NAVIGATION ──
@@ -1316,7 +1354,7 @@ function updateHomeDateDisplay() {
   }
 }
 
-// ── SEARCH FROM HOME ──
+// ── SEARCH FROM HOME (voyageur) ──
 function searchFromHome() {
   const from = document.getElementById("hf-from").value;
   const to   = document.getElementById("hf-to").value;
@@ -1333,6 +1371,48 @@ function searchFromHome() {
   }
   showPage("search");
   searchTrips();
+}
+
+// ── DATE DISPLAY DRIVER FORM ──
+function updateDriverDateDisplay() {
+  const val = document.getElementById("df-date").value;
+  const el = document.getElementById("df-date-display");
+  if (val) {
+    const d = new Date(val + "T00:00:00");
+    el.textContent = d.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "long" });
+    el.className = "hsc-val";
+  } else {
+    el.textContent = "Choisir une date";
+    el.className = "hsc-placeholder";
+  }
+}
+
+// ── SEARCH FROM DRIVER FORM ──
+function searchFromDriver() {
+  const from = document.getElementById("df-from").value;
+  const to   = document.getElementById("df-to").value;
+  const date = document.getElementById("df-date").value;
+  document.getElementById("sf-from").value = from;
+  document.getElementById("sf-to").value = to;
+  document.getElementById("sf-date").value = date;
+  const title = document.getElementById("search-page-title");
+  if (title) {
+    if (from && to) title.textContent = from + " → " + to;
+    else if (from) title.textContent = "Depuis " + from;
+    else if (to) title.textContent = "Vers " + to;
+    else title.textContent = "Trajets disponibles";
+  }
+  showPage("search");
+  searchTrips();
+}
+
+// ── HOME VIEW PAR RÔLE ──
+function updateHomeView() {
+  const isDriver = currentUser && currentUser.role === "chauffeur";
+  const voyView = document.getElementById("home-voyageur-view");
+  const drvView = document.getElementById("home-driver-view");
+  if (voyView) voyView.style.display = isDriver ? "none" : "block";
+  if (drvView) drvView.style.display = isDriver ? "block" : "none";
 }
 
 // ── HOME TRIPS ──
@@ -1809,6 +1889,7 @@ function logout() {
   if (bnavLabel) bnavLabel.textContent = "Compte";
   const homePublishBtn = document.getElementById("home-publish-btn");
   if (homePublishBtn) homePublishBtn.style.display = "none";
+  updateHomeView();
   showPage("home");
 }
 
@@ -1835,6 +1916,7 @@ function updateProfileSection() {
       document.getElementById("pinfo-license-row").style.display = "flex";
       document.getElementById("profile-license").textContent = currentUser.license_number;
     }
+    updateHomeView();
     const isApprovedDriver = currentUser.role === "chauffeur" && currentUser.is_approved;
     const homePublishBtn = document.getElementById("home-publish-btn");
     if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "flex" : "none";
@@ -1848,6 +1930,7 @@ function updateProfileSection() {
   } else {
     document.getElementById("auth-section").style.display = "block";
     document.getElementById("profile-section").style.display = "none";
+    updateHomeView();
   }
 }
 
