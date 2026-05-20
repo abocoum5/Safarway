@@ -368,6 +368,8 @@ function doLogout() {
 function showDashboard() {
   document.getElementById("login-section").style.display = "none";
   document.getElementById("dashboard-section").style.display = "block";
+  // Aligner le contenu en haut (pas centré verticalement) quand le dashboard est affiché
+  document.body.style.alignItems = "flex-start";
   loadStats();
   loadUsers();
 }
@@ -391,16 +393,19 @@ async function loadStats() {
     const r = await fetch(API + "/admin/stats", { headers: auth() });
     if (!r.ok) return;
     const d = await r.json();
+    // L'API retourne une structure imbriquée : d.utilisateurs.total, d.trajets.total…
     document.getElementById("stats-grid").innerHTML = [
-      ["Utilisateurs", d.total_users ?? "—"],
-      ["Chauffeurs",   d.total_drivers ?? "—"],
-      ["Trajets",      d.total_trips ?? "—"],
-      ["Réservations", d.total_bookings ?? "—"],
-      ["Revenus (MRU)",d.total_revenue ?? "—"],
+      ["Utilisateurs",  d.utilisateurs?.total          ?? "—"],
+      ["Chauffeurs",    d.utilisateurs?.chauffeurs      ?? "—"],
+      ["Trajets actifs",d.trajets?.actifs               ?? "—"],
+      ["Réservations",  d.reservations?.confirmees      ?? "—"],
+      ["Revenus (MRU)", d.finances?.commission_totale_MRU ?? "—"],
     ].map(([lbl, val]) =>
       `<div class="stat-card"><div class="stat-val">${val}</div><div class="stat-lbl">${lbl}</div></div>`
     ).join("");
-  } catch(e) {}
+  } catch(e) {
+    document.getElementById("stats-grid").innerHTML = '<div class="loading">Erreur chargement stats</div>';
+  }
 }
 
 // ── USERS ──────────────────────────────────────────────────────
@@ -492,23 +497,16 @@ async function loadBookings() {
 }
 
 // ── SMS ────────────────────────────────────────────────────────
-async function loadSMS() {
-  const el = document.getElementById("sms-content");
-  el.innerHTML = '<div class="loading">Chargement...</div>';
-  try {
-    const r = await fetch(API + "/admin/sms-count", { headers: auth() });
-    if (!r.ok) throw new Error();
-    const d = await r.json();
-    el.innerHTML = `
-      <div style="text-align:center;padding:16px">
-        <div class="stat-val" style="font-size:40px">${d.count ?? "—"}</div>
-        <div class="stat-lbl" style="margin-top:8px">SMS envoyés ce mois</div>
-        <button class="btn" style="max-width:260px;margin:24px auto 0;display:block"
-          onclick="sendReminders()">📤 Envoyer rappels J-1</button>
-      </div>`;
-  } catch(e) {
-    el.innerHTML = '<div class="empty">Données SMS non disponibles</div>';
-  }
+function loadSMS() {
+  document.getElementById("sms-content").innerHTML = `
+    <div style="text-align:center;padding:24px 16px">
+      <div style="font-size:14px;color:#888;margin-bottom:24px">
+        Les rappels J-1 sont envoyés automatiquement chaque jour à 7h UTC.<br>
+        Vous pouvez aussi les déclencher manuellement ci-dessous.
+      </div>
+      <button class="btn" style="max-width:280px;margin:0 auto;display:block"
+        onclick="sendReminders()">📤 Envoyer les rappels J-1 maintenant</button>
+    </div>`;
 }
 
 async function sendReminders() {
