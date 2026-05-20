@@ -1,0 +1,37 @@
+[Unit]
+Description=Goova Backend API (FastAPI + Uvicorn)
+Documentation=https://github.com/abocoum5/Safarway
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+Type=simple
+User=goova
+Group=www-data
+
+WorkingDirectory=/var/www/goova/backend
+Environment=PATH=/var/www/goova/venv/bin
+EnvironmentFile=/var/www/goova/backend/.env
+
+# 1 worker pour que l'APScheduler (rappels J-1) ne tourne qu'une fois
+ExecStart=/var/www/goova/venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 1 --log-level info
+
+# Redémarrage automatique en cas de crash
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=3
+
+# Sécurité
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/www/goova/backend
+
+# Logs → journald (journalctl -u goova -f)
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=goova
+
+[Install]
+WantedBy=multi-user.target
