@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goova — Administration</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green: #1DB954;
+      --green-dark: #17a348;
+      --bg: #f5f5f7;
+      --bg-card: #ffffff;
+      --text: #0a0a0a;
+      --text-2: #444;
+      --text-3: #888;
+      --border: #e0e0e0;
+      --radius: 16px;
+      --red: #e53935;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px;
+    }
+
+    /* ── LOGIN ── */
+    #login-section {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .logo-block {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+    .logo-icon {
+      width: 64px;
+      height: 64px;
+      background: var(--green);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      font-weight: 900;
+      color: white;
+      margin: 0 auto 14px;
+      box-shadow: 0 4px 20px rgba(29,185,84,.35);
+    }
+    .logo-block h1 {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+    .logo-block h1 span { color: var(--green); }
+    .logo-block p {
+      font-size: 14px;
+      color: var(--text-3);
+      margin-top: 6px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      box-shadow: 0 2px 16px rgba(0,0,0,.07);
+    }
+
+    .form-group { margin-bottom: 18px; }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 8px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .form-group input:focus { border-color: var(--green); }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--green);
+      color: white;
+      margin-top: 4px;
+    }
+    .btn:hover:not(:disabled) { background: var(--green-dark); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+    .alert-error { background: #fdecea; color: var(--red); }
+
+    .security-note {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
+    /* ── DASHBOARD ── */
+    #dashboard-section {
+      display: none;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .dash-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 0 4px;
+    }
+    .dash-header h2 {
+      font-size: 22px;
+      font-weight: 800;
+    }
+    .dash-header h2 span { color: var(--green); }
+    .dash-logout {
+      background: none;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-2);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .dash-logout:hover { border-color: var(--red); color: var(--red); }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      text-align: center;
+    }
+    .stat-val { font-size: 28px; font-weight: 800; color: var(--green); }
+    .stat-lbl { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 9px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg-card);
+      color: var(--text-2);
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .tab-btn.active { background: var(--green); color: white; border-color: var(--green); }
+
+    .panel {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .panel-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+
+    .item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .item-row:last-child { border-bottom: none; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-green { background: #d4f5e2; color: #1a7a3c; }
+    .badge-orange { background: #fff3e0; color: #e65100; }
+    .badge-red { background: #fdecea; color: var(--red); }
+    .badge-gray { background: #f0f0f0; color: #666; }
+
+    .btn-sm {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .btn-block { background: #fdecea; color: var(--red); }
+    .btn-activate { background: #d4f5e2; color: #1a7a3c; }
+    .btn-delete { background: none; border: none; cursor: pointer; font-size: 16px; }
+
+    .loading { text-align: center; padding: 32px; color: var(--text-3); font-size: 14px; }
+    .empty { text-align: center; padding: 24px; color: var(--text-3); font-size: 14px; }
+
+    @media (max-width: 480px) {
+      body { align-items: flex-start; padding: 20px 16px; }
+      .dash-header h2 { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────── -->
+<div id="login-section">
+  <div class="logo-block">
+    <div class="logo-icon">G</div>
+    <h1>Go<span>ova</span></h1>
+    <p>Espace administrateur — accès restreint</p>
+  </div>
+  <div class="card">
+    <div id="login-alert"></div>
+    <div class="form-group">
+      <label>Adresse email</label>
+      <input type="email" id="inp-email" placeholder="admin@goova.app" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('inp-password').focus()">
+    </div>
+    <div class="form-group">
+      <label>Mot de passe</label>
+      <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn" id="login-btn" onclick="doLogin()">Se connecter →</button>
+  </div>
+  <p class="security-note">🔒 Connexion sécurisée — réservée aux administrateurs Goova</p>
+</div>
+
+<!-- ── DASHBOARD ──────────────────────────────────────────────── -->
+<div id="dashboard-section">
+  <div class="dash-header">
+    <h2>Go<span>ova</span> Admin</h2>
+    <button class="dash-logout" onclick="doLogout()">Déconnexion</button>
+  </div>
+
+  <div class="stats-grid" id="stats-grid">
+    <div class="loading">Chargement...</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('users', this)">👥 Utilisateurs</button>
+    <button class="tab-btn" onclick="switchTab('trips', this)">🚗 Trajets</button>
+    <button class="tab-btn" onclick="switchTab('bookings', this)">🎫 Réservations</button>
+    <button class="tab-btn" onclick="switchTab('sms', this)">📱 SMS</button>
+  </div>
+
+  <div id="panel-users" class="panel">
+    <div class="panel-title">👥 Utilisateurs</div>
+    <div id="users-list"><div class="loading">Chargement...</div></div>
+  </div>
+  <div id="panel-trips" class="panel" style="display:none">
+    <div class="panel-title">🚗 Trajets</div>
+    <div id="trips-list"><div class="loading">Chargement...</div></div>
+  </div>
+  <div id="panel-bookings" class="panel" style="display:none">
+    <div class="panel-title">🎫 Réservations</div>
+    <div id="bookings-list"><div class="loading">Chargement...</div></div>
+  </div>
+  <div id="panel-sms" class="panel" style="display:none">
+    <div class="panel-title">📱 SMS</div>
+    <div id="sms-content"><div class="loading">Chargement...</div></div>
+  </div>
+</div>
+
+<script>
+const API = "http://72.61.102.253/api";
+let token = null;
+
+// ── LOGIN ──────────────────────────────────────────────────────
+async function doLogin() {
+  const email    = document.getElementById("inp-email").value.trim();
+  const password = document.getElementById("inp-password").value;
+  const alertEl  = document.getElementById("login-alert");
+  const btn      = document.getElementById("login-btn");
+
+  alertEl.innerHTML = "";
+  if (!email || !password) {
+    alertEl.innerHTML = '<div class="alert alert-error">Email et mot de passe requis.</div>';
+    return;
+  }
+
+  btn.textContent = "Connexion...";
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(
+      API + "/users/admin/login?email=" + encodeURIComponent(email) +
+            "&password=" + encodeURIComponent(password),
+      { method: "POST" }
+    );
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
+    if (d.user?.role !== "admin") throw new Error("Accès refusé — compte non administrateur");
+
+    token = d.access_token;
+    localStorage.setItem("admin_token", token);
+    localStorage.setItem("admin_user", JSON.stringify(d.user));
+
+    showDashboard();
+  } catch(e) {
+    alertEl.innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+    btn.textContent = "Se connecter →";
+    btn.disabled = false;
+  }
+}
+
+function doLogout() {
+  token = null;
+  localStorage.removeItem("admin_token");
+  localStorage.removeItem("admin_user");
+  document.getElementById("dashboard-section").style.display = "none";
+  document.getElementById("login-section").style.display = "block";
+  document.getElementById("inp-password").value = "";
+  document.getElementById("login-alert").innerHTML = "";
+  document.getElementById("login-btn").textContent = "Se connecter →";
+  document.getElementById("login-btn").disabled = false;
+}
+
+function showDashboard() {
+  document.getElementById("login-section").style.display = "none";
+  document.getElementById("dashboard-section").style.display = "block";
+  loadStats();
+  loadUsers();
+}
+
+// ── TABS ───────────────────────────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  ["users","trips","bookings","sms"].forEach(id => {
+    document.getElementById("panel-" + id).style.display = id === name ? "block" : "none";
+  });
+  if (name === "users")    loadUsers();
+  if (name === "trips")    loadTrips();
+  if (name === "bookings") loadBookings();
+  if (name === "sms")      loadSMS();
+}
+
+// ── STATS ──────────────────────────────────────────────────────
+async function loadStats() {
+  try {
+    const r = await fetch(API + "/admin/stats", { headers: auth() });
+    if (!r.ok) return;
+    const d = await r.json();
+    document.getElementById("stats-grid").innerHTML = [
+      ["Utilisateurs", d.total_users ?? "—"],
+      ["Chauffeurs",   d.total_drivers ?? "—"],
+      ["Trajets",      d.total_trips ?? "—"],
+      ["Réservations", d.total_bookings ?? "—"],
+      ["Revenus (MRU)",d.total_revenue ?? "—"],
+    ].map(([lbl, val]) =>
+      `<div class="stat-card"><div class="stat-val">${val}</div><div class="stat-lbl">${lbl}</div></div>`
+    ).join("");
+  } catch(e) {}
+}
+
+// ── USERS ──────────────────────────────────────────────────────
+async function loadUsers() {
+  const el = document.getElementById("users-list");
+  el.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/admin/users", { headers: auth() });
+    const users = await r.json();
+    if (!users.length) { el.innerHTML = '<div class="empty">Aucun utilisateur</div>'; return; }
+    el.innerHTML = users.map(u => `
+      <div class="item-row">
+        <div>
+          <div style="font-weight:600;font-size:14px">${u.name}</div>
+          <div style="font-size:12px;color:#888">${u.phone} · inscrit ${u.created_at?.slice(0,10) ?? "—"}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span class="badge ${u.role==='admin'?'badge-green':u.role==='chauffeur'?'badge-orange':'badge-gray'}">${u.role}</span>
+          ${u.role !== 'admin' ? `
+            ${u.is_active
+              ? `<button class="btn-sm btn-block" onclick="toggleUser(${u.id},false)">Bloquer</button>`
+              : `<button class="btn-sm btn-activate" onclick="toggleUser(${u.id},true)">Activer</button>`}
+            ${!u.is_approved && u.role === 'chauffeur'
+              ? `<button class="btn-sm btn-activate" onclick="approveUser(${u.id})">Approuver</button>`
+              : ""}
+            <button class="btn-delete" onclick="deleteUser(${u.id},'${u.name.replace(/'/g,"\\'")}')">🗑️</button>
+          ` : ""}
+        </div>
+      </div>`
+    ).join("");
+  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+}
+
+async function toggleUser(id, activate) {
+  const action = activate ? "activer" : "desactiver";
+  await fetch(API + "/admin/users/" + id + "/" + action, { method: "PATCH", headers: auth() });
+  loadUsers();
+}
+
+async function approveUser(id) {
+  await fetch(API + "/admin/users/" + id + "/approuver", { method: "PATCH", headers: auth() });
+  loadUsers();
+}
+
+async function deleteUser(id, name) {
+  if (!confirm("Supprimer définitivement " + name + " ?")) return;
+  await fetch(API + "/admin/users/" + id + "/supprimer", { method: "POST", headers: auth() });
+  loadUsers();
+}
+
+// ── TRIPS ──────────────────────────────────────────────────────
+async function loadTrips() {
+  const el = document.getElementById("trips-list");
+  el.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/admin/trips", { headers: auth() });
+    const trips = await r.json();
+    if (!trips.length) { el.innerHTML = '<div class="empty">Aucun trajet</div>'; return; }
+    el.innerHTML = trips.map(t => `
+      <div class="item-row">
+        <div>
+          <div style="font-weight:600;font-size:14px">${t.from_city} → ${t.to_city}</div>
+          <div style="font-size:12px;color:#888">${t.departure_date} · ${t.departure_time} · ${t.price_per_seat} MRU/place</div>
+        </div>
+        <span class="badge ${t.status==='actif'?'badge-green':t.status==='annule'?'badge-red':t.status==='termine'?'badge-gray':'badge-orange'}">${t.status}</span>
+      </div>`
+    ).join("");
+  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+}
+
+// ── BOOKINGS ───────────────────────────────────────────────────
+async function loadBookings() {
+  const el = document.getElementById("bookings-list");
+  el.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/admin/bookings", { headers: auth() });
+    const bookings = await r.json();
+    if (!bookings.length) { el.innerHTML = '<div class="empty">Aucune réservation</div>'; return; }
+    el.innerHTML = bookings.map(b => `
+      <div class="item-row">
+        <div>
+          <div style="font-weight:600;font-size:14px">${b.passenger_name ?? "—"}</div>
+          <div style="font-size:12px;color:#888">Réf: ${b.reference_code} · ${b.seats_booked} place(s) · ${b.total_price} MRU</div>
+        </div>
+        <span class="badge ${b.status==='confirme'?'badge-green':b.status==='annule'?'badge-red':'badge-orange'}">${b.status}</span>
+      </div>`
+    ).join("");
+  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+}
+
+// ── SMS ────────────────────────────────────────────────────────
+async function loadSMS() {
+  const el = document.getElementById("sms-content");
+  el.innerHTML = '<div class="loading">Chargement...</div>';
+  try {
+    const r = await fetch(API + "/admin/sms-count", { headers: auth() });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    el.innerHTML = `
+      <div style="text-align:center;padding:16px">
+        <div class="stat-val" style="font-size:40px">${d.count ?? "—"}</div>
+        <div class="stat-lbl" style="margin-top:8px">SMS envoyés ce mois</div>
+        <button class="btn" style="max-width:260px;margin:24px auto 0;display:block"
+          onclick="sendReminders()">📤 Envoyer rappels J-1</button>
+      </div>`;
+  } catch(e) {
+    el.innerHTML = '<div class="empty">Données SMS non disponibles</div>';
+  }
+}
+
+async function sendReminders() {
+  if (!confirm("Envoyer les rappels SMS aux voyageurs dont le trajet est demain ?")) return;
+  try {
+    const r = await fetch(API + "/admin/send-reminders", { method: "POST", headers: auth() });
+    const d = await r.json();
+    alert(d.message || "Rappels envoyés !");
+  } catch(e) { alert("Erreur lors de l'envoi"); }
+}
+
+// ── UTILS ──────────────────────────────────────────────────────
+function auth() {
+  return { "Authorization": "Bearer " + token, "Content-Type": "application/json" };
+}
+
+// ── INIT ───────────────────────────────────────────────────────
+window.onload = () => {
+  const saved = localStorage.getItem("admin_token");
+  const user  = localStorage.getItem("admin_user");
+  if (saved && user) {
+    try {
+      const u = JSON.parse(user);
+      if (u.role === "admin") {
+        token = saved;
+        showDashboard();
+        return;
+      }
+    } catch(e) {}
+  }
+  document.getElementById("inp-email").focus();
+};
+</script>
+</body>
+</html>
