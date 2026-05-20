@@ -315,6 +315,20 @@
 const API = "http://72.61.102.253/api";
 let token = null;
 
+// ── UTILS ──────────────────────────────────────────────────────
+function auth() {
+  return { "Authorization": "Bearer " + token };
+}
+
+// Fetch avec logs de débogage + gestion d'erreur HTTP explicite
+async function apiFetch(path, options = {}) {
+  const url = API + path;
+  console.log("[API] →", options.method || "GET", url, "| token:", token ? "présent (" + token.slice(0,20) + "…)" : "NULL");
+  const r = await fetch(url, { ...options, headers: { ...auth(), ...(options.headers || {}) } });
+  console.log("[API] ←", r.status, r.statusText, url);
+  return r;
+}
+
 // ── LOGIN ──────────────────────────────────────────────────────
 async function doLogin() {
   const email    = document.getElementById("inp-email").value.trim();
@@ -332,21 +346,26 @@ async function doLogin() {
   btn.disabled = true;
 
   try {
+    console.log("[Login] Tentative avec email:", email);
     const r = await fetch(
       API + "/users/admin/login?email=" + encodeURIComponent(email) +
             "&password=" + encodeURIComponent(password),
       { method: "POST" }
     );
     const d = await r.json();
+    console.log("[Login] Réponse HTTP:", r.status, "| data:", JSON.stringify(d).slice(0, 200));
+
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
     if (d.user?.role !== "admin") throw new Error("Accès refusé — compte non administrateur");
 
     token = d.access_token;
+    console.log("[Login] Token reçu, longueur:", token?.length, "| rôle:", d.user?.role);
     localStorage.setItem("admin_token", token);
     localStorage.setItem("admin_user", JSON.stringify(d.user));
 
     showDashboard();
   } catch(e) {
+    console.error("[Login] Erreur:", e.message);
     alertEl.innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
     btn.textContent = "Se connecter →";
     btn.disabled = false;
@@ -354,11 +373,13 @@ async function doLogin() {
 }
 
 function doLogout() {
+  console.log("[Logout] Déconnexion");
   token = null;
   localStorage.removeItem("admin_token");
   localStorage.removeItem("admin_user");
   document.getElementById("dashboard-section").style.display = "none";
   document.getElementById("login-section").style.display = "block";
+  document.body.style.alignItems = "center";
   document.getElementById("inp-password").value = "";
   document.getElementById("login-alert").innerHTML = "";
   document.getElementById("login-btn").textContent = "Se connecter →";
@@ -366,9 +387,9 @@ function doLogout() {
 }
 
 function showDashboard() {
+  console.log("[Dashboard] Affichage | token:", token ? "présent" : "null");
   document.getElementById("login-section").style.display = "none";
   document.getElementById("dashboard-section").style.display = "block";
-  // Aligner le contenu en haut (pas centré verticalement) quand le dashboard est affiché
   document.body.style.alignItems = "flex-start";
   loadStats();
   loadUsers();
@@ -390,21 +411,26 @@ function switchTab(name, el) {
 // ── STATS ──────────────────────────────────────────────────────
 async function loadStats() {
   try {
-    const r = await fetch(API + "/admin/stats", { headers: auth() });
-    if (!r.ok) return;
+    const r = await apiFetch("/admin/stats");
     const d = await r.json();
-    // L'API retourne une structure imbriquée : d.utilisateurs.total, d.trajets.total…
+    if (!r.ok) {
+      console.error("[Stats] Erreur:", r.status, d);
+      document.getElementById("stats-grid").innerHTML = `<div class="loading">Erreur ${r.status}</div>`;
+      return;
+    }
+    console.log("[Stats] Données reçues:", JSON.stringify(d));
     document.getElementById("stats-grid").innerHTML = [
-      ["Utilisateurs",  d.utilisateurs?.total          ?? "—"],
-      ["Chauffeurs",    d.utilisateurs?.chauffeurs      ?? "—"],
-      ["Trajets actifs",d.trajets?.actifs               ?? "—"],
-      ["Réservations",  d.reservations?.confirmees      ?? "—"],
-      ["Revenus (MRU)", d.finances?.commission_totale_MRU ?? "—"],
+      ["Utilisateurs",   d.utilisateurs?.total             ?? "—"],
+      ["Chauffeurs",     d.utilisateurs?.chauffeurs         ?? "—"],
+      ["Trajets actifs", d.trajets?.actifs                  ?? "—"],
+      ["Réservations",   d.reservations?.confirmees         ?? "—"],
+      ["Revenus (MRU)",  d.finances?.commission_totale_MRU  ?? "—"],
     ].map(([lbl, val]) =>
       `<div class="stat-card"><div class="stat-val">${val}</div><div class="stat-lbl">${lbl}</div></div>`
     ).join("");
   } catch(e) {
-    document.getElementById("stats-grid").innerHTML = '<div class="loading">Erreur chargement stats</div>';
+    console.error("[Stats] Exception:", e);
+    document.getElementById("stats-grid").innerHTML = '<div class="loading">Erreur réseau — vérifiez que le VPS est accessible</div>';
   }
 }
 
@@ -413,8 +439,15 @@ async function loadUsers() {
   const el = document.getElementById("users-list");
   el.innerHTML = '<div class="loading">Chargement...</div>';
   try {
-    const r = await fetch(API + "/admin/users", { headers: auth() });
-    const users = await r.json();
+    const r = await apiFetch("/admin/users");
+    const data = await r.json();
+    if (!r.ok) {
+      console.error("[Users] Erreur:", r.status, data);
+      el.innerHTML = `<div class="empty">Erreur ${r.status} — ${data.detail || "non autorisé"}</div>`;
+      return;
+    }
+    const users = data;
+    console.log("[Users] Reçu:", users.length, "utilisateurs");
     if (!users.length) { el.innerHTML = '<div class="empty">Aucun utilisateur</div>'; return; }
     el.innerHTML = users.map(u => `
       <div class="item-row">
@@ -436,23 +469,26 @@ async function loadUsers() {
         </div>
       </div>`
     ).join("");
-  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+  } catch(e) {
+    console.error("[Users] Exception:", e);
+    el.innerHTML = '<div class="empty">Erreur réseau</div>';
+  }
 }
 
 async function toggleUser(id, activate) {
   const action = activate ? "activer" : "desactiver";
-  await fetch(API + "/admin/users/" + id + "/" + action, { method: "PATCH", headers: auth() });
+  await apiFetch("/admin/users/" + id + "/" + action, { method: "PATCH" });
   loadUsers();
 }
 
 async function approveUser(id) {
-  await fetch(API + "/admin/users/" + id + "/approuver", { method: "PATCH", headers: auth() });
+  await apiFetch("/admin/users/" + id + "/approuver", { method: "PATCH" });
   loadUsers();
 }
 
 async function deleteUser(id, name) {
   if (!confirm("Supprimer définitivement " + name + " ?")) return;
-  await fetch(API + "/admin/users/" + id + "/supprimer", { method: "POST", headers: auth() });
+  await apiFetch("/admin/users/" + id + "/supprimer", { method: "POST" });
   loadUsers();
 }
 
@@ -461,10 +497,16 @@ async function loadTrips() {
   const el = document.getElementById("trips-list");
   el.innerHTML = '<div class="loading">Chargement...</div>';
   try {
-    const r = await fetch(API + "/admin/trips", { headers: auth() });
-    const trips = await r.json();
-    if (!trips.length) { el.innerHTML = '<div class="empty">Aucun trajet</div>'; return; }
-    el.innerHTML = trips.map(t => `
+    const r = await apiFetch("/admin/trips");
+    const data = await r.json();
+    if (!r.ok) {
+      console.error("[Trips] Erreur:", r.status, data);
+      el.innerHTML = `<div class="empty">Erreur ${r.status} — ${data.detail || ""}</div>`;
+      return;
+    }
+    console.log("[Trips] Reçu:", data.length, "trajets");
+    if (!data.length) { el.innerHTML = '<div class="empty">Aucun trajet</div>'; return; }
+    el.innerHTML = data.map(t => `
       <div class="item-row">
         <div>
           <div style="font-weight:600;font-size:14px">${t.from_city} → ${t.to_city}</div>
@@ -473,7 +515,10 @@ async function loadTrips() {
         <span class="badge ${t.status==='actif'?'badge-green':t.status==='annule'?'badge-red':t.status==='termine'?'badge-gray':'badge-orange'}">${t.status}</span>
       </div>`
     ).join("");
-  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+  } catch(e) {
+    console.error("[Trips] Exception:", e);
+    el.innerHTML = '<div class="empty">Erreur réseau</div>';
+  }
 }
 
 // ── BOOKINGS ───────────────────────────────────────────────────
@@ -481,10 +526,16 @@ async function loadBookings() {
   const el = document.getElementById("bookings-list");
   el.innerHTML = '<div class="loading">Chargement...</div>';
   try {
-    const r = await fetch(API + "/admin/bookings", { headers: auth() });
-    const bookings = await r.json();
-    if (!bookings.length) { el.innerHTML = '<div class="empty">Aucune réservation</div>'; return; }
-    el.innerHTML = bookings.map(b => `
+    const r = await apiFetch("/admin/bookings");
+    const data = await r.json();
+    if (!r.ok) {
+      console.error("[Bookings] Erreur:", r.status, data);
+      el.innerHTML = `<div class="empty">Erreur ${r.status} — ${data.detail || ""}</div>`;
+      return;
+    }
+    console.log("[Bookings] Reçu:", data.length, "réservations");
+    if (!data.length) { el.innerHTML = '<div class="empty">Aucune réservation</div>'; return; }
+    el.innerHTML = data.map(b => `
       <div class="item-row">
         <div>
           <div style="font-weight:600;font-size:14px">${b.passenger_name ?? "—"}</div>
@@ -493,7 +544,10 @@ async function loadBookings() {
         <span class="badge ${b.status==='confirme'?'badge-green':b.status==='annule'?'badge-red':'badge-orange'}">${b.status}</span>
       </div>`
     ).join("");
-  } catch(e) { el.innerHTML = '<div class="empty">Erreur de chargement</div>'; }
+  } catch(e) {
+    console.error("[Bookings] Exception:", e);
+    el.innerHTML = '<div class="empty">Erreur réseau</div>';
+  }
 }
 
 // ── SMS ────────────────────────────────────────────────────────
@@ -512,30 +566,32 @@ function loadSMS() {
 async function sendReminders() {
   if (!confirm("Envoyer les rappels SMS aux voyageurs dont le trajet est demain ?")) return;
   try {
-    const r = await fetch(API + "/admin/send-reminders", { method: "POST", headers: auth() });
+    const r = await apiFetch("/admin/send-reminders", { method: "POST" });
     const d = await r.json();
     alert(d.message || "Rappels envoyés !");
-  } catch(e) { alert("Erreur lors de l'envoi"); }
-}
-
-// ── UTILS ──────────────────────────────────────────────────────
-function auth() {
-  return { "Authorization": "Bearer " + token, "Content-Type": "application/json" };
+  } catch(e) {
+    console.error("[SMS] Exception:", e);
+    alert("Erreur lors de l'envoi");
+  }
 }
 
 // ── INIT ───────────────────────────────────────────────────────
 window.onload = () => {
   const saved = localStorage.getItem("admin_token");
   const user  = localStorage.getItem("admin_user");
+  console.log("[Init] admin_token dans localStorage:", saved ? "présent" : "absent");
   if (saved && user) {
     try {
       const u = JSON.parse(user);
+      console.log("[Init] Utilisateur sauvegardé:", u.name, "| rôle:", u.role);
       if (u.role === "admin") {
         token = saved;
         showDashboard();
         return;
       }
-    } catch(e) {}
+    } catch(e) {
+      console.error("[Init] Erreur parsing localStorage:", e);
+    }
   }
   document.getElementById("inp-email").focus();
 };
