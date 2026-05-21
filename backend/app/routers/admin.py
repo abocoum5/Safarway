@@ -184,3 +184,54 @@ def envoyer_rappels(db: Session = Depends(get_db), current_user=Depends(get_curr
     from app.reminders import send_daily_reminders
     count = send_daily_reminders(SessionLocal)
     return {"message": "Rappels envoyés", "passagers": count["passengers"], "chauffeurs": count["drivers"]}
+
+
+from pydantic import BaseModel as PydanticBaseModel
+
+class SMSBroadcastRequest(PydanticBaseModel):
+    message: str
+    cible: str
+    telephone: str = None
+
+
+@router.post("/send-sms")
+def envoyer_sms_broadcast(
+    payload: SMSBroadcastRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    check_admin(current_user)
+    from app.sms import _send
+
+    if not payload.message or len(payload.message.strip()) < 2:
+        raise HTTPException(status_code=400, detail="Message trop court")
+
+    if payload.cible == "telephone":
+        if not payload.telephone:
+            raise HTTPException(status_code=400, detail="Numéro de téléphone requis")
+        phone = payload.telephone.strip().replace("+222", "").replace(" ", "")
+        try:
+            _send(phone, payload.message)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+        return {"envoyes": 1, "erreurs": 0}
+
+    query = db.query(models.User).filter(models.User.is_active == True)
+    if payload.cible == "chauffeurs":
+        query = query.filter(models.User.role == models.UserRole.chauffeur)
+    elif payload.cible == "voyageurs":
+        query = query.filter(models.User.role == models.UserRole.voyageur)
+    else:
+        query = query.filter(models.User.role != models.UserRole.admin)
+
+    users = query.all()
+    envoyes, erreurs = 0, 0
+    for u in users:
+        try:
+            _send(u.phone, payload.message)
+            envoyes += 1
+        except Exception as e:
+            print(f"[SMS broadcast] Erreur {u.phone}: {e}")
+            erreurs += 1
+
+    return {"envoyes": envoyes, "erreurs": erreurs, "total": len(users)}

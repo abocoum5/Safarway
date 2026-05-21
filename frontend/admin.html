@@ -560,14 +560,41 @@ async function loadBookings() {
 // ── SMS ────────────────────────────────────────────────────────
 function loadSMS() {
   document.getElementById("sms-content").innerHTML = `
-    <div style="text-align:center;padding:24px 16px">
-      <div style="font-size:14px;color:#888;margin-bottom:24px">
-        Les rappels J-1 sont envoyés automatiquement chaque jour à 7h UTC.<br>
-        Vous pouvez aussi les déclencher manuellement ci-dessous.
+    <div style="margin-bottom:24px;padding:16px;background:#f9fafb;border-radius:12px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">📅 Rappels automatiques J-1</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px">Envoyés automatiquement chaque jour à 7h UTC.</div>
+      <button class="btn" onclick="sendReminders()">📤 Envoyer les rappels maintenant</button>
+    </div>
+
+    <div style="padding:16px;background:#f9fafb;border-radius:12px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:16px">✉️ Envoyer un message personnalisé</div>
+      <div class="form-group">
+        <label>Destinataires</label>
+        <select id="sms-cible" onchange="togglePhoneField()">
+          <option value="tous">Tous les utilisateurs</option>
+          <option value="chauffeurs">Chauffeurs uniquement</option>
+          <option value="voyageurs">Voyageurs uniquement</option>
+          <option value="telephone">Un numéro spécifique</option>
+        </select>
       </div>
-      <button class="btn" style="max-width:280px;margin:0 auto;display:block"
-        onclick="sendReminders()">📤 Envoyer les rappels J-1 maintenant</button>
+      <div class="form-group" id="sms-phone-field" style="display:none">
+        <label>Numéro de téléphone (sans +222)</label>
+        <input type="tel" id="sms-phone" placeholder="ex: 36000000" inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label>Message <span id="sms-char-count" style="color:#888;font-weight:400">(0 / 160)</span></label>
+        <textarea id="sms-message" rows="4" placeholder="Votre message..." maxlength="320"
+          oninput="document.getElementById('sms-char-count').textContent='('+this.value.length+' / 160)'"
+          style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+      </div>
+      <div id="sms-broadcast-alert" style="margin-bottom:8px"></div>
+      <button class="btn" onclick="sendBroadcastSMS()">📨 Envoyer le message</button>
     </div>`;
+}
+
+function togglePhoneField() {
+  const cible = document.getElementById("sms-cible").value;
+  document.getElementById("sms-phone-field").style.display = cible === "telephone" ? "block" : "none";
 }
 
 async function sendReminders() {
@@ -577,8 +604,41 @@ async function sendReminders() {
     const d = await r.json();
     alert(d.message || "Rappels envoyés !");
   } catch(e) {
-    console.error("[SMS] Exception:", e);
     alert("Erreur lors de l'envoi");
+  }
+}
+
+async function sendBroadcastSMS() {
+  const cible = document.getElementById("sms-cible").value;
+  const message = document.getElementById("sms-message").value.trim();
+  const telephone = document.getElementById("sms-phone")?.value.trim();
+  const alertEl = document.getElementById("sms-broadcast-alert");
+
+  if (!message) { alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Écrivez un message.</div>'; return; }
+  if (cible === "telephone" && !telephone) { alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Entrez un numéro.</div>'; return; }
+
+  const cibleLabel = { tous: "tous les utilisateurs", chauffeurs: "les chauffeurs", voyageurs: "les voyageurs", telephone: "le numéro " + telephone }[cible];
+  if (!confirm(`Envoyer ce message à ${cibleLabel} ?`)) return;
+
+  const btn = document.querySelector("#sms-content .btn:last-of-type");
+  btn.textContent = "Envoi..."; btn.disabled = true;
+  alertEl.innerHTML = "";
+
+  try {
+    const r = await apiFetch("/admin/send-sms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message, cible, telephone: telephone || null })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Erreur");
+    alertEl.innerHTML = `<div style="color:#16a34a;font-size:13px">✅ ${d.envoyes} message(s) envoyé(s), ${d.erreurs} erreur(s).</div>`;
+    document.getElementById("sms-message").value = "";
+    document.getElementById("sms-char-count").textContent = "(0 / 160)";
+  } catch(e) {
+    alertEl.innerHTML = `<div style="color:#ef4444;font-size:13px">Erreur : ${e.message}</div>`;
+  } finally {
+    btn.textContent = "📨 Envoyer le message"; btn.disabled = false;
   }
 }
 
