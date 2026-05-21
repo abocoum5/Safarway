@@ -182,7 +182,7 @@ def request_phone_otp(phone: str, db: Session = Depends(get_db)):
     except Exception as e:
         print(f"OTP SMS non envoyé: {e}")
 
-    return {"message": "Code envoyé", "otp": otp}
+    return {"message": "Code envoyé"}
 
 
 @router.post("/phone-otp/verify", response_model=schemas.Token)
@@ -263,8 +263,11 @@ def admin_login(email: str, password: str, db: Session = Depends(get_db)):
 # PROFIL
 # ─────────────────────────────────────────────
 
-@router.post("/reset-password")
-def reset_password(phone: str, new_password: str, db: Session = Depends(get_db)):
+@router.post("/reset-password/request")
+def reset_password_request(phone: str, db: Session = Depends(get_db)):
+    from app.email_service import generate_otp
+    from app.sms import send_otp_sms
+
     user = db.query(models.User).filter(models.User.phone == phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="Numéro introuvable")
@@ -272,9 +275,39 @@ def reset_password(phone: str, new_password: str, db: Session = Depends(get_db))
         raise HTTPException(status_code=403, detail="Réinitialisation non autorisée pour les admins")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Compte désactivé")
+
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expires = datetime.utcnow() + timedelta(minutes=10)
+    db.commit()
+
+    try:
+        send_otp_sms(phone, otp)
+    except Exception as e:
+        print(f"OTP reset SMS non envoyé: {e}")
+
+    return {"message": "Code de vérification envoyé par SMS"}
+
+
+@router.post("/reset-password")
+def reset_password(phone: str, otp: str, new_password: str, db: Session = Depends(get_db)):
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Réinitialisation non autorisée pour les admins")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
+    if not user.otp_code or user.otp_code != otp:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if not user.otp_expires or datetime.utcnow() > user.otp_expires:
+        raise HTTPException(status_code=400, detail="Code expiré, demandez-en un nouveau")
     if len(new_password) < 6:
         raise HTTPException(status_code=400, detail="Mot de passe : 6 caractères minimum")
+
     user.password_hash = hash_password(new_password)
+    user.otp_code = None
+    user.otp_expires = None
     db.commit()
     return {"message": "Mot de passe réinitialisé"}
 

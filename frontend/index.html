@@ -528,24 +528,42 @@
         <div class="card">
           <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour à la connexion</button>
           <div class="card-title">Mot de passe oublié</div>
-          <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro et choisissez un nouveau mot de passe.</p>
-          <div class="form-group">
-            <label>Numéro de téléphone</label>
-            <div class="phone-wrap">
-              <span class="phone-prefix">🇲🇷 +222</span>
-              <input type="tel" id="reset-phone" placeholder="XX XX XX XX" inputmode="numeric">
+
+          <!-- Étape 1 : saisie du numéro -->
+          <div id="reset-step1">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro, vous recevrez un code par SMS.</p>
+            <div class="form-group">
+              <label>Numéro de téléphone</label>
+              <div class="phone-wrap">
+                <span class="phone-prefix">🇲🇷 +222</span>
+                <input type="tel" id="reset-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestResetOtp()">
+              </div>
             </div>
+            <div id="reset-alert"></div>
+            <button class="btn btn-green" onclick="requestResetOtp()">Envoyer le code SMS →</button>
           </div>
-          <div class="form-group">
-            <label>Nouveau mot de passe</label>
-            <input type="password" id="reset-password" placeholder="Minimum 6 caractères">
+
+          <!-- Étape 2 : code + nouveau mot de passe -->
+          <div id="reset-step2" style="display:none">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu par SMS et choisissez un nouveau mot de passe.</p>
+            <div class="form-group">
+              <label>Code SMS</label>
+              <input type="text" id="reset-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6">
+            </div>
+            <div class="form-group">
+              <label>Nouveau mot de passe</label>
+              <input type="password" id="reset-password" placeholder="Minimum 6 caractères">
+            </div>
+            <div class="form-group">
+              <label>Confirmer le mot de passe</label>
+              <input type="password" id="reset-password-confirm" placeholder="Répétez le mot de passe" onkeydown="if(event.key==='Enter')submitResetPassword()">
+            </div>
+            <div id="reset-alert2"></div>
+            <button class="btn btn-green" onclick="submitResetPassword()">Réinitialiser mon mot de passe →</button>
+            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
+              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestResetOtp()">Renvoyer le code</button>
+            </p>
           </div>
-          <div class="form-group">
-            <label>Confirmer le mot de passe</label>
-            <input type="password" id="reset-password-confirm" placeholder="Répétez le mot de passe" onkeydown="if(event.key==='Enter')submitResetPassword()">
-          </div>
-          <div id="reset-alert"></div>
-          <button class="btn btn-green" onclick="submitResetPassword()">Réinitialiser mon mot de passe →</button>
         </div>
       </div>
 
@@ -2030,7 +2048,7 @@ function clearAuthForms() {
   // Vider tous les champs
   ["auth-phone","auth-password"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   ["reg-phone","reg-name","reg-password","reg-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  ["reset-phone","reset-password","reset-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+  ["reset-phone","reset-otp","reset-password","reset-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   // Vider aussi le formulaire dossier chauffeur
   ["doc-license-num","doc-national-id"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   try { document.getElementById("doc-license-photo").value = ""; } catch(e) {}
@@ -2131,27 +2149,49 @@ function showResetForm() {
 function backToLogin() {
   document.getElementById("reset-form").style.display = "none";
   document.getElementById("login-form").style.display = "block";
+  document.getElementById("reset-step1").style.display = "block";
+  document.getElementById("reset-step2").style.display = "none";
+}
+
+async function requestResetOtp() {
+  const phone = document.getElementById("reset-phone").value.trim().replace(/\s/g, "");
+  if (!phone || phone.length < 8) { showAlert("reset-alert", "Entrez un numéro valide", "error"); return; }
+  const btn = document.querySelector("#reset-step1 .btn-green");
+  const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
+  try {
+    const r = await fetch(API + "/users/reset-password/request?phone=" + encodeURIComponent(phone), { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    document.getElementById("reset-step1").style.display = "none";
+    document.getElementById("reset-step2").style.display = "block";
+    showAlert("reset-alert2", "✅ Code envoyé par SMS", "success");
+  } catch(e) {
+    showAlert("reset-alert", e.message, "error");
+  } finally {
+    btn.textContent = origText; btn.disabled = false;
+  }
 }
 
 async function submitResetPassword() {
   const phone = document.getElementById("reset-phone").value.trim().replace(/\s/g, "");
+  const otp = document.getElementById("reset-otp").value.trim();
   const password = document.getElementById("reset-password").value;
   const confirm = document.getElementById("reset-password-confirm").value;
-  if (!phone || phone.length < 8) { showAlert("reset-alert", "Entrez un numéro valide", "error"); return; }
-  if (!password || password.length < 6) { showAlert("reset-alert", "Mot de passe : 6 caractères minimum", "error"); return; }
-  if (password !== confirm) { showAlert("reset-alert", "Les mots de passe ne correspondent pas", "error"); return; }
-  const btn = document.querySelector("#reset-form .btn-green");
+  if (!otp || otp.length < 4) { showAlert("reset-alert2", "Entrez le code SMS reçu", "error"); return; }
+  if (!password || password.length < 6) { showAlert("reset-alert2", "Mot de passe : 6 caractères minimum", "error"); return; }
+  if (password !== confirm) { showAlert("reset-alert2", "Les mots de passe ne correspondent pas", "error"); return; }
+  const btn = document.querySelector("#reset-step2 .btn-green");
   const origText = btn.textContent; btn.textContent = "Réinitialisation..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/reset-password?phone=" + encodeURIComponent(phone) + "&new_password=" + encodeURIComponent(password), { method: "POST" });
+    const r = await fetch(API + "/users/reset-password?phone=" + encodeURIComponent(phone) + "&otp=" + encodeURIComponent(otp) + "&new_password=" + encodeURIComponent(password), { method: "POST" });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
-    showAlert("reset-alert", "✅ Mot de passe réinitialisé ! Vous pouvez vous connecter.", "success");
+    showAlert("reset-alert2", "✅ Mot de passe réinitialisé ! Vous pouvez vous connecter.", "success");
     document.getElementById("auth-phone").value = phone;
     document.getElementById("auth-password").value = "";
     setTimeout(() => backToLogin(), 2500);
   } catch(e) {
-    showAlert("reset-alert", e.message, "error");
+    showAlert("reset-alert2", e.message, "error");
     btn.textContent = origText; btn.disabled = false;
   }
 }
