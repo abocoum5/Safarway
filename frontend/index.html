@@ -412,6 +412,11 @@
 
     <!-- VUE CHAUFFEUR : boutons Publier + Trouver -->
     <div id="home-driver-view" style="display:none">
+      <div id="home-driver-pending" style="display:none;background:rgba(255,255,255,0.15);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">⏳</div>
+        <div style="color:white;font-weight:700;font-size:15px">Compte en attente de validation</div>
+        <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
+      </div>
       <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
         <span class="home-action-icon">🚗</span>
         <div>
@@ -2113,6 +2118,8 @@ function updateProfileSection() {
     const isApprovedDriver = currentUser.role === "chauffeur" && currentUser.is_approved;
     const homePublishBtn = document.getElementById("home-publish-btn");
     if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "flex" : "none";
+    const homePending = document.getElementById("home-driver-pending");
+    if (homePending) homePending.style.display = (currentUser.role === "chauffeur" && !currentUser.is_approved) ? "block" : "none";
     if (currentUser.role === "chauffeur") {
       const hasDocs = !!(currentUser.license_number && currentUser.national_id_number);
       const isApproved = currentUser.is_approved;
