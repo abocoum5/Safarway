@@ -39,6 +39,8 @@ class UserResponse(BaseModel):
 
 
 class UserDocuments(BaseModel):
+    license_number: Optional[str] = None
+    national_id_number: Optional[str] = None
     license_photo: Optional[str] = None
     national_id_photo: Optional[str] = None
 

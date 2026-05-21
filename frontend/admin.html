@@ -450,22 +450,29 @@ async function loadUsers() {
     console.log("[Users] Reçu:", users.length, "utilisateurs");
     if (!users.length) { el.innerHTML = '<div class="empty">Aucun utilisateur</div>'; return; }
     el.innerHTML = users.map(u => `
-      <div class="item-row">
-        <div>
-          <div style="font-weight:600;font-size:14px">${u.name}</div>
-          <div style="font-size:12px;color:#888">${u.phone} · inscrit ${u.created_at?.slice(0,10) ?? "—"}</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span class="badge ${u.role==='admin'?'badge-green':u.role==='chauffeur'?'badge-orange':'badge-gray'}">${u.role}</span>
-          ${u.role !== 'admin' ? `
-            ${u.is_active
-              ? `<button class="btn-sm btn-block" onclick="toggleUser(${u.id},false)">Bloquer</button>`
-              : `<button class="btn-sm btn-activate" onclick="toggleUser(${u.id},true)">Activer</button>`}
-            ${!u.is_approved && u.role === 'chauffeur'
-              ? `<button class="btn-sm btn-activate" onclick="approveUser(${u.id})">Approuver</button>`
-              : ""}
-            <button class="btn-delete" onclick="deleteUser(${u.id},'${u.name.replace(/'/g,"\\'")}')">🗑️</button>
-          ` : ""}
+      <div class="item-row" style="flex-direction:column;align-items:stretch;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-weight:600;font-size:14px">${u.name}</div>
+            <div style="font-size:12px;color:#888">${u.phone} · inscrit ${u.created_at?.slice(0,10) ?? "—"}</div>
+            ${u.role === 'chauffeur' && u.license_number ? `<div style="font-size:12px;color:#555;margin-top:2px">🪪 Permis: ${u.license_number} · CIN: ${u.national_id_number || "—"}</div>` : ""}
+            ${u.role === 'chauffeur' && !u.is_approved ? `<div style="font-size:12px;color:#f59e0b;font-weight:600;margin-top:2px">⏳ En attente d'approbation</div>` : ""}
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <span class="badge ${u.role==='admin'?'badge-green':u.role==='chauffeur'?'badge-orange':'badge-gray'}">${u.role}</span>
+            ${u.role !== 'admin' ? `
+              ${u.is_active
+                ? `<button class="btn-sm btn-block" onclick="toggleUser(${u.id},false)">Bloquer</button>`
+                : `<button class="btn-sm btn-activate" onclick="toggleUser(${u.id},true)">Activer</button>`}
+              ${!u.is_approved && u.role === 'chauffeur'
+                ? `<button class="btn-sm btn-activate" onclick="approveUser(${u.id})">✅ Approuver</button>`
+                : ""}
+              ${u.role === 'chauffeur' && (u.license_number || u.national_id_number)
+                ? `<button class="btn-sm" style="background:#f3f4f6;color:#374151" onclick="viewDossier(${u.id},'${u.name.replace(/'/g,"\\'")}')">📋 Dossier</button>`
+                : ""}
+              <button class="btn-delete" onclick="deleteUser(${u.id},'${u.name.replace(/'/g,"\\'")}')">🗑️</button>
+            ` : ""}
+          </div>
         </div>
       </div>`
     ).join("");
@@ -595,6 +602,52 @@ window.onload = () => {
   }
   document.getElementById("inp-email").focus();
 };
+
+// ── DOSSIER CHAUFFEUR ──────────────────────────────────────────
+async function viewDossier(userId, name) {
+  document.getElementById("dossier-modal").style.display = "flex";
+  document.getElementById("dossier-body").innerHTML = '<div class="loading">Chargement...</div>';
+  document.getElementById("dossier-title").textContent = "📋 Dossier — " + name;
+  try {
+    const r = await apiFetch("/admin/users/" + userId + "/documents");
+    const d = await r.json();
+    if (!r.ok) { document.getElementById("dossier-body").innerHTML = `<div class="empty">Erreur: ${d.detail}</div>`; return; }
+    document.getElementById("dossier-body").innerHTML = `
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">N° Permis de conduire</div>
+        <div style="font-weight:600;font-size:15px">${d.license_number || "Non renseigné"}</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:#888;margin-bottom:4px">N° Carte d'identité</div>
+        <div style="font-weight:600;font-size:15px">${d.national_id_number || "Non renseigné"}</div>
+      </div>
+      ${d.license_photo ? `
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:#888;margin-bottom:8px">Photo du permis</div>
+        <img src="${d.license_photo}" style="width:100%;border-radius:8px;border:1px solid #e5e7eb">
+      </div>` : ""}
+      ${d.national_id_photo ? `
+      <div style="margin-bottom:16px">
+        <div style="font-size:12px;color:#888;margin-bottom:8px">Photo de la carte d'identité</div>
+        <img src="${d.national_id_photo}" style="width:100%;border-radius:8px;border:1px solid #e5e7eb">
+      </div>` : ""}
+      ${!d.license_photo && !d.national_id_photo ? `<div class="empty">Aucune photo soumise</div>` : ""}
+    `;
+  } catch(e) {
+    document.getElementById("dossier-body").innerHTML = '<div class="empty">Erreur réseau</div>';
+  }
+}
 </script>
+
+<!-- Modale dossier chauffeur -->
+<div id="dossier-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:20px" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:white;border-radius:16px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div id="dossier-title" style="font-size:17px;font-weight:800"></div>
+      <button onclick="document.getElementById('dossier-modal').style.display='none'" style="background:#f3f4f6;border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer">×</button>
+    </div>
+    <div id="dossier-body"></div>
+  </div>
+</div>
 </body>
 </html>
