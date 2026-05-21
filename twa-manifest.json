@@ -17,11 +17,11 @@
   "maskableIconUrl": "https://goova.pro/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "C:\\Users\\amana\\safarway\\android.keystore",
+    "path": "C:\\Users\\amana\\safarway\\android-new.keystore",
     "alias": "goova"
   },
-  "appVersionName": "2",
-  "appVersionCode": 2,
+  "appVersionName": "goova",
+  "appVersionCode": 4,
   "shortcuts": [
     {
       "name": "Chercher un trajet",
@@ -57,5 +57,5 @@
   "fileHandlers": [],
   "launchHandlerClientMode": "",
   "displayOverride": [],
-  "appVersion": "2"
+  "appVersion": "goova"
 }

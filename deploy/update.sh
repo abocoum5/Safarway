@@ -31,8 +31,8 @@ echo "  ✅ Dépendances à jour"
 # 3. Redéployer le frontend (patch URLs)
 echo "  🔧 Redéploiement du frontend..."
 cp -r $APP_DIR/frontend/. $PUBLIC_DIR/
-sed -i 's|https://safarway\.onrender\.com|/api|g' $PUBLIC_DIR/index.html
-sed -i "s|https://safarway-roan\.vercel\.app|http://$VPS_IP|g" $PUBLIC_DIR/index.html
+mkdir -p $PUBLIC_DIR/.well-known
+cp $APP_DIR/frontend/assetlinks.json $PUBLIC_DIR/.well-known/assetlinks.json
 chown -R www-data:www-data $PUBLIC_DIR
 chmod -R 755 $PUBLIC_DIR
 echo "  ✅ Frontend déployé"
