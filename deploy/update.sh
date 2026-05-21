@@ -7,7 +7,7 @@ set -e
 
 APP_DIR="/var/www/goova"
 PUBLIC_DIR="/var/www/goova/public"
-VPS_IP="72.61.102.253"
+VPS_IP="goova.pro"
 
 if [ "$EUID" -ne 0 ]; then
   echo "❌ Exécuter en root : sudo bash update.sh"

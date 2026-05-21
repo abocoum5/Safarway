@@ -51,7 +51,8 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://safarway-roan.vercel.app",
+        "https://goova.pro",
+        "https://www.goova.pro",
         "http://localhost:3000",
         "http://localhost:8000",
         "http://127.0.0.1:8000",
