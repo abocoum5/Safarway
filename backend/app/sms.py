@@ -48,17 +48,17 @@ def send_whatsapp_otp(phone: str, otp: str):
 
     if instance_id and token:
         to = phone if phone.startswith("+") else f"+222{phone}"
-        url = f"https://api.ultramsg.com/{instance_id}/messages/chat"
-        payload = urllib.parse.urlencode({
+        params = urllib.parse.urlencode({
             "token": token,
             "to": to,
-            "body": f"Goova - Votre code : {otp}. Valide 10 minutes."
-        }).encode()
+            "body": f"Goova - Votre code : {otp}. Valide 10 minutes.",
+            "priority": "10"
+        })
+        url = f"https://api.ultramsg.com/{instance_id}/messages/chat?{params}"
         try:
-            req = urllib.request.Request(url, data=payload, method="POST")
-            req.add_header("Content-Type", "application/x-www-form-urlencoded")
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                print(f"[WhatsApp OTP] Envoyé à {to} — réponse: {resp.read().decode()}")
+            with urllib.request.urlopen(url, timeout=10) as resp:
+                result = resp.read().decode()
+                print(f"[WhatsApp OTP] Envoyé à {to} — {result}")
             return
         except urllib.error.HTTPError as e:
             print(f"[WhatsApp OTP] Erreur {e.code}: {e.read().decode()} — fallback SMS")
