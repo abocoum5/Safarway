@@ -502,106 +502,130 @@
 
     <!-- AUTH -->
     <div id="auth-section">
-      <div class="tabs">
-        <div class="tab active" onclick="switchAuthTab('login', this)" data-i18n="auth.login">Connexion</div>
-        <div class="tab" onclick="switchAuthTab('register', this)" data-i18n="auth.register">Inscription</div>
-      </div>
 
+      <!-- ── CONNEXION : numéro + PIN ── -->
       <div id="login-form">
         <div class="card">
-          <div class="card-title" data-i18n="auth.welcome">Bienvenue 👋</div>
+          <div class="card-title">Bienvenue 👋</div>
+          <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Connectez-vous avec votre numéro WhatsApp et votre code PIN.</p>
           <div class="form-group">
-            <label data-i18n="auth.phone">Numéro de téléphone</label>
+            <label>Numéro WhatsApp</label>
             <div class="phone-wrap">
               <span class="phone-prefix">🇲🇷 +222</span>
-              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPassword()">
+              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
             </div>
           </div>
           <div class="form-group">
-            <label data-i18n="auth.password">Mot de passe</label>
-            <input type="password" id="auth-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')loginWithPassword()">
+            <label>Code PIN (4 chiffres)</label>
+            <input type="password" id="auth-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPin()">
           </div>
           <div id="auth-alert"></div>
-          <button class="btn btn-green" onclick="loginWithPassword()" data-i18n="auth.login.btn">Se connecter →</button>
+          <button class="btn btn-green" onclick="loginWithPin()">Se connecter →</button>
           <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:14px">
-            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showResetForm()">Mot de passe oublié ?</button>
+            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showPinForgotForm()">PIN oublié ?</button>
+          </p>
+          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:8px">
+            Pas encore de compte ?
+            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showRegisterForm()">Créer un compte</button>
           </p>
         </div>
       </div>
 
-      <div id="reset-form" style="display:none">
+      <!-- ── PIN OUBLIÉ : OTP WhatsApp ── -->
+      <div id="pin-forgot-form" style="display:none">
         <div class="card">
-          <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour à la connexion</button>
-          <div class="card-title">Mot de passe oublié</div>
-
-          <!-- Étape 1 : saisie du numéro -->
-          <div id="reset-step1">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro, vous recevrez un code par SMS.</p>
+          <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+          <div class="card-title">PIN oublié</div>
+          <div id="pin-forgot-step1">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
             <div class="form-group">
-              <label>Numéro de téléphone</label>
               <div class="phone-wrap">
                 <span class="phone-prefix">🇲🇷 +222</span>
-                <input type="tel" id="reset-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestResetOtp()">
+                <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
               </div>
             </div>
-            <div id="reset-alert"></div>
-            <button class="btn btn-green" onclick="requestResetOtp()">Envoyer le code SMS →</button>
+            <div id="pf-alert1"></div>
+            <button class="btn btn-green" onclick="requestPinForgotOtp()">Recevoir le code WhatsApp →</button>
           </div>
-
-          <!-- Étape 2 : code + nouveau mot de passe -->
-          <div id="reset-step2" style="display:none">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu par SMS et choisissez un nouveau mot de passe.</p>
+          <div id="pin-forgot-step2" style="display:none">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu sur WhatsApp.</p>
             <div class="form-group">
-              <label>Code SMS</label>
-              <input type="text" id="reset-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6">
+              <label>Code WhatsApp</label>
+              <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6">
             </div>
-            <div class="form-group">
-              <label>Nouveau mot de passe</label>
-              <input type="password" id="reset-password" placeholder="Minimum 6 caractères">
-            </div>
-            <div class="form-group">
-              <label>Confirmer le mot de passe</label>
-              <input type="password" id="reset-password-confirm" placeholder="Répétez le mot de passe" onkeydown="if(event.key==='Enter')submitResetPassword()">
-            </div>
-            <div id="reset-alert2"></div>
-            <button class="btn btn-green" onclick="submitResetPassword()">Réinitialiser mon mot de passe →</button>
+            <div id="pf-alert2"></div>
+            <button class="btn btn-green" onclick="verifyPinForgotOtp()">Vérifier →</button>
             <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
-              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestResetOtp()">Renvoyer le code</button>
+              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestPinForgotOtp()">Renvoyer le code</button>
             </p>
           </div>
         </div>
       </div>
 
+      <!-- ── INSCRIPTION : 3 étapes ── -->
       <div id="register-form" style="display:none">
-        <div class="card">
-          <div class="card-title">Créer un compte</div>
-          <div class="role-select-row">
-            <button class="role-sel-btn active" id="role-btn-voyageur" onclick="switchRegRole('voyageur')">👤 Voyageur</button>
-            <button class="role-sel-btn" id="role-btn-chauffeur" onclick="switchRegRole('chauffeur')">🚗 Chauffeur</button>
-          </div>
-          <div class="form-group">
-            <label>Numéro de téléphone</label>
-            <div class="phone-wrap">
-              <span class="phone-prefix">🇲🇷 +222</span>
-              <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
+        <!-- Étape 1 : infos -->
+        <div id="reg-step1">
+          <div class="card">
+            <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+            <div class="card-title">Créer un compte</div>
+            <div class="role-select-row">
+              <button class="role-sel-btn active" id="role-btn-voyageur" onclick="switchRegRole('voyageur')">👤 Voyageur</button>
+              <button class="role-sel-btn" id="role-btn-chauffeur" onclick="switchRegRole('chauffeur')">🚗 Chauffeur</button>
             </div>
+            <div class="form-group">
+              <label>Nom complet</label>
+              <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed">
+            </div>
+            <div class="form-group">
+              <label>Numéro WhatsApp</label>
+              <div class="phone-wrap">
+                <span class="phone-prefix">🇲🇷 +222</span>
+                <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
+              </div>
+            </div>
+            <div id="reg-chauffeur-fields" style="display:none">
+              <div class="alert alert-warning" style="margin-top:4px">📋 Après inscription, vous devrez compléter votre dossier (permis, carte d'identité) pour être approuvé par l'admin.</div>
+            </div>
+            <div id="reg-alert"></div>
+            <button class="btn btn-green mt-10" onclick="registerStep1()">Recevoir mon code WhatsApp →</button>
           </div>
-          <div class="form-group"><label>Nom complet</label><input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed"></div>
-          <div class="form-group">
-            <label>Mot de passe</label>
-            <input type="password" id="reg-password" placeholder="Minimum 6 caractères">
+        </div>
+        <!-- Étape 2 : OTP -->
+        <div id="reg-step2" style="display:none">
+          <div class="card">
+            <div class="card-title">Vérification WhatsApp</div>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Un code a été envoyé sur votre WhatsApp. Entrez-le ci-dessous.</p>
+            <div class="form-group">
+              <label>Code WhatsApp</label>
+              <input type="text" id="reg-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')registerStep2()">
+            </div>
+            <div id="reg-otp-alert"></div>
+            <button class="btn btn-green" onclick="registerStep2()">Vérifier →</button>
+            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
+              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="registerStep1()">Renvoyer le code</button>
+            </p>
           </div>
-          <div class="form-group">
-            <label>Confirmer le mot de passe</label>
-            <input type="password" id="reg-password-confirm" placeholder="Répétez le mot de passe">
+        </div>
+        <!-- Étape 3 : PIN -->
+        <div id="reg-step3" style="display:none">
+          <div class="card">
+            <div class="card-title">Créer votre code PIN</div>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Choisissez un code PIN de 4 chiffres. Vous l'utiliserez à chaque connexion.</p>
+            <div class="form-group">
+              <label>Code PIN</label>
+              <input type="password" id="reg-pin" placeholder="••••" maxlength="4" inputmode="numeric">
+            </div>
+            <div class="form-group">
+              <label>Confirmer le PIN</label>
+              <input type="password" id="reg-pin-confirm" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep3()">
+            </div>
+            <div id="reg-pin-alert"></div>
+            <button class="btn btn-green" onclick="registerStep3()">Créer mon compte →</button>
           </div>
-          <div id="reg-chauffeur-fields" style="display:none">
-            <div class="alert alert-warning" style="margin-top:4px">📋 Après inscription, vous devrez compléter votre dossier (permis, carte d'identité) pour être approuvé par l'admin.</div>
-          </div>
-          <div id="reg-alert"></div>
-          <button class="btn btn-green mt-10" onclick="registerUser()">Créer mon compte →</button>
         </div>
       </div>
+
     </div>
 
     <!-- PROFIL CONNECTÉ -->
@@ -1853,21 +1877,51 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
 }
 
-async function loginWithPassword() {
+let _regRole = "voyageur";
+let _regPhone = null;
+let _pinSetupMode = "register";
+
+function switchRegRole(role) {
+  _regRole = role;
+  document.getElementById("role-btn-voyageur").classList.toggle("active", role === "voyageur");
+  document.getElementById("role-btn-chauffeur").classList.toggle("active", role === "chauffeur");
+  document.getElementById("reg-chauffeur-fields").style.display = role === "chauffeur" ? "block" : "none";
+}
+
+function showRegisterForm() {
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("register-form").style.display = "block";
+  document.getElementById("reg-step1").style.display = "block";
+  document.getElementById("reg-step2").style.display = "none";
+  document.getElementById("reg-step3").style.display = "none";
+}
+
+function showPinForgotForm() {
+  document.getElementById("login-form").style.display = "none";
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("pin-forgot-form").style.display = "block";
+  document.getElementById("pin-forgot-step1").style.display = "block";
+  document.getElementById("pin-forgot-step2").style.display = "none";
+  const phone = document.getElementById("auth-phone").value.trim();
+  if (phone) document.getElementById("pf-phone").value = phone;
+}
+
+async function loginWithPin() {
   const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
-  const password = document.getElementById("auth-password").value;
+  const pin = document.getElementById("auth-pin").value.trim();
   if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
-  if (!password) { showAlert("auth-alert", "Entrez votre mot de passe", "error"); return; }
+  if (!pin || pin.length !== 4) { showAlert("auth-alert", "Le code PIN doit faire 4 chiffres", "error"); return; }
   const btn = document.querySelector("#login-form .btn-green");
   const origText = btn.textContent; btn.textContent = "Connexion..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/login", {
+    const r = await fetch(API + "/users/wa/connexion", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, password })
+      body: JSON.stringify({ phone, pin })
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Numéro ou PIN incorrect");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     updateProfileSection();
@@ -1880,43 +1934,81 @@ async function loginWithPassword() {
   }
 }
 
-let _regRole = "voyageur";
-
-function switchRegRole(role) {
-  _regRole = role;
-  document.getElementById("role-btn-voyageur").classList.toggle("active", role === "voyageur");
-  document.getElementById("role-btn-chauffeur").classList.toggle("active", role === "chauffeur");
-  document.getElementById("reg-chauffeur-fields").style.display = role === "chauffeur" ? "block" : "none";
+async function registerStep1() {
+  const name = document.getElementById("reg-name").value.trim();
+  const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
+  if (!name) { showAlert("reg-alert", "Nom complet requis", "error"); return; }
+  if (!phone || phone.length < 8) { showAlert("reg-alert", "Entrez un numéro WhatsApp valide", "error"); return; }
+  const btn = document.querySelector("#reg-step1 .btn-green");
+  const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
+  try {
+    const r = await fetch(API + "/users/wa/inscription/demande", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, role: _regRole })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    _regPhone = phone;
+    document.getElementById("reg-step1").style.display = "none";
+    document.getElementById("reg-step2").style.display = "block";
+    document.getElementById("reg-otp-alert").innerHTML = "";
+  } catch(e) {
+    showAlert("reg-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
 }
 
-async function registerUser() {
-  const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
-  const name = document.getElementById("reg-name").value.trim();
-  const password = document.getElementById("reg-password").value;
-  const passwordConfirm = document.getElementById("reg-password-confirm").value;
-  if (!phone || phone.length < 8) { showAlert("reg-alert", "Entrez un numéro valide", "error"); return; }
-  if (!name) { showAlert("reg-alert", "Nom requis", "error"); return; }
-  if (!password || password.length < 6) { showAlert("reg-alert", "Mot de passe : 6 caractères minimum", "error"); return; }
-  if (password !== passwordConfirm) { showAlert("reg-alert", "Les mots de passe ne correspondent pas", "error"); return; }
-  const body = { phone, name, password, role: _regRole };
-  const btn = document.querySelector("#register-form .btn-green");
-  const origText = btn.textContent; btn.textContent = "Création..."; btn.disabled = true;
+async function registerStep2() {
+  const otp = document.getElementById("reg-otp").value.trim();
+  if (!otp || otp.length < 4) { showAlert("reg-otp-alert", "Entrez le code reçu sur WhatsApp", "error"); return; }
+  const btn = document.querySelector("#reg-step2 .btn-green");
+  const origText = btn.textContent; btn.textContent = "Vérification..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/inscription", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const r = await fetch(API + "/users/wa/inscription/confirmer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: _regPhone, otp })
+    });
     const d = await r.json();
-    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur inscription");
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
     token = d.access_token; currentUser = d.user;
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    _pinSetupMode = "register";
+    document.getElementById("reg-step2").style.display = "none";
+    document.getElementById("reg-step3").style.display = "block";
+    document.getElementById("reg-pin-alert").innerHTML = "";
+  } catch(e) {
+    showAlert("reg-otp-alert", e.message, "error");
+    btn.textContent = origText; btn.disabled = false;
+  }
+}
+
+async function registerStep3() {
+  const pin = document.getElementById("reg-pin").value.trim();
+  const pinConfirm = document.getElementById("reg-pin-confirm").value.trim();
+  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { showAlert("reg-pin-alert", "Le PIN doit être exactement 4 chiffres", "error"); return; }
+  if (pin !== pinConfirm) { showAlert("reg-pin-alert", "Les codes PIN ne correspondent pas", "error"); return; }
+  const btn = document.querySelector("#reg-step3 .btn-green");
+  const origText = btn.textContent; btn.textContent = "Enregistrement..."; btn.disabled = true;
+  try {
+    const r = await fetch(API + "/users/wa/setup-pin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+      body: JSON.stringify({ pin })
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
     updateProfileSection();
     loadUserBookedTripIds();
     subscribeToPush();
-    if (_regRole === "chauffeur") {
-      showPage("compte"); // redirige vers le profil pour compléter le dossier
+    if (_pinSetupMode === "register" && currentUser && currentUser.role === "chauffeur") {
+      showPage("compte");
     } else {
       showPage("home");
     }
   } catch(e) {
-    showAlert("reg-alert", e.message, "error");
+    showAlert("reg-pin-alert", e.message, "error");
     btn.textContent = origText; btn.disabled = false;
   }
 }
@@ -2050,24 +2142,21 @@ async function refreshCurrentUser() {
 }
 
 function clearAuthForms() {
-  // Vider tous les champs
-  ["auth-phone","auth-password"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  ["reg-phone","reg-name","reg-password","reg-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  ["reset-phone","reset-otp","reset-password","reset-password-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-  // Vider aussi le formulaire dossier chauffeur
+  ["auth-phone","auth-pin","pf-phone","pf-otp","reg-name","reg-phone","reg-otp","reg-pin","reg-pin-confirm"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   ["doc-license-num","doc-national-id"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
   try { document.getElementById("doc-license-photo").value = ""; } catch(e) {}
   try { document.getElementById("doc-national-id-photo").value = ""; } catch(e) {}
   const docAlert = document.getElementById("doc-alert"); if (docAlert) docAlert.innerHTML = "";
-  // Vider les alertes
-  ["auth-alert","reg-alert","reset-alert"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
-  // Remettre le formulaire de connexion par défaut
+  ["auth-alert","reg-alert","reg-otp-alert","reg-pin-alert","pf-alert1","pf-alert2"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
   document.getElementById("login-form").style.display = "block";
   document.getElementById("register-form").style.display = "none";
-  document.getElementById("reset-form").style.display = "none";
-  document.querySelectorAll("#auth-section .tab").forEach((tab, i) => tab.classList.toggle("active", i === 0));
-  // Remettre le role inscription à voyageur
-  _regRole = "voyageur";
+  document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("reg-step1").style.display = "block";
+  document.getElementById("reg-step2").style.display = "none";
+  document.getElementById("reg-step3").style.display = "none";
+  document.getElementById("pin-forgot-step1").style.display = "block";
+  document.getElementById("pin-forgot-step2").style.display = "none";
+  _regRole = "voyageur"; _regPhone = null;
   const btnV = document.getElementById("role-btn-voyageur");
   const btnC = document.getElementById("role-btn-chauffeur");
   if (btnV) btnV.classList.add("active");
@@ -2134,71 +2223,63 @@ function updateProfileSection() {
   }
 }
 
-function switchAuthTab(tab, el) {
-  document.querySelectorAll("#auth-section .tab").forEach(t => t.classList.remove("active"));
-  el.classList.add("active");
-  document.getElementById("login-form").style.display = tab === "login" ? "block" : "none";
-  document.getElementById("register-form").style.display = tab === "register" ? "block" : "none";
-  document.getElementById("reset-form").style.display = "none";
-  // Effacer les alertes de l'autre tab
-  document.getElementById("auth-alert").innerHTML = "";
-  document.getElementById("reg-alert").innerHTML = "";
-}
-
-function showResetForm() {
-  document.getElementById("login-form").style.display = "none";
-  document.getElementById("reset-form").style.display = "block";
-  const phone = document.getElementById("auth-phone").value.trim();
-  if (phone) document.getElementById("reset-phone").value = phone;
-  document.getElementById("reset-alert").innerHTML = "";
-}
-
 function backToLogin() {
-  document.getElementById("reset-form").style.display = "none";
   document.getElementById("login-form").style.display = "block";
-  document.getElementById("reset-step1").style.display = "block";
-  document.getElementById("reset-step2").style.display = "none";
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("auth-alert").innerHTML = "";
 }
 
-async function requestResetOtp() {
-  const phone = document.getElementById("reset-phone").value.trim().replace(/\s/g, "");
-  if (!phone || phone.length < 8) { showAlert("reset-alert", "Entrez un numéro valide", "error"); return; }
-  const btn = document.querySelector("#reset-step1 .btn-green");
+async function requestPinForgotOtp() {
+  const phone = document.getElementById("pf-phone").value.trim().replace(/\s/g, "");
+  if (!phone || phone.length < 8) { showAlert("pf-alert1", "Entrez un numéro valide", "error"); return; }
+  const btn = document.querySelector("#pin-forgot-step1 .btn-green");
   const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/reset-password/request?phone=" + encodeURIComponent(phone), { method: "POST" });
+    const r = await fetch(API + "/users/wa/connexion/otp/demande", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone })
+    });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
-    document.getElementById("reset-step1").style.display = "none";
-    document.getElementById("reset-step2").style.display = "block";
-    showAlert("reset-alert2", "✅ Code envoyé par SMS", "success");
+    _regPhone = phone;
+    document.getElementById("pin-forgot-step1").style.display = "none";
+    document.getElementById("pin-forgot-step2").style.display = "block";
+    document.getElementById("pf-otp").value = "";
+    document.getElementById("pf-alert2").innerHTML = "";
   } catch(e) {
-    showAlert("reset-alert", e.message, "error");
-  } finally {
+    showAlert("pf-alert1", e.message, "error");
     btn.textContent = origText; btn.disabled = false;
   }
 }
 
-async function submitResetPassword() {
-  const phone = document.getElementById("reset-phone").value.trim().replace(/\s/g, "");
-  const otp = document.getElementById("reset-otp").value.trim();
-  const password = document.getElementById("reset-password").value;
-  const confirm = document.getElementById("reset-password-confirm").value;
-  if (!otp || otp.length < 4) { showAlert("reset-alert2", "Entrez le code SMS reçu", "error"); return; }
-  if (!password || password.length < 6) { showAlert("reset-alert2", "Mot de passe : 6 caractères minimum", "error"); return; }
-  if (password !== confirm) { showAlert("reset-alert2", "Les mots de passe ne correspondent pas", "error"); return; }
-  const btn = document.querySelector("#reset-step2 .btn-green");
-  const origText = btn.textContent; btn.textContent = "Réinitialisation..."; btn.disabled = true;
+async function verifyPinForgotOtp() {
+  const otp = document.getElementById("pf-otp").value.trim();
+  if (!otp || otp.length < 4) { showAlert("pf-alert2", "Entrez le code reçu sur WhatsApp", "error"); return; }
+  const btn = document.querySelector("#pin-forgot-step2 .btn-green");
+  const origText = btn.textContent; btn.textContent = "Vérification..."; btn.disabled = true;
   try {
-    const r = await fetch(API + "/users/reset-password?phone=" + encodeURIComponent(phone) + "&otp=" + encodeURIComponent(otp) + "&new_password=" + encodeURIComponent(password), { method: "POST" });
+    const r = await fetch(API + "/users/wa/connexion/otp/confirmer", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: _regPhone, otp })
+    });
     const d = await r.json();
-    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
-    showAlert("reset-alert2", "✅ Mot de passe réinitialisé ! Vous pouvez vous connecter.", "success");
-    document.getElementById("auth-phone").value = phone;
-    document.getElementById("auth-password").value = "";
-    setTimeout(() => backToLogin(), 2500);
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    _pinSetupMode = "reset";
+    document.getElementById("pin-forgot-form").style.display = "none";
+    document.getElementById("register-form").style.display = "block";
+    document.getElementById("reg-step1").style.display = "none";
+    document.getElementById("reg-step2").style.display = "none";
+    document.getElementById("reg-step3").style.display = "block";
+    document.getElementById("reg-pin").value = "";
+    document.getElementById("reg-pin-confirm").value = "";
+    document.getElementById("reg-pin-alert").innerHTML = "";
   } catch(e) {
-    showAlert("reset-alert2", e.message, "error");
+    showAlert("pf-alert2", e.message, "error");
     btn.textContent = origText; btn.disabled = false;
   }
 }

@@ -65,6 +65,22 @@ class Token(BaseModel):
     access_token: str
     token_type: str
     user: UserResponse
+    pin_configured: Optional[bool] = None
+
+
+class UserRegisterWA(BaseModel):
+    name: str
+    phone: str
+    role: UserRole = UserRole.voyageur
+
+
+class UserSetupPin(BaseModel):
+    pin: str
+
+
+class UserLoginPin(BaseModel):
+    phone: str
+    pin: str
 
 
 # ─── TRIP SCHEMAS ───────────────────────────────────────────

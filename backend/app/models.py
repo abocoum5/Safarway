@@ -43,6 +43,7 @@ class User(Base):
     national_id_photo = Column(Text, nullable=True)
     is_approved = Column(Boolean, default=False)
     is_phone_verified = Column(Boolean, default=False)
+    pin_hash = Column(String, nullable=True)
 
     trips = relationship("Trip", back_populates="driver")
     bookings = relationship("Booking", back_populates="passenger")

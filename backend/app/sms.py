@@ -40,6 +40,33 @@ def _send(phone: str, message: str):
         raise Exception(msg["error-text"])
 
 
+def send_whatsapp_otp(phone: str, otp: str):
+    """Envoie un OTP via WhatsApp (UltraMsg). Fallback SMS Vonage si non configuré."""
+    instance_id = os.getenv("ULTRAMSG_INSTANCE_ID")
+    token = os.getenv("ULTRAMSG_TOKEN")
+
+    if instance_id and token:
+        to = phone if phone.startswith("+") else f"+222{phone}"
+        url = f"https://api.ultramsg.com/{instance_id}/messages/chat"
+        payload = urllib.parse.urlencode({
+            "token": token,
+            "to": to,
+            "body": f"*Goova* — Votre code de vérification : *{otp}*\n\nValide 10 minutes. Ne le partagez pas."
+        }).encode()
+        try:
+            urllib.request.urlopen(urllib.request.Request(url, data=payload, method="POST"), timeout=10)
+            print(f"[WhatsApp OTP] Envoyé à {to}")
+            return
+        except Exception as e:
+            print(f"[WhatsApp OTP] Erreur UltraMsg: {e} — fallback SMS")
+
+    # Fallback Vonage SMS
+    try:
+        _send(phone, f"Goova - Votre code : {otp}. Valide 10 minutes.")
+    except Exception as e:
+        print(f"[OTP] SMS fallback non envoyé: {e}")
+
+
 def send_otp_sms(phone: str, otp: str):
     try:
         _send(phone, f"Goova - Votre code : {otp}. Valide 10 minutes.")

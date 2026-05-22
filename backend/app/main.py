@@ -20,6 +20,7 @@ def run_migrations():
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_approved BOOLEAN DEFAULT TRUE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_phone_verified BOOLEAN DEFAULT TRUE"))
         conn.execute(text("ALTER TYPE tripstatus ADD VALUE IF NOT EXISTS 'termine'"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS pin_hash VARCHAR"))
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS push_subscriptions (
                 id SERIAL PRIMARY KEY,

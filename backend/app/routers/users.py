@@ -10,6 +10,146 @@ router = APIRouter(prefix="/users", tags=["Utilisateurs"])
 
 
 # ─────────────────────────────────────────────
+# NOUVEAU SYSTÈME : INSCRIPTION VIA WHATSAPP + PIN
+# ─────────────────────────────────────────────
+
+@router.post("/wa/inscription/demande")
+def inscription_wa_demande(data: schemas.UserRegisterWA, db: Session = Depends(get_db)):
+    from app.email_service import generate_otp
+    from app.sms import send_whatsapp_otp
+
+    phone = data.phone.strip().replace(" ", "")
+
+    existing = db.query(models.User).filter(models.User.phone == phone).first()
+    if existing and existing.is_phone_verified:
+        raise HTTPException(status_code=400, detail="Ce numéro est déjà utilisé")
+
+    otp = generate_otp()
+    expires = datetime.utcnow() + timedelta(minutes=10)
+
+    if existing:
+        existing.name = data.name.strip()
+        existing.role = data.role
+        existing.otp_code = otp
+        existing.otp_expires = expires
+        user = existing
+    else:
+        user = models.User(
+            name=data.name.strip(),
+            phone=phone,
+            role=data.role,
+            is_phone_verified=False,
+            is_active=True,
+            is_approved=True if data.role == models.UserRole.voyageur else False,
+        )
+        user.otp_code = otp
+        user.otp_expires = expires
+        db.add(user)
+
+    db.commit()
+    send_whatsapp_otp(phone, otp)
+    return {"message": "Code envoyé sur WhatsApp"}
+
+
+@router.post("/wa/inscription/confirmer", response_model=schemas.Token)
+def inscription_wa_confirmer(phone: str, otp: str, db: Session = Depends(get_db)):
+    phone = phone.strip().replace(" ", "")
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if not user.otp_code or user.otp_code != otp:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if not user.otp_expires or datetime.utcnow() > user.otp_expires:
+        raise HTTPException(status_code=400, detail="Code expiré")
+
+    user.is_phone_verified = True
+    user.otp_code = None
+    user.otp_expires = None
+    db.commit()
+    db.refresh(user)
+
+    if user.role == models.UserRole.chauffeur:
+        try:
+            from app.sms import send_whatsapp_admin
+            send_whatsapp_admin(
+                f"Goova - Nouveau chauffeur inscrit !\nNom : {user.name}\nTel : {user.phone}"
+            )
+        except Exception as e:
+            print(f"[WhatsApp notif] {e}")
+
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": user, "pin_configured": bool(user.pin_hash)}
+
+
+@router.post("/wa/setup-pin")
+def setup_pin(data: schemas.UserSetupPin, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    if not data.pin or len(data.pin) != 4 or not data.pin.isdigit():
+        raise HTTPException(status_code=400, detail="Le PIN doit être 4 chiffres")
+    current_user.pin_hash = hash_password(data.pin)
+    db.commit()
+    return {"message": "PIN configuré avec succès"}
+
+
+@router.post("/wa/connexion", response_model=schemas.Token)
+def connexion_pin(data: schemas.UserLoginPin, db: Session = Depends(get_db)):
+    phone = data.pin and data.phone.strip().replace(" ", "")
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user or not user.is_phone_verified:
+        raise HTTPException(status_code=401, detail="Numéro introuvable")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=403, detail="Les admins se connectent par email")
+    if not user.pin_hash:
+        raise HTTPException(status_code=400, detail="PIN non configuré — inscrivez-vous d'abord")
+    if not verify_password(data.pin, user.pin_hash):
+        raise HTTPException(status_code=401, detail="PIN incorrect")
+
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": user, "pin_configured": True}
+
+
+@router.post("/wa/connexion/otp/demande")
+def connexion_otp_demande(phone: str, db: Session = Depends(get_db)):
+    """Connexion alternative par OTP WhatsApp (si PIN oublié)"""
+    from app.email_service import generate_otp
+    from app.sms import send_whatsapp_otp
+
+    phone = phone.strip().replace(" ", "")
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user or not user.is_phone_verified:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="Compte désactivé")
+
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expires = datetime.utcnow() + timedelta(minutes=10)
+    db.commit()
+    send_whatsapp_otp(phone, otp)
+    return {"message": "Code envoyé sur WhatsApp"}
+
+
+@router.post("/wa/connexion/otp/confirmer", response_model=schemas.Token)
+def connexion_otp_confirmer(phone: str, otp: str, db: Session = Depends(get_db)):
+    phone = phone.strip().replace(" ", "")
+    user = db.query(models.User).filter(models.User.phone == phone).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Numéro introuvable")
+    if not user.otp_code or user.otp_code != otp:
+        raise HTTPException(status_code=400, detail="Code incorrect")
+    if not user.otp_expires or datetime.utcnow() > user.otp_expires:
+        raise HTTPException(status_code=400, detail="Code expiré")
+
+    user.otp_code = None
+    user.otp_expires = None
+    db.commit()
+
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "token_type": "bearer", "user": user, "pin_configured": bool(user.pin_hash)}
+
+
+# ─────────────────────────────────────────────
 # INSCRIPTION
 # ─────────────────────────────────────────────
 
