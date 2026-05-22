@@ -564,19 +564,12 @@
 
       <!-- ── INSCRIPTION : 3 étapes ── -->
       <div id="register-form" style="display:none">
-        <!-- Étape 1 : infos -->
+        <!-- Étape 1 : numéro + nom -->
         <div id="reg-step1">
           <div class="card">
             <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
             <div class="card-title">Créer un compte</div>
-            <div class="role-select-row">
-              <button class="role-sel-btn active" id="role-btn-voyageur" onclick="switchRegRole('voyageur')">👤 Voyageur</button>
-              <button class="role-sel-btn" id="role-btn-chauffeur" onclick="switchRegRole('chauffeur')">🚗 Chauffeur</button>
-            </div>
-            <div class="form-group">
-              <label>Nom complet</label>
-              <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed">
-            </div>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp et votre nom, vous recevrez un code de vérification.</p>
             <div class="form-group">
               <label>Numéro WhatsApp</label>
               <div class="phone-wrap">
@@ -584,8 +577,9 @@
                 <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
               </div>
             </div>
-            <div id="reg-chauffeur-fields" style="display:none">
-              <div class="alert alert-warning" style="margin-top:4px">📋 Après inscription, vous devrez compléter votre dossier (permis, carte d'identité) pour être approuvé par l'admin.</div>
+            <div class="form-group">
+              <label>Nom complet</label>
+              <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed" onkeydown="if(event.key==='Enter')registerStep1()">
             </div>
             <div id="reg-alert"></div>
             <button class="btn btn-green mt-10" onclick="registerStep1()">Recevoir mon code WhatsApp →</button>
@@ -1877,16 +1871,8 @@ function fileToBase64(file) {
   return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = e => resolve(e.target.result); r.onerror = reject; r.readAsDataURL(file); });
 }
 
-let _regRole = "voyageur";
 let _regPhone = null;
 let _pinSetupMode = "register";
-
-function switchRegRole(role) {
-  _regRole = role;
-  document.getElementById("role-btn-voyageur").classList.toggle("active", role === "voyageur");
-  document.getElementById("role-btn-chauffeur").classList.toggle("active", role === "chauffeur");
-  document.getElementById("reg-chauffeur-fields").style.display = role === "chauffeur" ? "block" : "none";
-}
 
 function showRegisterForm() {
   document.getElementById("login-form").style.display = "none";
@@ -1935,17 +1921,17 @@ async function loginWithPin() {
 }
 
 async function registerStep1() {
-  const name = document.getElementById("reg-name").value.trim();
   const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
-  if (!name) { showAlert("reg-alert", "Nom complet requis", "error"); return; }
+  const name = document.getElementById("reg-name").value.trim();
   if (!phone || phone.length < 8) { showAlert("reg-alert", "Entrez un numéro WhatsApp valide", "error"); return; }
+  if (!name) { showAlert("reg-alert", "Nom complet requis", "error"); return; }
   const btn = document.querySelector("#reg-step1 .btn-green");
   const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/users/wa/inscription/demande", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, role: _regRole })
+      body: JSON.stringify({ name, phone, role: "voyageur" })
     });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
@@ -2156,12 +2142,7 @@ function clearAuthForms() {
   document.getElementById("reg-step3").style.display = "none";
   document.getElementById("pin-forgot-step1").style.display = "block";
   document.getElementById("pin-forgot-step2").style.display = "none";
-  _regRole = "voyageur"; _regPhone = null;
-  const btnV = document.getElementById("role-btn-voyageur");
-  const btnC = document.getElementById("role-btn-chauffeur");
-  if (btnV) btnV.classList.add("active");
-  if (btnC) btnC.classList.remove("active");
-  document.getElementById("reg-chauffeur-fields").style.display = "none";
+  _regPhone = null;
 }
 
 function logout() {
