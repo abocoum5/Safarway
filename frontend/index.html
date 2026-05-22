@@ -58,14 +58,13 @@
     .home-welcome { padding: 4px 18px 20px; }
     .home-welcome-title { font-size: 28px; font-weight: 900; color: var(--text); line-height: 1.2; letter-spacing: -0.5px; }
     .home-welcome-sub { font-size: 14px; color: var(--text-3); margin-top: 6px; }
-    .home-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 20px; }
-    .home-cat-card { background: var(--bg-2); border-radius: 16px; padding: 18px 14px; cursor: pointer; transition: transform 0.1s; border: 1.5px solid var(--border); }
-    .home-cat-card:hover { border-color: var(--green); background: var(--green-light); }
-    .home-cat-card:active { transform: scale(0.97); }
-    .home-cat-icon { font-size: 26px; margin-bottom: 8px; display: block; }
-    .home-cat-label { font-size: 14px; font-weight: 700; color: var(--text); }
-    .home-cat-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
     .home-search-area { padding: 0 16px 16px; }
+    .home-popular { padding: 4px 16px 20px; }
+    .home-popular-title { font-size: 12px; font-weight: 700; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+    .home-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .home-chip { background: var(--bg-2); border: 1.5px solid var(--border); border-radius: 20px; padding: 8px 14px; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.15s; white-space: nowrap; }
+    .home-chip:hover { border-color: var(--green); background: var(--green-light); color: var(--green-dark); }
+    .home-chip:active { transform: scale(0.97); }
     /* ── HOME ACTION BUTTONS ── */
     .home-action-btn { width: 100%; padding: 15px 18px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 14px; border: none; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s; text-align: left; box-sizing: border-box; }
     .home-action-btn:active { transform: scale(0.98); }
@@ -353,20 +352,6 @@
     <div class="home-welcome-sub">Voyagez ensemble en Mauritanie</div>
   </div>
 
-  <!-- CARTES CATÉGORIES -->
-  <div class="home-cat-grid">
-    <div class="home-cat-card" onclick="document.querySelector('.home-search-area').scrollIntoView({behavior:'smooth'})">
-      <span class="home-cat-icon">🔍</span>
-      <div class="home-cat-label">Trouver un trajet</div>
-      <div class="home-cat-sub">Chercher par ville</div>
-    </div>
-    <div class="home-cat-card" onclick="showPage('trajets')">
-      <span class="home-cat-icon">🎫</span>
-      <div class="home-cat-label">Mes trajets</div>
-      <div class="home-cat-sub">Réservations</div>
-    </div>
-  </div>
-
   <!-- VUE ACCUEIL PAR RÔLE -->
   <div class="home-search-area">
 
@@ -450,6 +435,21 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- DESTINATIONS POPULAIRES -->
+  <div class="home-popular" id="home-popular-section">
+    <div class="home-popular-title">Destinations populaires</div>
+    <div class="home-chips">
+      <div class="home-chip" onclick="selectDestChip('Nouakchott')">📍 Nouakchott</div>
+      <div class="home-chip" onclick="selectDestChip('Nouadhibou')">📍 Nouadhibou</div>
+      <div class="home-chip" onclick="selectDestChip('Rosso')">📍 Rosso</div>
+      <div class="home-chip" onclick="selectDestChip('Kaédi')">📍 Kaédi</div>
+      <div class="home-chip" onclick="selectDestChip('Kiffa')">📍 Kiffa</div>
+      <div class="home-chip" onclick="selectDestChip('Atar')">📍 Atar</div>
+      <div class="home-chip" onclick="selectDestChip('Zouerate')">📍 Zouerate</div>
+      <div class="home-chip" onclick="selectDestChip('Néma')">📍 Néma</div>
+    </div>
   </div>
 
   <div id="home-trips" style="display:none"></div>
@@ -1470,6 +1470,23 @@ function updateHomeView() {
   const drvView = document.getElementById("home-driver-view");
   if (voyView) voyView.style.display = isDriver ? "none" : "block";
   if (drvView) drvView.style.display = isDriver ? "block" : "none";
+  const ht = document.getElementById("hero-title");
+  if (ht && currentUser) {
+    const firstName = (currentUser.name || "").split(" ")[0];
+    ht.innerHTML = "Bonjour, " + firstName + " 👋";
+  }
+}
+
+function selectDestChip(city) {
+  const v = VILLES_DATA.find(c => c.name === city);
+  const inp = document.getElementById("hf-to");
+  const lbl = document.getElementById("hf-to-label");
+  if (inp && lbl) {
+    inp.value = city;
+    lbl.textContent = v ? cityDisplayName(v) : city;
+    lbl.className = "hsc-val";
+  }
+  openCityPicker("hf-from");
 }
 
 // ── HOME TRIPS ──
@@ -2201,6 +2218,8 @@ function logout() {
   if (bnavLabel) bnavLabel.textContent = "Compte";
   const homePublishBtn = document.getElementById("home-publish-btn");
   if (homePublishBtn) homePublishBtn.style.display = "none";
+  const ht = document.getElementById("hero-title");
+  if (ht) ht.innerHTML = currentLang === "ar" ? "إلى أين<br>تريد الذهاب ؟" : "Où voulez-vous<br>aller ?";
   updateHomeView();
   showPage("home");
 }
