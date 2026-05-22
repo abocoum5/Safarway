@@ -44,6 +44,7 @@ def send_whatsapp_otp(phone: str, otp: str):
     """Envoie un OTP via WhatsApp (UltraMsg). Fallback SMS Vonage si non configuré."""
     instance_id = os.getenv("ULTRAMSG_INSTANCE_ID")
     token = os.getenv("ULTRAMSG_TOKEN")
+    print(f"[WhatsApp OTP] instance_id={instance_id!r} token={token!r} phone={phone!r}")
 
     if instance_id and token:
         to = phone if phone.startswith("+") else f"+222{phone}"
@@ -51,12 +52,16 @@ def send_whatsapp_otp(phone: str, otp: str):
         payload = urllib.parse.urlencode({
             "token": token,
             "to": to,
-            "body": f"*Goova* — Votre code de vérification : *{otp}*\n\nValide 10 minutes. Ne le partagez pas."
+            "body": f"Goova - Votre code : {otp}. Valide 10 minutes."
         }).encode()
         try:
-            urllib.request.urlopen(urllib.request.Request(url, data=payload, method="POST"), timeout=10)
-            print(f"[WhatsApp OTP] Envoyé à {to}")
+            req = urllib.request.Request(url, data=payload, method="POST")
+            req.add_header("Content-Type", "application/x-www-form-urlencoded")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                print(f"[WhatsApp OTP] Envoyé à {to} — réponse: {resp.read().decode()}")
             return
+        except urllib.error.HTTPError as e:
+            print(f"[WhatsApp OTP] Erreur {e.code}: {e.read().decode()} — fallback SMS")
         except Exception as e:
             print(f"[WhatsApp OTP] Erreur UltraMsg: {e} — fallback SMS")
 
