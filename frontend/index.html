@@ -509,7 +509,14 @@
         <div id="reg-step1">
           <div class="card">
             <div class="card-title">Bienvenue 👋</div>
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre nom et votre numéro WhatsApp pour continuer.</p>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre nom et numéro WhatsApp pour continuer.</p>
+            <div class="form-group">
+              <label>Je suis</label>
+              <div class="role-select-row">
+                <button class="role-sel-btn active" id="role-btn-voyageur" onclick="switchRegRole('voyageur')">👤 Voyageur</button>
+                <button class="role-sel-btn" id="role-btn-chauffeur" onclick="switchRegRole('chauffeur')">🚗 Chauffeur</button>
+              </div>
+            </div>
             <div class="form-group">
               <label>Nom complet</label>
               <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed">
@@ -520,6 +527,9 @@
                 <span class="phone-prefix">🇲🇷 +222</span>
                 <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep1()">
               </div>
+            </div>
+            <div id="reg-chauffeur-fields" style="display:none">
+              <div class="alert alert-warning" style="margin-top:4px;font-size:13px">📋 Après inscription, complétez votre dossier (permis + carte d'identité) pour être approuvé.</div>
             </div>
             <div id="reg-alert"></div>
             <button class="btn btn-green mt-10" onclick="registerStep1()">Se connecter →</button>
@@ -1871,7 +1881,15 @@ function fileToBase64(file) {
 }
 
 let _regPhone = null;
+let _regRole = "voyageur";
 let _pinSetupMode = "register";
+
+function switchRegRole(role) {
+  _regRole = role;
+  document.getElementById("role-btn-voyageur").classList.toggle("active", role === "voyageur");
+  document.getElementById("role-btn-chauffeur").classList.toggle("active", role === "chauffeur");
+  document.getElementById("reg-chauffeur-fields").style.display = role === "chauffeur" ? "block" : "none";
+}
 
 function showPinLogin() {
   document.getElementById("register-form").style.display = "none";
@@ -1944,7 +1962,7 @@ async function registerStep1() {
     const r = await fetch(API + "/users/wa/inscription/demande", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone, role: "voyageur" })
+      body: JSON.stringify({ name, phone, role: _regRole })
     });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
@@ -2156,7 +2174,13 @@ function clearAuthForms() {
   document.getElementById("reg-step3").style.display = "none";
   document.getElementById("pin-forgot-step1").style.display = "block";
   document.getElementById("pin-forgot-step2").style.display = "none";
-  _regPhone = null;
+  _regPhone = null; _regRole = "voyageur";
+  const btnV = document.getElementById("role-btn-voyageur");
+  const btnC = document.getElementById("role-btn-chauffeur");
+  if (btnV) btnV.classList.add("active");
+  if (btnC) btnC.classList.remove("active");
+  const regChauffeur = document.getElementById("reg-chauffeur-fields");
+  if (regChauffeur) regChauffeur.style.display = "none";
 }
 
 function logout() {
