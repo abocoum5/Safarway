@@ -52,7 +52,7 @@ def send_whatsapp_otp(phone: str, otp: str):
         body_text = f"Goova - Votre code : {otp}. Valide 10 minutes."
         try:
             result = subprocess.run([
-                "curl", "-s", "-X", "POST",
+                "/usr/bin/curl", "-s", "-X", "POST",
                 f"https://api.ultramsg.com/{instance_id}/messages/chat",
                 "-H", "content-type: application/x-www-form-urlencoded",
                 "--data-urlencode", f"token={token}",
