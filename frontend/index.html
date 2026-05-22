@@ -503,86 +503,30 @@
     <!-- AUTH -->
     <div id="auth-section">
 
-      <!-- ── CONNEXION : numéro + PIN ── -->
-      <div id="login-form">
-        <div class="card">
-          <div class="card-title">Bienvenue 👋</div>
-          <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Connectez-vous avec votre numéro WhatsApp et votre code PIN.</p>
-          <div class="form-group">
-            <label>Numéro WhatsApp</label>
-            <div class="phone-wrap">
-              <span class="phone-prefix">🇲🇷 +222</span>
-              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
-            </div>
-          </div>
-          <div class="form-group">
-            <label>Code PIN (4 chiffres)</label>
-            <input type="password" id="auth-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPin()">
-          </div>
-          <div id="auth-alert"></div>
-          <button class="btn btn-green" onclick="loginWithPin()">Se connecter →</button>
-          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:14px">
-            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showPinForgotForm()">PIN oublié ?</button>
-          </p>
-          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:8px">
-            Pas encore de compte ?
-            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showRegisterForm()">Créer un compte</button>
-          </p>
-        </div>
-      </div>
-
-      <!-- ── PIN OUBLIÉ : OTP WhatsApp ── -->
-      <div id="pin-forgot-form" style="display:none">
-        <div class="card">
-          <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
-          <div class="card-title">PIN oublié</div>
-          <div id="pin-forgot-step1">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
-            <div class="form-group">
-              <div class="phone-wrap">
-                <span class="phone-prefix">🇲🇷 +222</span>
-                <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
-              </div>
-            </div>
-            <div id="pf-alert1"></div>
-            <button class="btn btn-green" onclick="requestPinForgotOtp()">Recevoir le code WhatsApp →</button>
-          </div>
-          <div id="pin-forgot-step2" style="display:none">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu sur WhatsApp.</p>
-            <div class="form-group">
-              <label>Code WhatsApp</label>
-              <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6">
-            </div>
-            <div id="pf-alert2"></div>
-            <button class="btn btn-green" onclick="verifyPinForgotOtp()">Vérifier →</button>
-            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
-              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestPinForgotOtp()">Renvoyer le code</button>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── INSCRIPTION : 3 étapes ── -->
-      <div id="register-form" style="display:none">
-        <!-- Étape 1 : numéro + nom -->
+      <!-- ── PREMIÈRE CONNEXION (formulaire principal) ── -->
+      <div id="register-form">
+        <!-- Étape 1 : nom + numéro -->
         <div id="reg-step1">
           <div class="card">
-            <button onclick="backToLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
-            <div class="card-title">Créer un compte</div>
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp et votre nom, vous recevrez un code de vérification.</p>
+            <div class="card-title">Bienvenue 👋</div>
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre nom et votre numéro WhatsApp pour continuer.</p>
+            <div class="form-group">
+              <label>Nom complet</label>
+              <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed">
+            </div>
             <div class="form-group">
               <label>Numéro WhatsApp</label>
               <div class="phone-wrap">
                 <span class="phone-prefix">🇲🇷 +222</span>
-                <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric">
+                <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep1()">
               </div>
             </div>
-            <div class="form-group">
-              <label>Nom complet</label>
-              <input type="text" id="reg-name" placeholder="Mohamed Ould Ahmed" onkeydown="if(event.key==='Enter')registerStep1()">
-            </div>
             <div id="reg-alert"></div>
-            <button class="btn btn-green mt-10" onclick="registerStep1()">Recevoir mon code WhatsApp →</button>
+            <button class="btn btn-green mt-10" onclick="registerStep1()">Se connecter →</button>
+            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:18px">
+              Déjà un code PIN ?
+              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showPinLogin()">Se connecter avec PIN</button>
+            </p>
           </div>
         </div>
         <!-- Étape 2 : OTP -->
@@ -615,7 +559,62 @@
               <input type="password" id="reg-pin-confirm" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep3()">
             </div>
             <div id="reg-pin-alert"></div>
-            <button class="btn btn-green" onclick="registerStep3()">Créer mon compte →</button>
+            <button class="btn btn-green" onclick="registerStep3()">Continuer →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CONNEXION PIN (pour ceux qui ont déjà un PIN) ── -->
+      <div id="login-form" style="display:none">
+        <div class="card">
+          <button onclick="backToFirstConnect()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+          <div class="card-title">Se connecter</div>
+          <div class="form-group">
+            <label>Numéro WhatsApp</label>
+            <div class="phone-wrap">
+              <span class="phone-prefix">🇲🇷 +222</span>
+              <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Code PIN (4 chiffres)</label>
+            <input type="password" id="auth-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPin()">
+          </div>
+          <div id="auth-alert"></div>
+          <button class="btn btn-green" onclick="loginWithPin()">Se connecter →</button>
+          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:14px">
+            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showPinForgotForm()">PIN oublié ?</button>
+          </p>
+        </div>
+      </div>
+
+      <!-- ── PIN OUBLIÉ ── -->
+      <div id="pin-forgot-form" style="display:none">
+        <div class="card">
+          <button onclick="backToPinLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+          <div class="card-title">PIN oublié</div>
+          <div id="pin-forgot-step1">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
+            <div class="form-group">
+              <div class="phone-wrap">
+                <span class="phone-prefix">🇲🇷 +222</span>
+                <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
+              </div>
+            </div>
+            <div id="pf-alert1"></div>
+            <button class="btn btn-green" onclick="requestPinForgotOtp()">Recevoir le code WhatsApp →</button>
+          </div>
+          <div id="pin-forgot-step2" style="display:none">
+            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu sur WhatsApp.</p>
+            <div class="form-group">
+              <label>Code WhatsApp</label>
+              <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyPinForgotOtp()">
+            </div>
+            <div id="pf-alert2"></div>
+            <button class="btn btn-green" onclick="verifyPinForgotOtp()">Vérifier →</button>
+            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
+              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestPinForgotOtp()">Renvoyer le code</button>
+            </p>
           </div>
         </div>
       </div>
@@ -1874,13 +1873,27 @@ function fileToBase64(file) {
 let _regPhone = null;
 let _pinSetupMode = "register";
 
-function showRegisterForm() {
+function showPinLogin() {
+  document.getElementById("register-form").style.display = "none";
+  document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("login-form").style.display = "block";
+  document.getElementById("auth-alert").innerHTML = "";
+}
+
+function backToFirstConnect() {
   document.getElementById("login-form").style.display = "none";
   document.getElementById("pin-forgot-form").style.display = "none";
   document.getElementById("register-form").style.display = "block";
   document.getElementById("reg-step1").style.display = "block";
   document.getElementById("reg-step2").style.display = "none";
   document.getElementById("reg-step3").style.display = "none";
+}
+
+function backToPinLogin() {
+  document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("login-form").style.display = "block";
+  document.getElementById("pin-forgot-step1").style.display = "block";
+  document.getElementById("pin-forgot-step2").style.display = "none";
 }
 
 function showPinForgotForm() {
@@ -2134,8 +2147,9 @@ function clearAuthForms() {
   try { document.getElementById("doc-national-id-photo").value = ""; } catch(e) {}
   const docAlert = document.getElementById("doc-alert"); if (docAlert) docAlert.innerHTML = "";
   ["auth-alert","reg-alert","reg-otp-alert","reg-pin-alert","pf-alert1","pf-alert2"].forEach(id => { const el = document.getElementById(id); if (el) el.innerHTML = ""; });
-  document.getElementById("login-form").style.display = "block";
-  document.getElementById("register-form").style.display = "none";
+  // Revenir au formulaire principal (première connexion)
+  document.getElementById("register-form").style.display = "block";
+  document.getElementById("login-form").style.display = "none";
   document.getElementById("pin-forgot-form").style.display = "none";
   document.getElementById("reg-step1").style.display = "block";
   document.getElementById("reg-step2").style.display = "none";
@@ -2205,10 +2219,7 @@ function updateProfileSection() {
 }
 
 function backToLogin() {
-  document.getElementById("login-form").style.display = "block";
-  document.getElementById("register-form").style.display = "none";
-  document.getElementById("pin-forgot-form").style.display = "none";
-  document.getElementById("auth-alert").innerHTML = "";
+  backToFirstConnect();
 }
 
 async function requestPinForgotOtp() {
@@ -2252,6 +2263,7 @@ async function verifyPinForgotOtp() {
     localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
     _pinSetupMode = "reset";
     document.getElementById("pin-forgot-form").style.display = "none";
+    document.getElementById("login-form").style.display = "none";
     document.getElementById("register-form").style.display = "block";
     document.getElementById("reg-step1").style.display = "none";
     document.getElementById("reg-step2").style.display = "none";
