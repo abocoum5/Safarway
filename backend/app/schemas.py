@@ -83,6 +83,15 @@ class UserLoginPin(BaseModel):
     pin: str
 
 
+class UserOTPConfirm(BaseModel):
+    phone: str
+    otp: str
+
+
+class UserPhoneRequest(BaseModel):
+    phone: str
+
+
 # ─── TRIP SCHEMAS ───────────────────────────────────────────
 
 class TripCreate(BaseModel):

@@ -52,8 +52,8 @@ def inscription_wa_demande(data: schemas.UserRegisterWA, db: Session = Depends(g
 
 
 @router.post("/wa/inscription/confirmer", response_model=schemas.Token)
-def inscription_wa_confirmer(phone: str, otp: str, db: Session = Depends(get_db)):
-    phone = phone.strip().replace(" ", "")
+def inscription_wa_confirmer(data: schemas.UserOTPConfirm, db: Session = Depends(get_db)):
+    phone, otp = data.phone.strip().replace(" ", ""), data.otp.strip()
     user = db.query(models.User).filter(models.User.phone == phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="Numéro introuvable")
@@ -92,7 +92,7 @@ def setup_pin(data: schemas.UserSetupPin, db: Session = Depends(get_db), current
 
 @router.post("/wa/connexion", response_model=schemas.Token)
 def connexion_pin(data: schemas.UserLoginPin, db: Session = Depends(get_db)):
-    phone = data.pin and data.phone.strip().replace(" ", "")
+    phone = data.phone.strip().replace(" ", "")
     user = db.query(models.User).filter(models.User.phone == phone).first()
     if not user or not user.is_phone_verified:
         raise HTTPException(status_code=401, detail="Numéro introuvable")
@@ -110,12 +110,12 @@ def connexion_pin(data: schemas.UserLoginPin, db: Session = Depends(get_db)):
 
 
 @router.post("/wa/connexion/otp/demande")
-def connexion_otp_demande(phone: str, db: Session = Depends(get_db)):
+def connexion_otp_demande(data: schemas.UserPhoneRequest, db: Session = Depends(get_db)):
+    phone = data.phone.strip().replace(" ", "")
     """Connexion alternative par OTP WhatsApp (si PIN oublié)"""
     from app.email_service import generate_otp
     from app.sms import send_whatsapp_otp
 
-    phone = phone.strip().replace(" ", "")
     user = db.query(models.User).filter(models.User.phone == phone).first()
     if not user or not user.is_phone_verified:
         raise HTTPException(status_code=404, detail="Numéro introuvable")
@@ -131,8 +131,9 @@ def connexion_otp_demande(phone: str, db: Session = Depends(get_db)):
 
 
 @router.post("/wa/connexion/otp/confirmer", response_model=schemas.Token)
-def connexion_otp_confirmer(phone: str, otp: str, db: Session = Depends(get_db)):
-    phone = phone.strip().replace(" ", "")
+def connexion_otp_confirmer(data: schemas.UserOTPConfirm, db: Session = Depends(get_db)):
+    phone = data.phone.strip().replace(" ", "")
+    otp = data.otp.strip()
     user = db.query(models.User).filter(models.User.phone == phone).first()
     if not user:
         raise HTTPException(status_code=404, detail="Numéro introuvable")
