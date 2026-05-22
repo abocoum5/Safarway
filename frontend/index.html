@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goova</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00C853">
+  <meta name="theme-color" content="#FFFFFF">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -45,25 +45,27 @@
     .header-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid var(--border); }
     .header-avatar svg { width: 18px; height: 18px; color: var(--text-2); }
 
-    /* ── HOME HERO ── */
-    #page-home.active { height: 100vh; height: 100svh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; min-height: unset; }
-    .home-hero { background: var(--green); position: relative; overflow: hidden; flex-shrink: 0; }
-    .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
-    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(28px, env(safe-area-inset-top, 28px)) 18px 0; }
-    /* flex:1 + padding-top > padding-bottom = contenu poussé vers le bas du centre */
-    .home-search-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0px 16px calc(110px + env(safe-area-inset-bottom, 0px)); }
-    .home-hero-logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; }
-    .home-hero-logo span { opacity: 0.8; }
-    .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
-    .home-hero-langbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
-    .home-hero-avatarbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn svg { width: 16px; height: 16px; color: white; }
-    .home-hero-main { display: flex; align-items: center; padding: 6px 14px 0; gap: 4px; }
-    .home-hero-text { flex: 1; padding: 0; }
-    .home-hero-title { font-size: 22px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
-    .home-hero-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
-    .home-hero-car { flex-shrink: 0; display: flex; align-items: center; }
+    /* ── HOME ── */
+    #page-home.active { display: block; padding-bottom: 80px; min-height: 100svh; }
+    .home-topbar { display: flex; align-items: center; justify-content: space-between; padding: max(20px, env(safe-area-inset-top, 20px)) 18px 14px; }
+    .home-hero-logo { font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; }
+    .home-hero-logo span { color: var(--green); }
+    .home-hero-langbtn { background: var(--bg-2); border: 1.5px solid var(--border); border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--text-2); transition: all 0.15s; }
+    .home-hero-langbtn:hover { background: var(--bg-3); }
+    .home-hero-avatarbtn { width: 34px; height: 34px; border-radius: 50%; background: var(--bg-2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid var(--border); transition: background 0.15s; flex-shrink: 0; }
+    .home-hero-avatarbtn:hover { background: var(--bg-3); }
+    .home-hero-avatarbtn svg { width: 16px; height: 16px; color: var(--text-2); }
+    .home-welcome { padding: 4px 18px 20px; }
+    .home-welcome-title { font-size: 28px; font-weight: 900; color: var(--text); line-height: 1.2; letter-spacing: -0.5px; }
+    .home-welcome-sub { font-size: 14px; color: var(--text-3); margin-top: 6px; }
+    .home-cat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 0 16px 20px; }
+    .home-cat-card { background: var(--bg-2); border-radius: 16px; padding: 18px 14px; cursor: pointer; transition: transform 0.1s; border: 1.5px solid var(--border); }
+    .home-cat-card:hover { border-color: var(--green); background: var(--green-light); }
+    .home-cat-card:active { transform: scale(0.97); }
+    .home-cat-icon { font-size: 26px; margin-bottom: 8px; display: block; }
+    .home-cat-label { font-size: 14px; font-weight: 700; color: var(--text); }
+    .home-cat-sub { font-size: 12px; color: var(--text-3); margin-top: 3px; }
+    .home-search-area { padding: 0 16px 16px; }
     /* ── HOME ACTION BUTTONS ── */
     .home-action-btn { width: 100%; padding: 15px 18px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 14px; border: none; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s; text-align: left; box-sizing: border-box; }
     .home-action-btn:active { transform: scale(0.98); }
@@ -333,47 +335,35 @@
 <!-- ─── PAGE : ACCUEIL ─── -->
 <div class="page active" id="page-home">
 
-  <!-- HERO VERT -->
-  <div class="home-hero">
-    <div class="home-hero-top">
-      <div class="home-hero-logo">G<span>oo</span>va</div>
+  <!-- TOPBAR BLANC -->
+  <div class="home-topbar">
+    <div class="home-hero-logo">G<span>oo</span>va</div>
+    <div style="display:flex;align-items:center;gap:8px">
       <button class="home-hero-langbtn lang-toggle" id="lang-toggle-home" onclick="toggleLang()">عر</button>
       <button class="home-hero-avatarbtn" onclick="showPage('compte')" id="hero-avatar-btn">
         <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        <span id="hero-avatar-initials" style="display:none;color:white;font-weight:800;font-size:13px"></span>
+        <span id="hero-avatar-initials" style="display:none;font-weight:800;font-size:13px;color:var(--text)"></span>
       </button>
     </div>
-    <div class="home-hero-main">
-      <div class="home-hero-text">
-        <div class="home-hero-title" id="hero-title">Où voulez-vous<br>aller ?</div>
-        <div class="home-hero-sub">Voyagez ensemble en Mauritanie</div>
-      </div>
-      <!-- Voiture SVG à droite -->
-      <div class="home-hero-car">
-      <svg fill="#ffffff" version="1.1" xmlns="http://www.w3.org/2000/svg"
-           width="95px" height="95px" viewBox="0 0 48.997 48.998"
-           style="opacity:0.92;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.2))">
-        <g>
-          <path d="M45.961,18.702c-0.033-0.038-0.061-0.075-0.1-0.112l-1.717-1.657c1.424-0.323,2.957-1.516,2.957-2.74
-            c0-1.426-1.979-1.932-3.668-1.932c-1.766,0-1.971,1.21-1.992,2.065l-4.43-4.271c-0.9-0.891-2.607-1.592-3.883-1.592H24.5h-0.002
-            h-8.63c-1.275,0-2.981,0.701-3.882,1.592l-4.429,4.271c-0.023-0.855-0.228-2.065-1.992-2.065c-1.691,0-3.669,0.506-3.669,1.932
-            c0,1.224,1.534,2.417,2.958,2.74l-1.717,1.657c-0.039,0.037-0.066,0.074-0.1,0.112C1.2,20.272,0,23.184,0,25.297v6.279
-            c0,1.524,0.601,2.907,1.572,3.938v2.435c0,1.424,1.192,2.585,2.658,2.585h3.214c1.466,0,2.657-1.159,2.657-2.585v-0.623h14.397
-            H24.5h14.396v0.623c0,1.426,1.19,2.585,2.658,2.585h3.213c1.467,0,2.657-1.161,2.657-2.585v-2.435
-            c0.972-1.031,1.572-2.414,1.572-3.938v-6.279C48.998,23.184,47.798,20.272,45.961,18.702z M13.613,11.953
-            c0.623-0.519,1.712-0.913,2.255-0.913h8.63H24.5h8.63c0.543,0,1.632,0.394,2.255,0.913l5.809,5.63H24.5h-0.002H7.805L13.613,11.953
-            z M1.993,24.347c0-1.546,1.21-2.801,2.704-2.801c1.493,0,6.372,2.864,6.372,4.41s-4.879,1.188-6.372,1.188
-            C3.203,27.144,1.993,25.894,1.993,24.347z M10.102,34.573H9.587H9.072l-3.055,0.005c-0.848-0.264-1.446-0.572-1.869-0.903
-            c-0.214-0.167-0.378-0.341-0.506-0.514c-0.129-0.175-0.223-0.347-0.284-0.519c-0.38-1.074,0.405-2.061,0.405-2.061h5.214
-            l3.476,3.99L10.102,34.573L10.102,34.573z M31.996,34.575H24.5h-0.002h-7.496c-1.563,0-2.832-1.269-2.832-2.831h10.328H24.5h10.328
-            C34.828,33.308,33.559,34.575,31.996,34.575z M32.654,29.812H24.5h-0.002h-8.154c-1.7,0-3.08-2.096-3.08-4.681h11.234H24.5h11.234
-            C35.734,27.717,34.354,29.812,32.654,29.812z M45.641,32.644c-0.062,0.172-0.156,0.344-0.285,0.518
-            c-0.127,0.173-0.291,0.347-0.506,0.514c-0.422,0.331-1.021,0.641-1.869,0.903l-3.055-0.005h-0.515h-0.515h-2.353l3.478-3.99h5.213
-            C45.234,30.583,46.02,31.568,45.641,32.644z M44.301,27.144c-1.492,0-6.371,0.356-6.371-1.188s4.879-4.41,6.371-4.41
-            c1.494,0,2.704,1.255,2.704,2.801C47.005,25.892,45.795,27.144,44.301,27.144z"/>
-        </g>
-      </svg>
-      </div>
+  </div>
+
+  <!-- TITRE ACCUEIL -->
+  <div class="home-welcome">
+    <div class="home-welcome-title" id="hero-title">Où voulez-vous<br>aller ?</div>
+    <div class="home-welcome-sub">Voyagez ensemble en Mauritanie</div>
+  </div>
+
+  <!-- CARTES CATÉGORIES -->
+  <div class="home-cat-grid">
+    <div class="home-cat-card" onclick="document.querySelector('.home-search-area').scrollIntoView({behavior:'smooth'})">
+      <span class="home-cat-icon">🔍</span>
+      <div class="home-cat-label">Trouver un trajet</div>
+      <div class="home-cat-sub">Chercher par ville</div>
+    </div>
+    <div class="home-cat-card" onclick="showPage('trajets')">
+      <span class="home-cat-icon">🎫</span>
+      <div class="home-cat-label">Mes trajets</div>
+      <div class="home-cat-sub">Réservations</div>
     </div>
   </div>
 
@@ -412,10 +402,10 @@
 
     <!-- VUE CHAUFFEUR : boutons Publier + Trouver -->
     <div id="home-driver-view" style="display:none">
-      <div id="home-driver-pending" style="display:none;background:rgba(255,255,255,0.15);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
+      <div id="home-driver-pending" style="display:none;background:var(--bg-2);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center;border:1.5px solid var(--border)">
         <div style="font-size:28px;margin-bottom:8px">⏳</div>
-        <div style="color:white;font-weight:700;font-size:15px">Compte en attente de validation</div>
-        <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
+        <div style="color:var(--text);font-weight:700;font-size:15px">Compte en attente de validation</div>
+        <div style="color:var(--text-3);font-size:13px;margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
       </div>
       <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
         <span class="home-action-icon">🚗</span>
