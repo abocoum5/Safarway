@@ -5,326 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Goova</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#00C853">
+  <meta name="theme-color" content="#1F8A5B">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Goova">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Noto+Naskh+Arabic:wght@400;500;700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+
+  <!-- Goova Design System -->
+  <link rel="stylesheet" href="styles/theme.css">
+  <link rel="stylesheet" href="styles/components.css">
+  <link rel="stylesheet" href="styles/pages.css">
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    :root {
-      --green: #00C853;
-      --green-dark: #00A843;
-      --green-light: #E8FFF1;
-      --bg: #FFFFFF;
-      --bg-2: #F5F5F5;
-      --bg-3: #EBEBEB;
-      --text: #1A1A1A;
-      --text-2: #666666;
-      --text-3: #999999;
-      --border: #EFEFEF;
-      --danger: #FF3B5C;
-      --warning: #FF9500;
-      --radius: 16px;
-      --radius-sm: 12px;
-      --shadow: 0 2px 10px rgba(0,0,0,0.06);
-      --shadow-md: 0 4px 20px rgba(0,0,0,0.1);
-    }
-    body { font-family: -apple-system, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; max-width: 480px; margin: 0 auto; }
-
-    /* ── PAGES ── */
-    .page { display: none; min-height: 100vh; padding-bottom: 80px; }
-    .page.active { display: block; }
-
-    /* ── HEADER ── */
-    .header { padding: 16px 20px 12px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 50; border-bottom: 1px solid var(--border); }
-    .header-logo { font-size: 22px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; }
-    .header-logo span { color: var(--green); }
-    .header-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid var(--border); }
-    .header-avatar svg { width: 18px; height: 18px; color: var(--text-2); }
-
-    /* ── HOME HERO ── */
-    #page-home.active { height: 100vh; height: 100svh; overflow: hidden; display: flex; flex-direction: column; padding-bottom: 0; min-height: unset; }
-    .home-hero { background: var(--green); position: relative; overflow: hidden; flex-shrink: 0; }
-    .home-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: rgba(255,255,255,0.07); border-radius: 50%; pointer-events: none; }
-    .home-hero-top { display: flex; align-items: center; justify-content: space-between; padding: max(28px, env(safe-area-inset-top, 28px)) 18px 0; }
-    /* flex:1 + padding-top > padding-bottom = contenu poussé vers le bas du centre */
-    .home-search-area { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 0px 16px calc(110px + env(safe-area-inset-bottom, 0px)); }
-    .home-hero-logo { font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px; }
-    .home-hero-logo span { opacity: 0.8; }
-    .home-hero-langbtn { background: rgba(255,255,255,0.2); border: none; border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: white; transition: background 0.15s; }
-    .home-hero-langbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn { width: 34px; height: 34px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; cursor: pointer; border: none; transition: background 0.15s; flex-shrink: 0; }
-    .home-hero-avatarbtn:hover { background: rgba(255,255,255,0.3); }
-    .home-hero-avatarbtn svg { width: 16px; height: 16px; color: white; }
-    .home-hero-main { display: flex; align-items: center; padding: 6px 14px 0; gap: 4px; }
-    .home-hero-text { flex: 1; padding: 0; }
-    .home-hero-title { font-size: 22px; font-weight: 900; color: white; line-height: 1.15; letter-spacing: -0.5px; }
-    .home-hero-sub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 4px; }
-    .home-hero-car { flex-shrink: 0; display: flex; align-items: center; }
-    /* ── HOME ACTION BUTTONS ── */
-    .home-action-btn { width: 100%; padding: 15px 18px; border-radius: 16px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 14px; border: none; font-family: inherit; transition: transform 0.1s, box-shadow 0.1s; text-align: left; box-sizing: border-box; }
-    .home-action-btn:active { transform: scale(0.98); }
-    .home-action-btn.publish { background: var(--green); color: white; box-shadow: 0 4px 18px rgba(0,200,83,0.35); margin-bottom: 12px; }
-    .home-action-btn.find { background: var(--bg); color: var(--text); border: 2px solid var(--border); box-shadow: 0 2px 10px rgba(0,0,0,0.07); }
-    .home-action-btn.find.open { border-color: var(--green); border-radius: 16px 16px 0 0; }
-    .home-action-icon { font-size: 26px; flex-shrink: 0; }
-    .home-action-label { font-size: 15px; font-weight: 700; }
-    .home-action-sub { font-size: 12px; opacity: 0.65; font-weight: 500; margin-top: 1px; }
-    .home-action-arrow { margin-left: auto; flex-shrink: 0; transition: transform 0.25s; }
-    /* ── HOME SEARCH EXPANDED ── */
-    .home-search-expanded { background: var(--bg); border: 2px solid var(--green); border-top: none; border-radius: 0 0 16px 16px; padding: 4px 14px 14px; margin-bottom: 16px; }
-    /* ── HOME SEARCH CARD (legacy, kept for city-picker inputs) ── */
-    .home-search-card { background: white; border-radius: 20px; margin: 0; padding: 12px 16px 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.14); position: relative; z-index: 10; width: 100%; }
-    .hsc-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; cursor: pointer; width: 100%; background: none; border: none; font-family: inherit; text-align: left; }
-    .hsc-row:active { opacity: 0.75; }
-    .hsc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .hsc-dot-from { background: var(--green); }
-    .hsc-dot-to { background: var(--text-3); }
-    .hsc-connector { width: 10px; display: flex; justify-content: center; flex-shrink: 0; }
-    .hsc-connector-line { width: 1.5px; height: 14px; background: var(--border); }
-    .hsc-code { font-size: 11px; font-weight: 800; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.5px; min-width: 22px; }
-    .hsc-val { font-size: 15px; font-weight: 600; color: var(--text); }
-    .hsc-placeholder { font-size: 15px; color: var(--text-3); }
-    .hsc-divider { height: 1px; background: var(--border); margin: 2px 0; }
-    .hsc-date-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
-    .hsc-date-row svg { width: 18px; height: 18px; color: var(--green); flex-shrink: 0; }
-    .hsc-date-row input { flex: 1; border: none; outline: none; font-size: 15px; font-family: inherit; color: var(--text); background: transparent; }
-    .hsc-date-row input::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
-    /* ── HOME TRIP CARD ── */
-    .home-trip-card { background: white; border-radius: 14px; box-shadow: 0 2px 14px rgba(0,0,0,0.07); border-left: 4px solid var(--green); padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: box-shadow 0.15s, transform 0.15s; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-    .home-trip-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.11); }
-    .home-trip-card:active { transform: scale(0.98); }
-    .htc-left { flex: 1; min-width: 0; }
-    .htc-route { font-size: 15px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .htc-meta { font-size: 12px; color: var(--text-3); margin-top: 4px; }
-    .htc-right { text-align: right; flex-shrink: 0; }
-    .htc-price { font-size: 17px; font-weight: 800; color: var(--green); }
-    .htc-time { font-size: 12px; color: var(--text-3); margin-top: 3px; }
-    /* fix cib-val outside city-input-btn */
-    .cib-val { color: var(--text); }
-
-    /* ── SECTION ── */
-    .section { padding: 0 20px; }
-    .section-title { font-size: 17px; font-weight: 700; margin-bottom: 12px; }
-
-    /* ── TRIP ROWS ── */
-    .trip-list { border-top: 1px solid var(--border); }
-    .trip-row { padding: 14px 0; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s, margin 0.12s, padding 0.12s; }
-    .trip-row:hover { background: var(--green-light); margin: 0 -20px; padding: 14px 20px; }
-    .trip-row:active { background: var(--green-light); }
-    .tr-main { display: flex; align-items: baseline; gap: 10px; margin-bottom: 5px; }
-    .tr-time { font-size: 16px; font-weight: 700; color: var(--text); min-width: 52px; flex-shrink: 0; }
-    .tr-route { flex: 1; font-size: 15px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .tr-price { font-size: 16px; font-weight: 700; color: var(--green); white-space: nowrap; flex-shrink: 0; }
-    .tr-meta { font-size: 12px; color: var(--text-3); padding-left: 62px; line-height: 1.4; }
-    /* card for driver's own trips */
-    .trip-card { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 8px; }
-    .tc-route { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .tc-city { font-size: 15px; font-weight: 700; flex: 1; }
-    .tc-city.right { text-align: right; }
-    .tc-arrow { color: var(--green); font-size: 16px; font-weight: 800; }
-    .tc-footer { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-    .tc-tag { font-size: 12px; color: var(--text-2); background: var(--bg-2); padding: 4px 9px; border-radius: 20px; }
-
-    /* ── SEARCH PAGE ── */
-    .search-page-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); }
-    .back-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--bg-2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; border: none; transition: background 0.15s; }
-    .back-btn:hover { background: var(--bg-3); }
-    .back-btn svg { width: 18px; height: 18px; }
-    .search-page-title { font-size: 16px; font-weight: 700; }
-    .search-fields { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
-    .sf-box { background: var(--bg-2); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1.5px solid transparent; position: relative; transition: all 0.15s; }
-    .sf-box:focus-within { border-color: var(--green); background: var(--green-light); }
-    .sf-dot { font-size: 18px; flex-shrink: 0; line-height: 1; }
-    .sf-box input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; color: var(--text); }
-    .sf-box input::placeholder { color: var(--text-3); }
-    .sf-date { background: var(--bg-2); border-radius: var(--radius-sm); display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1.5px solid transparent; transition: all 0.15s; }
-    .sf-date:focus-within { border-color: var(--green); }
-    .sf-date svg { width: 18px; height: 18px; color: var(--text-3); flex-shrink: 0; }
-    .sf-date input { flex: 1; border: none; outline: none; background: transparent; font-size: 15px; font-family: inherit; color: var(--text); }
-
-    /* ── CITY PICKER ── */
-    .city-input-btn { display: flex; align-items: center; gap: 10px; background: var(--bg-2); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; cursor: pointer; transition: all 0.15s; width: 100%; text-align: left; font-family: inherit; }
-    .city-input-btn:hover { border-color: var(--green); background: var(--green-light); }
-    .city-input-btn .cib-val { flex: 1; font-size: 15px; color: var(--text); }
-    .city-input-btn .cib-placeholder { flex: 1; font-size: 15px; color: var(--text-3); }
-    .city-input-btn .cib-icon { font-size: 16px; flex-shrink: 0; filter: hue-rotate(120deg); }
-    #city-picker { display: none; position: fixed; inset: 0; background: #F5F5F5; z-index: 500; max-width: 480px; margin: 0 auto; flex-direction: column; overflow: hidden; }
-    #city-picker.cp-open { display: flex; }
-    .cp-header { background: white; padding: 10px 14px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); }
-    .cp-back { width: 36px; height: 36px; border-radius: 50%; background: transparent; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background 0.12s; }
-    .cp-back:hover { background: #F0F0F0; }
-    .cp-back svg { width: 20px; height: 20px; }
-    .cp-search-row { flex: 1; display: flex; align-items: center; background: #F0F0F0; border-radius: 12px; padding: 0 14px; gap: 8px; }
-    .cp-search-row input { flex: 1; border: none; background: transparent; font-size: 16px; font-family: inherit; outline: none; padding: 11px 0; color: #1A1A1A; caret-color: #FF9500; }
-    .cp-search-row input::placeholder { color: #AAAAAA; }
-    .cp-clear { background: none; border: none; color: #AAAAAA; cursor: pointer; padding: 4px; display: flex; align-items: center; flex-shrink: 0; }
-    .cp-clear svg { width: 16px; height: 16px; }
-    .cp-list { flex: 1; overflow-y: auto; padding: 6px 0; }
-    .cp-city-row { display: flex; align-items: center; gap: 14px; padding: 13px 16px; background: white; cursor: pointer; transition: background 0.1s; border-bottom: 1px solid #F5F5F5; }
-    .cp-city-row:active, .cp-city-row:hover { background: #FAFFF9; }
-    .cp-pin-box { width: 44px; height: 44px; background: #E8F8F0; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .cp-city-name { font-size: 15px; font-weight: 700; color: #1A1A1A; line-height: 1.3; }
-    .cp-city-wilaya { font-size: 13px; color: #999999; margin-top: 2px; }
-    .cp-empty { text-align: center; padding: 50px 20px; color: #AAAAAA; font-size: 14px; }
-
-    /* ── FORMS ── */
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 12px; color: var(--text-3); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
-    .form-group input, .form-group select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; font-family: inherit; background: var(--bg-2); color: var(--text); outline: none; transition: border 0.15s, background 0.15s; -webkit-appearance: none; }
-    .form-group input:focus, .form-group select:focus { border-color: var(--green); background: var(--green-light); }
-    .form-group input::placeholder { color: var(--text-3); }
-    .form-group input[type="file"] { padding: 12px 16px; cursor: pointer; color: var(--text-2); }
-    .phone-wrap { display: flex; border: 1.5px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; background: var(--bg-2); transition: border 0.15s; }
-    .phone-wrap:focus-within { border-color: var(--green); background: var(--green-light); }
-    .phone-prefix { padding: 14px 14px; font-size: 15px; font-weight: 600; color: var(--text-2); border-right: 1px solid var(--border); background: var(--bg-3); white-space: nowrap; }
-    .phone-wrap input { border: none; padding: 14px 16px; flex: 1; font-size: 15px; font-family: inherit; background: transparent; color: var(--text); outline: none; }
-    .phone-wrap input::placeholder { color: var(--text-3); }
-    .otp-input { font-size: 26px; text-align: center; letter-spacing: 8px; font-weight: 700; padding: 16px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); width: 100%; font-family: inherit; background: var(--bg-2); outline: none; transition: border 0.15s; }
-    .otp-input:focus { border-color: var(--green); background: var(--green-light); }
-    .otp-info { text-align: center; margin-bottom: 20px; }
-    .otp-info p { font-size: 14px; color: var(--text-2); }
-    .otp-info strong { font-size: 15px; color: var(--text); font-weight: 700; }
-
-    /* ── PASSENGERS MODAL ── */
-    .pax-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--border); }
-    .pax-row:last-child { border-bottom:none; }
-    .pax-name { font-size:15px; font-weight:600; }
-    .pax-seats { font-size:13px; color:var(--text-3); margin-top:2px; }
-    .pax-call { padding:6px 12px; background:var(--green); color:white; border:none; border-radius:20px; font-size:13px; font-weight:600; cursor:pointer; text-decoration:none; }
-
-    /* ── STARS ── */
-    .sf { color: #F59E0B; }
-    .star-btn { font-size: 36px; background: none; border: none; cursor: pointer; padding: 0 4px; line-height: 1; transition: transform 0.1s; color: #D1D5DB; }
-    .star-btn.active { color: #F59E0B; }
-    .star-btn:active { transform: scale(1.3); }
-    .rating-modal-inner { background: var(--bg); border-radius: 20px 20px 0 0; padding: 24px 20px 32px; width: 100%; box-sizing: border-box; }
-
-    /* ── BUTTONS ── */
-    .btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius-sm); font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; }
-    .btn:active { transform: scale(0.98); }
-    .btn-green { background: var(--green); color: white; }
-    .btn-green:hover { background: var(--green-dark); }
-    .btn-ghost { background: var(--bg-2); color: var(--text-2); }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn-sm { width: auto; padding: 7px 14px; font-size: 13px; border-radius: 8px; }
-    .btn-call { display: block; margin-top: 10px; padding: 13px; background: var(--green); color: white; border-radius: var(--radius-sm); text-align: center; font-weight: 700; text-decoration: none; font-size: 14px; }
-
-    /* ── TABS ── */
-    .tabs { display: flex; background: var(--bg-2); border-radius: var(--radius-sm); padding: 3px; margin-bottom: 16px; }
-    .tab { flex: 1; text-align: center; padding: 10px 4px; border-radius: 9px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--text-3); transition: all 0.15s; }
-    .tab.active { background: var(--bg); color: var(--text); box-shadow: var(--shadow); }
-
-    /* ── CARDS ── */
-    .card { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 12px; }
-    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
-
-    /* ── PROFILE ── */
-    .profile-hero { background: var(--bg-2); border-radius: var(--radius); padding: 22px 20px; display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-    .profile-av { width: 58px; height: 58px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: white; flex-shrink: 0; }
-    .profile-name { font-size: 18px; font-weight: 800; }
-    .profile-role { display: inline-block; background: var(--green-light); color: var(--green-dark); padding: 3px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-top: 5px; text-transform: capitalize; }
-    .pinfo-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid var(--border); }
-    .pinfo-row:last-child { border-bottom: none; }
-    .pinfo-label { font-size: 13px; color: var(--text-3); }
-    .pinfo-value { font-size: 14px; font-weight: 600; }
-
-    /* ── ALERTS ── */
-    .alert { padding: 12px 14px; border-radius: var(--radius-sm); margin-bottom: 12px; font-size: 14px; font-weight: 500; }
-    .alert-success { background: var(--green-light); color: var(--green-dark); border: 1px solid rgba(52,209,134,0.25); }
-    .alert-error { background: rgba(255,59,92,0.08); color: var(--danger); border: 1px solid rgba(255,59,92,0.15); }
-
-    /* ── BADGES ── */
-    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-green { background: var(--green-light); color: var(--green-dark); }
-    .badge-orange { background: rgba(255,149,0,0.12); color: var(--warning); }
-    .badge-red { background: rgba(255,59,92,0.08); color: var(--danger); }
-    .badge-grey { background: var(--bg-2); color: var(--text-3); }
-
-    /* ── ADMIN ── */
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .stat-card { background: var(--bg-2); border-radius: var(--radius); padding: 16px; text-align: center; }
-    .stat-number { font-size: 26px; font-weight: 800; color: var(--green); }
-    .stat-label { font-size: 11px; color: var(--text-3); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
-    .admin-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 16px; }
-    .admin-tab { text-align: center; padding: 10px 4px; border-radius: var(--radius-sm); font-size: 11px; font-weight: 600; cursor: pointer; background: var(--bg-2); color: var(--text-3); transition: all 0.15s; }
-    .admin-tab.active { background: var(--green); color: white; }
-    .user-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 8px; }
-    .user-row:last-child { border-bottom: none; }
-    .user-info { flex: 1; min-width: 0; }
-    .user-name { font-weight: 600; font-size: 14px; }
-    .user-phone { color: var(--text-3); font-size: 12px; margin-top: 2px; }
-    .user-actions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-    .btn-delete { width: auto; padding: 6px 12px; font-size: 12px; border-radius: 8px; border: none; background: rgba(255,59,92,0.08); color: var(--danger); cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .btn-delete:hover { background: var(--danger); color: white; }
-    .booking-row { padding: 12px 0; border-bottom: 1px solid var(--border); }
-
-    /* ── MISC ── */
-    .divider { height: 1px; background: var(--border); margin: 14px 0; }
-    .mt-10 { margin-top: 10px; }
-    .mt-16 { margin-top: 16px; }
-    .loading { text-align: center; padding: 40px; color: var(--text-3); font-size: 14px; }
-    .empty { text-align: center; padding: 40px 20px; color: var(--text-3); }
-    .empty-icon { font-size: 42px; margin-bottom: 12px; }
-    .text-gray { color: var(--text-3); font-size: 13px; }
-    .driver-docs-notice { background: var(--green-light); border-left: 3px solid var(--green); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; color: var(--green-dark); font-weight: 500; }
-    .role-select-row { display: flex; gap: 8px; margin-bottom: 18px; }
-    .role-sel-btn { flex: 1; padding: 10px 8px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-2); color: var(--text-2); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-    .role-sel-btn.active { border-color: var(--green); background: var(--green-light); color: var(--green-dark); }
-
-    /* ── BOTTOM NAV ── */
-    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--bg); border-top: 1px solid var(--border); display: flex; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
-    .bnav-item { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0 8px; cursor: pointer; font-size: 11px; font-weight: 500; color: var(--text-3); gap: 3px; transition: color 0.15s; }
-    .bnav-item.active { color: var(--text); font-weight: 700; }
-    .bnav-item svg { width: 24px; height: 24px; }
-
-
-    /* ── LANGUE / RTL ── */
-    .lang-toggle { background: none; border: 1.5px solid var(--border); border-radius: 20px; padding: 4px 11px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--text-2); transition: all 0.15s; flex-shrink: 0; }
-    .lang-toggle:hover { border-color: var(--green); color: var(--green); }
-    [dir="rtl"] body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
-    [dir="rtl"] .tr-meta { padding-left: 0; padding-right: 62px; }
-    [dir="rtl"] .back-btn svg, [dir="rtl"] .cp-back svg { transform: scaleX(-1); }
-    [dir="rtl"] .phone-prefix { border-right: none; border-left: 1px solid var(--border); }
-    [dir="rtl"] .pinfo-row { flex-direction: row-reverse; }
-    [dir="rtl"] .user-actions { justify-content: flex-start; }
-    [dir="rtl"] .cib-icon { order: -1; }
-    [dir="rtl"] .td-city:last-child { text-align: left; }
-    [dir="rtl"] .tc-footer { justify-content: flex-end; }
-    [dir="rtl"] .tc-city.right { text-align: left; }
-
-    /* ── SKELETON ── */
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    .skeleton { background: linear-gradient(90deg, var(--bg-2) 25%, var(--bg-3) 50%, var(--bg-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px; }
-    .sk-row { padding: 14px 0; border-bottom: 1px solid var(--border); }
-
-    /* ── TRIP DETAIL OVERLAY ── */
-    #trip-detail { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 200; overflow-y: auto; max-width: 480px; margin: 0 auto; padding-bottom: 100px; }
-    .td-header { padding: 14px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--bg); z-index: 10; }
-    .td-body { padding: 20px; }
-    .td-route { background: var(--green); border-radius: var(--radius); padding: 24px 20px; color: white; margin-bottom: 16px; }
-    .td-route-cities { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-    .td-city { font-size: 21px; font-weight: 800; flex: 1; }
-    .td-arrow { font-size: 20px; opacity: 0.8; }
-    .td-route-info { font-size: 14px; opacity: 0.85; }
-    .td-price-box { display: flex; justify-content: space-between; align-items: center; background: var(--bg-2); border-radius: var(--radius-sm); padding: 18px 20px; margin-bottom: 12px; }
-    .td-price-label { font-size: 12px; color: var(--text-3); font-weight: 500; text-transform: uppercase; letter-spacing: 0.3px; }
-    .td-price-val { font-size: 28px; font-weight: 800; color: var(--green); }
-    .td-driver { display: flex; align-items: center; gap: 14px; background: var(--bg-2); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 12px; }
-    .td-driver-av { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: white; flex-shrink: 0; }
-    .td-driver-name { font-size: 16px; font-weight: 700; }
-    .td-driver-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
-    .td-info-grid { background: var(--bg-2); border-radius: var(--radius-sm); padding: 4px 16px; margin-bottom: 12px; }
-    .td-info-row { display: flex; align-items: center; gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .td-info-row:last-child { border-bottom: none; }
-    .td-info-icon { font-size: 16px; width: 24px; text-align: center; }
-    .td-info-label { color: var(--text-3); min-width: 90px; font-size: 13px; }
-    .td-info-val { font-weight: 600; }
-    .td-book-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; padding: 14px 20px calc(14px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--border); z-index: 10; }
-    .alert-warning { background: rgba(255,149,0,0.1); color: var(--warning); border: 1px solid rgba(255,149,0,0.25); }
+    /* Styles dans styles/theme.css · components.css · pages.css */
   </style>
 </head>
 <body>
@@ -333,56 +33,58 @@
 <!-- ─── PAGE : ACCUEIL ─── -->
 <div class="page active" id="page-home">
 
-  <!-- HERO VERT -->
+  <!-- ── HERO GRADIENT + DUNES ── -->
   <div class="home-hero">
-    <div class="home-hero-top">
-      <div class="home-hero-logo">G<span>oo</span>va</div>
-      <button class="home-hero-langbtn lang-toggle" id="lang-toggle-home" onclick="toggleLang()">عر</button>
-      <button class="home-hero-avatarbtn" onclick="showPage('compte')" id="hero-avatar-btn">
-        <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        <span id="hero-avatar-initials" style="display:none;color:white;font-weight:800;font-size:13px"></span>
-      </button>
-    </div>
-    <div class="home-hero-main">
-      <div class="home-hero-text">
-        <div class="home-hero-title" id="hero-title">Où voulez-vous<br>aller ?</div>
-        <div class="home-hero-sub">Voyagez ensemble en Mauritanie</div>
-      </div>
-      <!-- Voiture SVG à droite -->
-      <div class="home-hero-car">
-      <svg fill="#ffffff" version="1.1" xmlns="http://www.w3.org/2000/svg"
-           width="95px" height="95px" viewBox="0 0 48.997 48.998"
-           style="opacity:0.92;filter:drop-shadow(0 3px 10px rgba(0,0,0,0.2))">
-        <g>
-          <path d="M45.961,18.702c-0.033-0.038-0.061-0.075-0.1-0.112l-1.717-1.657c1.424-0.323,2.957-1.516,2.957-2.74
-            c0-1.426-1.979-1.932-3.668-1.932c-1.766,0-1.971,1.21-1.992,2.065l-4.43-4.271c-0.9-0.891-2.607-1.592-3.883-1.592H24.5h-0.002
-            h-8.63c-1.275,0-2.981,0.701-3.882,1.592l-4.429,4.271c-0.023-0.855-0.228-2.065-1.992-2.065c-1.691,0-3.669,0.506-3.669,1.932
-            c0,1.224,1.534,2.417,2.958,2.74l-1.717,1.657c-0.039,0.037-0.066,0.074-0.1,0.112C1.2,20.272,0,23.184,0,25.297v6.279
-            c0,1.524,0.601,2.907,1.572,3.938v2.435c0,1.424,1.192,2.585,2.658,2.585h3.214c1.466,0,2.657-1.159,2.657-2.585v-0.623h14.397
-            H24.5h14.396v0.623c0,1.426,1.19,2.585,2.658,2.585h3.213c1.467,0,2.657-1.161,2.657-2.585v-2.435
-            c0.972-1.031,1.572-2.414,1.572-3.938v-6.279C48.998,23.184,47.798,20.272,45.961,18.702z M13.613,11.953
-            c0.623-0.519,1.712-0.913,2.255-0.913h8.63H24.5h8.63c0.543,0,1.632,0.394,2.255,0.913l5.809,5.63H24.5h-0.002H7.805L13.613,11.953
-            z M1.993,24.347c0-1.546,1.21-2.801,2.704-2.801c1.493,0,6.372,2.864,6.372,4.41s-4.879,1.188-6.372,1.188
-            C3.203,27.144,1.993,25.894,1.993,24.347z M10.102,34.573H9.587H9.072l-3.055,0.005c-0.848-0.264-1.446-0.572-1.869-0.903
-            c-0.214-0.167-0.378-0.341-0.506-0.514c-0.129-0.175-0.223-0.347-0.284-0.519c-0.38-1.074,0.405-2.061,0.405-2.061h5.214
-            l3.476,3.99L10.102,34.573L10.102,34.573z M31.996,34.575H24.5h-0.002h-7.496c-1.563,0-2.832-1.269-2.832-2.831h10.328H24.5h10.328
-            C34.828,33.308,33.559,34.575,31.996,34.575z M32.654,29.812H24.5h-0.002h-8.154c-1.7,0-3.08-2.096-3.08-4.681h11.234H24.5h11.234
-            C35.734,27.717,34.354,29.812,32.654,29.812z M45.641,32.644c-0.062,0.172-0.156,0.344-0.285,0.518
-            c-0.127,0.173-0.291,0.347-0.506,0.514c-0.422,0.331-1.021,0.641-1.869,0.903l-3.055-0.005h-0.515h-0.515h-2.353l3.478-3.99h5.213
-            C45.234,30.583,46.02,31.568,45.641,32.644z M44.301,27.144c-1.492,0-6.371,0.356-6.371-1.188s4.879-4.41,6.371-4.41
-            c1.494,0,2.704,1.255,2.704,2.801C47.005,25.892,45.795,27.144,44.301,27.144z"/>
-        </g>
+
+    <!-- Motif dunes SVG inline -->
+    <div class="hero-dunes" aria-hidden="true">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 140" preserveAspectRatio="xMidYMax slice" style="width:100%;height:140px;display:block">
+        <path d="M0,70 Q40,30 80,55 Q120,80 160,50 Q200,20 240,55 Q280,90 320,55 Q360,20 400,55 Q440,90 480,60 L480,140 L0,140Z" fill="rgba(255,255,255,0.07)"/>
+        <path d="M0,95 Q50,60 100,80 Q150,100 200,75 Q250,50 300,80 Q350,110 400,80 Q440,55 480,85 L480,140 L0,140Z" fill="rgba(255,255,255,0.045)"/>
+        <path d="M0,115 Q60,85 120,100 Q180,115 240,98 Q300,80 360,100 Q420,120 480,105 L480,140 L0,140Z" fill="rgba(255,255,255,0.025)"/>
       </svg>
+    </div>
+
+    <!-- Top bar -->
+    <div class="hero-topbar">
+      <!-- Logo goova -->
+      <div class="hero-logo">
+        <span class="hero-logo-text">go<span class="hero-logo-dot">o</span>va</span>
+        <span class="hero-logo-arabic">گـوڤا</span>
       </div>
+
+      <!-- Actions droite -->
+      <div class="hero-topbar-right">
+        <button class="hero-lang-pill lang-toggle" id="lang-toggle-home" onclick="toggleLang()">FR · عر</button>
+        <!-- Cloche notifications -->
+        <button class="hero-bell-btn" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </button>
+        <!-- Avatar / compte -->
+        <button class="hero-avatar-btn" onclick="showPage('compte')" id="hero-avatar-btn">
+          <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span id="hero-avatar-initials" style="display:none"></span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Greeting + Headline -->
+    <div class="hero-content">
+      <div class="hero-greeting" id="hero-greeting">Marhaba 👋</div>
+      <h1 class="hero-headline" id="hero-title">Où allez-vous<br>aujourd'hui ?</h1>
+      <span class="hero-sub-arabic">سافروا معاً عبر موريتانيا</span>
     </div>
   </div>
 
-  <!-- VUE ACCUEIL PAR RÔLE -->
-  <div class="home-search-area">
+  <!-- ── CORPS SCROLLABLE ── -->
+  <div class="home-body">
 
-    <!-- VUE VOYAGEUR : carte de recherche directe (visible par défaut) -->
+    <!-- VUE VOYAGEUR : carte recherche flottante -->
     <div id="home-voyageur-view">
+
+      <!-- Search card flottante -->
       <div class="home-search-card">
+        <!-- Départ -->
         <button class="hsc-row" onclick="openCityPicker('hf-from')">
           <div class="hsc-dot hsc-dot-from"></div>
           <span class="hsc-code" id="hf-from-code">DE</span>
@@ -393,6 +95,7 @@
           <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
           <div style="flex:1;height:1px;background:var(--border)"></div>
         </div>
+        <!-- Arrivée -->
         <button class="hsc-row" onclick="openCityPicker('hf-to')">
           <div class="hsc-dot hsc-dot-to"></div>
           <span class="hsc-code" id="hf-to-code">À</span>
@@ -400,38 +103,63 @@
           <input type="hidden" id="hf-to">
         </button>
         <div class="hsc-divider"></div>
+        <!-- Date -->
         <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('hf-date').showPicker ? document.getElementById('hf-date').showPicker() : document.getElementById('hf-date').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           <span id="hf-date-display" class="hsc-placeholder">Toutes les dates</span>
           <input type="date" id="hf-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateHomeDateDisplay()">
-          <button id="hf-date-clear" onclick="event.stopPropagation();clearHomeDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--text-3);font-size:18px;line-height:1">✕</button>
+          <button id="hf-date-clear" onclick="event.stopPropagation();clearHomeDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--fg-subtle);font-size:18px;line-height:1">✕</button>
         </div>
-        <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:10px">Rechercher →</button>
+        <!-- CTA Rechercher -->
+        <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:12px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Rechercher
+        </button>
+      </div>
+
+      <!-- Toggle Je cherche / Je propose -->
+      <div class="home-toggle-row">
+        <button class="home-toggle-btn active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Je cherche
+        </button>
+        <button class="home-toggle-btn" onclick="showPage('compte')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          Je propose
+        </button>
       </div>
     </div>
 
-    <!-- VUE CHAUFFEUR : boutons Publier + Trouver -->
+    <!-- VUE CHAUFFEUR -->
     <div id="home-driver-view" style="display:none">
-      <div id="home-driver-pending" style="display:none;background:rgba(255,255,255,0.15);border-radius:14px;padding:16px;margin-bottom:12px;text-align:center">
-        <div style="font-size:28px;margin-bottom:8px">⏳</div>
-        <div style="color:white;font-weight:700;font-size:15px">Compte en attente de validation</div>
-        <div style="color:rgba(255,255,255,0.8);font-size:13px;margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
+      <!-- Notice en attente -->
+      <div id="home-driver-pending" style="display:none" class="driver-pending-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--accent-deep);margin-bottom:8px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div style="font:700 15px/1.3 'Plus Jakarta Sans',sans-serif;color:var(--fg)">Compte en attente de validation</div>
+        <div style="font:400 13px/1.4 'Inter Tight',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
       </div>
+      <!-- Publier -->
       <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
-        <span class="home-action-icon">🚗</span>
+        <span class="home-action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        </span>
         <div>
           <div class="home-action-label">Publier un trajet</div>
           <div class="home-action-sub">Proposez vos places disponibles</div>
         </div>
       </button>
+      <!-- Trouver -->
       <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
-        <span class="home-action-icon">🔍</span>
+        <span class="home-action-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </span>
         <div>
           <div class="home-action-label">Trouver un trajet</div>
           <div class="home-action-sub">Rechercher par ville et date</div>
         </div>
         <svg class="home-action-arrow" id="find-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M6 9l6 6 6-6"/></svg>
       </button>
+      <!-- Formulaire chauffeur expandé -->
       <div id="home-search-form" style="display:none" class="home-search-expanded">
         <button class="hsc-row" onclick="openCityPicker('df-from')">
           <div class="hsc-dot hsc-dot-from"></div>
@@ -451,34 +179,115 @@
         </button>
         <div class="hsc-divider"></div>
         <div class="hsc-date-row" style="cursor:pointer" onclick="document.getElementById('df-date').showPicker ? document.getElementById('df-date').showPicker() : document.getElementById('df-date').click()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
           <span id="df-date-display" class="hsc-placeholder">Toutes les dates</span>
           <input type="date" id="df-date" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none" onchange="updateDriverDateDisplay()">
-          <button id="df-date-clear" onclick="event.stopPropagation();clearDriverDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--text-3);font-size:18px;line-height:1">✕</button>
+          <button id="df-date-clear" onclick="event.stopPropagation();clearDriverDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--fg-subtle);font-size:18px;line-height:1">✕</button>
         </div>
-        <button class="btn btn-green" onclick="searchFromDriver()" style="margin-top:10px">Rechercher →</button>
+        <button class="btn btn-green" onclick="searchFromDriver()" style="margin-top:10px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Rechercher
+        </button>
       </div>
     </div>
 
-  </div>
+    <!-- STATS STRIP -->
+    <div class="stats-strip">
+      <div class="stats-item">
+        <div class="stats-value">47 kg</div>
+        <div class="stats-label">CO₂ évité</div>
+      </div>
+      <div class="stats-sep"></div>
+      <div class="stats-item">
+        <div class="stats-value">12&nbsp;400&nbsp;UM</div>
+        <div class="stats-label">économisés</div>
+      </div>
+      <div class="stats-sep"></div>
+      <div class="stats-item">
+        <div class="stats-value">8</div>
+        <div class="stats-label">trajets</div>
+      </div>
+    </div>
 
-  <div id="home-trips" style="display:none"></div>
-</div>
+    <!-- DESTINATIONS POPULAIRES -->
+    <div class="destinations-section">
+      <div class="destinations-title">Destinations populaires</div>
+      <div class="destinations-scroll">
+
+        <div class="dest-card" style="background:linear-gradient(160deg,#1F8A5B 0%,#0D3D28 100%)"
+          onclick="quickSearch('Nouakchott','Nouadhibou')">
+          <div class="dest-card-route">Nouakchott → Nouadhibou</div>
+          <div class="dest-card-duration">~7 h · dès 1&nbsp;500&nbsp;UM</div>
+        </div>
+
+        <div class="dest-card" style="background:linear-gradient(160deg,#8B5A2B 0%,#4A2D10 100%)"
+          onclick="quickSearch('Nouakchott','Kiffa')">
+          <div class="dest-card-route">Nouakchott → Kiffa</div>
+          <div class="dest-card-duration">~5 h · dès 1&nbsp;200&nbsp;UM</div>
+        </div>
+
+        <div class="dest-card" style="background:linear-gradient(160deg,#2E4B8A 0%,#1A2D5A 100%)"
+          onclick="quickSearch('Nouakchott','Rosso')">
+          <div class="dest-card-route">Nouakchott → Rosso</div>
+          <div class="dest-card-duration">~3 h · dès 800&nbsp;UM</div>
+        </div>
+
+        <div class="dest-card" style="background:linear-gradient(160deg,#7B2D8A 0%,#3D1645 100%)"
+          onclick="quickSearch('Nouakchott','Néma')">
+          <div class="dest-card-route">Nouakchott → Néma</div>
+          <div class="dest-card-duration">~14 h · dès 3&nbsp;000&nbsp;UM</div>
+        </div>
+
+        <div class="dest-card" style="background:linear-gradient(160deg,#A04020 0%,#5C2010 100%)"
+          onclick="quickSearch('Nouakchott','Atar')">
+          <div class="dest-card-route">Nouakchott → Atar</div>
+          <div class="dest-card-duration">~5 h · dès 1&nbsp;000&nbsp;UM</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Trajets récents (chargés dynamiquement) -->
+    <div id="home-trips" style="display:none;padding:16px 12px 0"></div>
+
+  </div><!-- /.home-body -->
+</div><!-- /#page-home -->
 
 <!-- ─── PAGE : RECHERCHE ─── -->
 <div class="page" id="page-search">
-  <div class="search-page-header">
-    <button class="back-btn" onclick="showPage('home')">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+
+  <!-- ── HERO COMPACT ── -->
+  <div class="sp-hero">
+    <div class="sp-topbar">
+      <button class="sp-back" onclick="showPage('home')" aria-label="Retour">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
+          <path d="M19 12H5M12 5l-7 7 7 7"/>
+        </svg>
+      </button>
+      <div class="sp-title" id="search-page-title">Trajets disponibles</div>
+      <div class="sp-topbar-spacer"></div>
+    </div>
+    <button class="sp-edit-pill" onclick="showPage('home')" aria-label="Modifier la recherche">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <span>Modifier la recherche</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="margin-left:auto">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+      </svg>
     </button>
-    <div class="search-page-title" id="search-page-title">Trajets disponibles</div>
   </div>
+
+  <!-- ── INPUTS CACHÉS ── -->
   <input type="hidden" id="sf-from">
   <input type="hidden" id="sf-to">
   <input type="hidden" id="sf-date">
-  <div class="section">
+
+  <!-- ── RÉSULTATS ── -->
+  <div class="sp-body">
     <div id="search-results"></div>
   </div>
+
 </div>
 
 <!-- ─── PAGE : TRAJETS ─── -->
@@ -487,7 +296,7 @@
     <div class="header-logo">Go<span>ova</span></div>
     <button class="lang-toggle" id="lang-toggle-trajets" onclick="toggleLang()">عر</button>
   </div>
-  <div style="padding: 0 20px;">
+  <div class="page-body">
     <div id="trajets-content"><div class="loading">Chargement...</div></div>
   </div>
 </div>
@@ -498,7 +307,7 @@
     <div class="header-logo">Go<span>ova</span></div>
     <button class="lang-toggle" id="lang-toggle-compte" onclick="toggleLang()">عر</button>
   </div>
-  <div style="padding: 0 20px;">
+  <div class="page-body">
 
     <!-- AUTH -->
     <div id="auth-section">
@@ -506,10 +315,10 @@
       <!-- ── ÉCRAN D'ACCUEIL ── -->
       <div id="welcome-form">
         <div class="card">
-          <div class="card-title">Bienvenue sur Goova 👋</div>
-          <p style="font-size:14px;color:var(--text-2);margin-bottom:24px">Votre plateforme de transport interurbain en Mauritanie.</p>
+          <div class="card-title">Bienvenue sur Goova</div>
+          <p class="card-desc">Votre plateforme de transport interurbain en Mauritanie.</p>
           <button class="btn btn-green" onclick="showPinLogin()" style="margin-bottom:12px">Se connecter</button>
-          <button class="btn" onclick="showRegisterForm()" style="background:var(--bg-2);color:var(--text-1);border:1.5px solid var(--border)">Créer un compte</button>
+          <button class="btn btn-ghost" onclick="showRegisterForm()">Créer un compte</button>
         </div>
       </div>
 
@@ -518,7 +327,7 @@
         <!-- Étape 1 : nom + numéro -->
         <div id="reg-step1">
           <div class="card">
-            <button onclick="backToFirstConnect()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+            <button onclick="backToFirstConnect()" class="btn-back-link">← Retour</button>
             <div class="card-title">Créer un compte</div>
             <div class="form-group">
               <label>Je suis</label>
@@ -549,15 +358,15 @@
         <div id="reg-step2" style="display:none">
           <div class="card">
             <div class="card-title">Vérification WhatsApp</div>
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Un code a été envoyé sur votre WhatsApp. Entrez-le ci-dessous.</p>
+            <p class="card-desc">Un code a été envoyé sur votre WhatsApp. Entrez-le ci-dessous.</p>
             <div class="form-group">
               <label>Code WhatsApp</label>
               <input type="text" id="reg-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')registerStep2()">
             </div>
             <div id="reg-otp-alert"></div>
             <button class="btn btn-green" onclick="registerStep2()">Vérifier →</button>
-            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
-              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="registerStep1()">Renvoyer le code</button>
+            <p class="form-link-row">
+              <button class="btn-text-link" onclick="registerStep1()">Renvoyer le code</button>
             </p>
           </div>
         </div>
@@ -565,7 +374,7 @@
         <div id="reg-step3" style="display:none">
           <div class="card">
             <div class="card-title">Créer votre code PIN</div>
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Choisissez un code PIN de 4 chiffres. Vous l'utiliserez à chaque connexion.</p>
+            <p class="card-desc">Choisissez un code PIN de 4 chiffres. Vous l'utiliserez à chaque connexion.</p>
             <div class="form-group">
               <label>Code PIN</label>
               <input type="password" id="reg-pin" placeholder="••••" maxlength="4" inputmode="numeric">
@@ -583,7 +392,7 @@
       <!-- ── CONNEXION PIN (pour ceux qui ont déjà un PIN) ── -->
       <div id="login-form" style="display:none">
         <div class="card">
-          <button onclick="backToFirstConnect()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+          <button onclick="backToFirstConnect()" class="btn-back-link">← Retour</button>
           <div class="card-title">Se connecter</div>
           <div class="form-group">
             <label>Numéro WhatsApp</label>
@@ -598,8 +407,8 @@
           </div>
           <div id="auth-alert"></div>
           <button class="btn btn-green" onclick="loginWithPin()">Se connecter →</button>
-          <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:14px">
-            <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="showPinForgotForm()">PIN oublié ?</button>
+          <p class="form-link-row">
+            <button class="btn-text-link" onclick="showPinForgotForm()">PIN oublié ?</button>
           </p>
         </div>
       </div>
@@ -607,10 +416,10 @@
       <!-- ── PIN OUBLIÉ ── -->
       <div id="pin-forgot-form" style="display:none">
         <div class="card">
-          <button onclick="backToPinLogin()" style="background:none;border:none;color:var(--text-3);font-size:13px;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px">← Retour</button>
+          <button onclick="backToPinLogin()" class="btn-back-link">← Retour</button>
           <div class="card-title">PIN oublié</div>
           <div id="pin-forgot-step1">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
+            <p class="card-desc">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
             <div class="form-group">
               <div class="phone-wrap">
                 <span class="phone-prefix">🇲🇷 +222</span>
@@ -621,15 +430,15 @@
             <button class="btn btn-green" onclick="requestPinForgotOtp()">Recevoir le code WhatsApp →</button>
           </div>
           <div id="pin-forgot-step2" style="display:none">
-            <p style="font-size:14px;color:var(--text-2);margin-bottom:18px">Entrez le code reçu sur WhatsApp.</p>
+            <p class="card-desc">Entrez le code reçu sur WhatsApp.</p>
             <div class="form-group">
               <label>Code WhatsApp</label>
               <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyPinForgotOtp()">
             </div>
             <div id="pf-alert2"></div>
             <button class="btn btn-green" onclick="verifyPinForgotOtp()">Vérifier →</button>
-            <p style="text-align:center;font-size:13px;color:var(--text-3);margin-top:12px">
-              <button style="background:none;border:none;color:var(--green);font-weight:600;font-size:13px;cursor:pointer;padding:0" onclick="requestPinForgotOtp()">Renvoyer le code</button>
+            <p class="form-link-row">
+              <button class="btn-text-link" onclick="requestPinForgotOtp()">Renvoyer le code</button>
             </p>
           </div>
         </div>
@@ -658,9 +467,9 @@
       </div>
       <!-- Dossier chauffeur à compléter -->
       <div id="driver-dossier-section" style="display:none">
-        <div class="card" style="border:2px solid var(--green)">
-          <div class="card-title" style="color:var(--green)">📋 Complétez votre dossier</div>
-          <p style="font-size:14px;color:var(--text-2);margin-bottom:16px">Pour être approuvé, renseignez vos documents. L'admin sera notifié et validera votre compte.</p>
+        <div class="card card-accent">
+          <div class="card-title card-title-primary">Complétez votre dossier</div>
+          <p class="card-desc">Pour être approuvé, renseignez vos documents. L'admin sera notifié et validera votre compte.</p>
           <div class="form-group"><label>N° Permis de conduire *</label><input type="text" id="doc-license-num" placeholder="MR-XXXXXXXX"></div>
           <div class="form-group"><label>N° Carte d'identité *</label><input type="text" id="doc-national-id" placeholder="XXXXXXXXXX"></div>
           <div class="form-group"><label>Photo du permis (optionnel, max 2MB)</label><input type="file" id="doc-license-photo" accept="image/*"></div>
@@ -682,7 +491,7 @@
         <div class="card">
           <div class="card-title">Modifier mon profil</div>
           <div class="form-group"><label>Nom</label><input type="text" id="edit-name" placeholder="Votre nom"></div>
-          <div style="border-top:1px solid var(--border);margin:14px 0;padding-top:14px;font-size:13px;font-weight:600;color:var(--text-2)">Changer le mot de passe</div>
+          <div class="form-section-sep">Changer le mot de passe</div>
           <div class="form-group"><label>Mot de passe actuel</label><input type="password" id="edit-current-password" placeholder="••••••••"></div>
           <div class="form-group"><label>Nouveau mot de passe</label><input type="password" id="edit-new-password" placeholder="6 caractères minimum"></div>
           <div id="edit-profile-alert"></div>
@@ -702,12 +511,11 @@
   </div>
 
   <!-- AIDE & CONTACT — visible pour tous -->
-  <div style="padding: 0 20px 32px; margin-top: 8px;">
-    <div style="background:var(--bg-2);border-radius:16px;padding:18px 16px;">
-      <div style="font-size:15px;font-weight:800;margin-bottom:4px">Besoin d'aide ?</div>
-      <div style="font-size:13px;color:var(--text-3);margin-bottom:14px">Notre équipe répond rapidement sur WhatsApp</div>
-      <a href="https://wa.me/33601821166?text=Bonjour%20Goova%2C%20j%27ai%20besoin%20d%27aide" target="_blank"
-        style="display:flex;align-items:center;justify-content:center;gap:10px;background:#25D366;color:white;border-radius:12px;padding:14px;font-weight:700;font-size:15px;text-decoration:none;">
+  <div class="help-section">
+    <div class="help-card">
+      <div class="help-title">Besoin d'aide ?</div>
+      <div class="help-sub">Notre équipe répond rapidement sur WhatsApp</div>
+      <a href="https://wa.me/33601821166?text=Bonjour%20Goova%2C%20j%27ai%20besoin%20d%27aide" target="_blank" class="help-wa-btn">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         Contacter sur WhatsApp
       </a>
@@ -748,7 +556,7 @@
       </select>
     </div>
     <div class="form-group"><label>Message</label>
-      <textarea id="sms-message" placeholder="Tapez votre message..." style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-2);resize:vertical;min-height:90px;outline:none;transition:border 0.15s" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      <textarea id="sms-message" class="form-textarea" style="min-height:90px" placeholder="Tapez votre message..."></textarea>
     </div>
     <div id="sms-count" class="text-gray mt-10"></div>
     <div id="sms-alert"></div>
@@ -767,23 +575,25 @@
 </div>
 
 <!-- ─── PASSENGERS MODAL ─── -->
-<div id="pax-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-end">
-  <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:24px 20px 32px;width:100%;box-sizing:border-box;max-height:80vh;overflow-y:auto">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-      <div style="font-size:17px;font-weight:700">👥 Passagers</div>
-      <button onclick="closePaxModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-3)">✕</button>
+<div id="pax-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">Passagers</div>
+      <button class="modal-close" onclick="closePaxModal()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
-    <div id="pax-trip-info" style="font-size:14px;color:var(--text-3);margin-bottom:16px"></div>
+    <div id="pax-trip-info" class="modal-sub"></div>
     <div id="pax-list"></div>
   </div>
 </div>
 
 <!-- ─── RATING MODAL ─── -->
-<div id="rating-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:400;align-items:flex-end">
-  <div class="rating-modal-inner">
-    <div style="font-size:17px;font-weight:700;margin-bottom:6px">Évaluer le trajet ⭐</div>
-    <div id="rating-trip-info" style="font-size:14px;color:var(--text-3);margin-bottom:20px"></div>
-    <div id="rating-stars" style="display:flex;justify-content:center;gap:8px;margin-bottom:20px">
+<div id="rating-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-title" style="margin-bottom:6px">Évaluer le trajet</div>
+    <div id="rating-trip-info" class="modal-sub"></div>
+    <div id="rating-stars" class="rating-stars-row">
       <button class="star-btn" onclick="setRating(1)">★</button>
       <button class="star-btn" onclick="setRating(2)">★</button>
       <button class="star-btn" onclick="setRating(3)">★</button>
@@ -791,7 +601,7 @@
       <button class="star-btn" onclick="setRating(5)">★</button>
     </div>
     <div class="form-group">
-      <textarea id="rating-comment" placeholder="Commentaire (optionnel)..." style="width:100%;padding:13px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;background:var(--bg-2);resize:vertical;min-height:80px;outline:none;box-sizing:border-box;transition:border 0.15s" onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      <textarea id="rating-comment" class="form-textarea" placeholder="Commentaire (optionnel)..."></textarea>
     </div>
     <div id="rating-alert"></div>
     <button class="btn btn-green" onclick="submitReview()">Envoyer mon avis</button>
@@ -816,11 +626,13 @@
 </div>
 
 <!-- ─── PROFIL CHAUFFEUR MODAL ─── -->
-<div id="driver-profile-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:250;align-items:flex-end" onclick="if(event.target===this)closeDriverProfile()">
-  <div style="background:var(--bg);border-radius:20px 20px 0 0;max-height:85vh;overflow-y:auto;width:100%;max-width:480px;margin:0 auto;padding:20px 20px calc(32px + env(safe-area-inset-bottom,0px))">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div style="font-size:17px;font-weight:800">Profil chauffeur</div>
-      <button onclick="closeDriverProfile()" style="background:var(--bg-2);border:none;border-radius:50%;width:32px;height:32px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
+<div id="driver-profile-modal" class="modal-overlay" onclick="if(event.target===this)closeDriverProfile()">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">Profil chauffeur</div>
+      <button class="modal-close" onclick="closeDriverProfile()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
     <div id="driver-profile-body"><div class="loading">Chargement...</div></div>
   </div>
@@ -830,43 +642,50 @@
 <div id="trip-detail">
   <div class="td-header">
     <button class="back-btn" onclick="closeTripDetail()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
     </button>
-    <div style="font-size:16px;font-weight:700;flex:1" data-i18n="detail.title">Détails du trajet</div>
-    <button id="td-share-btn" onclick="shareCurrentTrip()" style="background:none;border:none;cursor:pointer;padding:6px;display:flex;align-items:center;gap:5px;color:#25D366;font-size:13px;font-weight:700">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.527 5.855L.057 23.882l6.233-1.635A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.879a9.835 9.835 0 0 1-5.031-1.381l-.361-.214-3.741.981 1.001-3.648-.235-.374A9.84 9.84 0 0 1 2.121 12C2.121 6.533 6.533 2.121 12 2.121c5.468 0 9.879 4.412 9.879 9.879 0 5.468-4.411 9.879-9.879 9.879z"/></svg>
-      Partager
+    <div class="td-header-title" data-i18n="detail.title">Détails du trajet</div>
+    <button id="td-share-btn" class="td-share-btn" onclick="shareCurrentTrip()">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.527 5.855L.057 23.882l6.233-1.635A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.879a9.835 9.835 0 0 1-5.031-1.381l-.361-.214-3.741.981 1.001-3.648-.235-.374A9.84 9.84 0 0 1 2.121 12C2.121 6.533 6.533 2.121 12 2.121c5.468 0 9.879 4.412 9.879 9.879 0 5.468-4.411 9.879-9.879 9.879z"/></svg>
+      <span>WhatsApp</span>
     </button>
   </div>
   <div class="td-body" id="td-body"></div>
   <div class="td-book-bar">
-    <div id="td-already-booked" style="display:none;text-align:center;padding:12px 14px;background:#e8f5e9;border-radius:10px;margin-bottom:10px">
-      <span style="font-size:22px">✅</span>
-      <div style="font-size:14px;font-weight:700;color:#00C853;margin-top:4px">Vous avez déjà réservé ce trajet</div>
-      <div style="font-size:12px;color:var(--text-3);margin-top:2px">Retrouvez-le dans vos réservations</div>
+    <div id="td-already-booked" class="td-booked-notice">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20" style="color:var(--primary)"><path d="M20 6L9 17l-5-5"/></svg>
+      <div>
+        <div class="td-booked-title">Déjà réservé</div>
+        <div class="td-booked-sub">Retrouvez-le dans vos trajets</div>
+      </div>
     </div>
-    <div id="td-seats-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-      <span style="font-size:14px;color:var(--text-2);flex:1">Nombre de places</span>
-      <button onclick="changeSeat(-1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
-      <span id="td-seats-val" style="font-size:18px;font-weight:800;min-width:24px;text-align:center">1</span>
-      <button onclick="changeSeat(1)" style="width:34px;height:34px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg-2);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+    <div id="td-seats-row" class="td-seats-row">
+      <span class="td-seats-label">Nombre de places</span>
+      <button class="td-seat-btn" onclick="changeSeat(-1)">−</button>
+      <span id="td-seats-val" class="td-seats-val">1</span>
+      <button class="td-seat-btn" onclick="changeSeat(1)">+</button>
     </div>
-    <div id="td-book-error" style="display:none;color:#e53935;font-size:13px;margin-bottom:8px;text-align:center;padding:8px 12px;background:rgba(229,57,53,0.08);border-radius:8px"></div>
+    <div id="td-book-error" class="td-book-error"></div>
     <button class="btn btn-green" id="td-book-btn" onclick="bookFromDetail()" data-i18n="book.btn">Réserver ce trajet</button>
   </div>
 </div>
 
 <!-- ─── PUBLISH MODAL ─── -->
-<div id="publish-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;align-items:flex-end">
-  <div style="background:var(--bg);border-radius:20px 20px 0 0;padding:22px 20px calc(32px + env(safe-area-inset-bottom,0px));width:100%;max-height:92vh;overflow-y:auto;box-sizing:border-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-      <div style="font-size:17px;font-weight:800">🚗 Publier un trajet</div>
-      <button onclick="closePublishModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text-3);line-height:1">✕</button>
+<div id="publish-modal" class="modal-overlay">
+  <div class="modal-sheet">
+    <div class="modal-header">
+      <div class="modal-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" style="color:var(--primary)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        Publier un trajet
+      </div>
+      <button class="modal-close" onclick="closePublishModal()" aria-label="Fermer">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
     <div class="form-group">
       <label>Ville de départ</label>
       <button class="city-input-btn" onclick="openCityPicker('pm-from')">
-        <span class="cib-icon">📍</span>
+        <svg class="cib-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         <span id="pm-from-label" class="cib-placeholder">Choisir une ville...</span>
         <input type="hidden" id="pm-from">
       </button>
@@ -874,16 +693,16 @@
     <div class="form-group">
       <label>Ville d'arrivée</label>
       <button class="city-input-btn" onclick="openCityPicker('pm-to')">
-        <span class="cib-icon" style="opacity:0.5">📍</span>
+        <svg class="cib-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="opacity:.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
         <span id="pm-to-label" class="cib-placeholder">Choisir une ville...</span>
         <input type="hidden" id="pm-to">
       </button>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="form-grid-2">
       <div class="form-group"><label>Date de départ</label><input type="date" id="pm-date"></div>
       <div class="form-group"><label>Heure</label><input type="time" id="pm-time"></div>
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div class="form-grid-2">
       <div class="form-group"><label>Places</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
       <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
     </div>
@@ -900,13 +719,15 @@
 </div>
 
 <!-- ─── BOOKING SUCCESS OVERLAY ─── -->
-<div id="booking-success-overlay" style="display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.75);align-items:center;justify-content:center">
-  <div style="background:var(--bg);border-radius:var(--radius);padding:36px 24px;margin:20px;text-align:center;max-width:400px;width:100%;box-sizing:border-box">
-    <div style="font-size:56px;margin-bottom:12px">✅</div>
-    <div style="font-size:20px;font-weight:800;margin-bottom:8px">Réservation confirmée !</div>
-    <div id="bso-ref" style="font-size:14px;color:var(--text-2);margin-bottom:4px"></div>
-    <div id="bso-total" style="font-size:28px;font-weight:800;color:var(--green);margin:12px 0"></div>
-    <div id="bso-driver" style="font-size:14px;color:var(--text-2);margin-bottom:24px;line-height:1.5"></div>
+<div id="booking-success-overlay" class="bso-overlay">
+  <div class="bso-card">
+    <div class="bso-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="36" height="36" style="color:var(--primary)"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="bso-title">Réservation confirmée !</div>
+    <div id="bso-ref" class="bso-ref"></div>
+    <div id="bso-total" class="bso-total"></div>
+    <div id="bso-driver" class="bso-driver"></div>
     <button class="btn btn-green" onclick="closeBookingSuccess()">Voir mes réservations</button>
   </div>
 </div>
@@ -1412,6 +1233,23 @@ function updateHomeDateDisplay() {
 function clearHomeDate() {
   document.getElementById("hf-date").value = "";
   updateHomeDateDisplay();
+}
+
+// ── QUICK SEARCH (destination cards) ──
+function quickSearch(from, to) {
+  const fromInp = document.getElementById('hf-from');
+  const fromLbl = document.getElementById('hf-from-label');
+  const fromCode = document.getElementById('hf-from-code');
+  const toInp   = document.getElementById('hf-to');
+  const toLbl   = document.getElementById('hf-to-label');
+  const toCode  = document.getElementById('hf-to-code');
+  if (fromInp) fromInp.value = from;
+  if (fromLbl) { fromLbl.textContent = from; fromLbl.className = 'hsc-val'; }
+  if (fromCode) fromCode.textContent = from.slice(0,3).toUpperCase();
+  if (toInp)   toInp.value = to;
+  if (toLbl)   { toLbl.textContent = to; toLbl.className = 'hsc-val'; }
+  if (toCode)  toCode.textContent = to.slice(0,3).toUpperCase();
+  searchFromHome();
 }
 
 // ── SEARCH FROM HOME (voyageur) ──
@@ -2231,6 +2069,8 @@ function updateProfileSection() {
     const heroIcon = document.getElementById("hero-avatar-icon");
     const heroInitials = document.getElementById("hero-avatar-initials");
     if (heroIcon && heroInitials) { heroIcon.style.display = "none"; heroInitials.style.display = "inline"; heroInitials.textContent = initials; }
+    const heroGreeting = document.getElementById("hero-greeting");
+    if (heroGreeting && firstName) heroGreeting.textContent = "Marhaba, " + firstName + " 👋";
     const bnavLabel = document.getElementById("bnav-compte-label");
     if (bnavLabel) bnavLabel.textContent = firstName || "Compte";
     document.getElementById("profile-role").textContent = currentUser.role;

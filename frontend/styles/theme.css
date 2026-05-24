@@ -1,0 +1,112 @@
+/* ═══════════════════════════════════════════════════════
+   GOOVA · Design System — theme.css
+   Tokens, dark mode, type scale, base reset
+   ═══════════════════════════════════════════════════════ */
+
+/* ── DESIGN TOKENS (light) ── */
+:root {
+  /* Brand */
+  --primary:      #1F8A5B;
+  --primary-hi:   #176E48;
+  --primary-deep: #1A4634;
+  --primary-lo:   #DCEFE3;
+  --on-primary:   #FFFFFF;
+
+  /* Accent sable */
+  --accent:       #E0C68B;
+  --accent-deep:  #A8753C;
+
+  /* Surfaces */
+  --bg:        #FAF6EE;
+  --surface:   #FFFFFF;
+  --surface-2: #F2ECE0;
+
+  /* Borders */
+  --border:    #EADFC9;
+  --border-hi: #D6C7A8;
+
+  /* Foreground */
+  --fg:        #15191A;
+  --fg-muted:  #6E6A5E;
+  --fg-subtle: #9B9684;
+
+  /* Semantic */
+  --success: #1F8A5B;
+  --danger:  #A1281A;
+  --warning: #A8753C;
+
+  /* Radii */
+  --radius:    22px;
+  --radius-sm: 14px;
+  --radius-xs: 10px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 8px rgba(21,25,26,.06);
+  --shadow:    0 4px 16px rgba(21,25,26,.10);
+  --shadow-md: 0 8px 32px rgba(21,25,26,.14);
+  --shadow-lg: 0 16px 48px rgba(21,25,26,.22);
+
+  /* ── Legacy aliases (pour le HTML généré par JS) ── */
+  --green:        #1F8A5B;
+  --green-dark:   #176E48;
+  --green-light:  #DCEFE3;
+  --bg-2:         #F2ECE0;
+  --bg-3:         #EADFC9;
+  --text:         #15191A;
+  --text-2:       #6E6A5E;
+  --text-3:       #9B9684;
+  --radius-sm-old: 12px;
+  --shadow-old:    0 2px 10px rgba(0,0,0,.06);
+  --shadow-md-old: 0 4px 20px rgba(0,0,0,.10);
+}
+
+/* ── DARK MODE ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:        #0F1311;
+    --surface:   #181D1A;
+    --surface-2: #222926;
+    --border:    #2A312D;
+    --border-hi: #3A4540;
+    --fg:        #F5F1E5;
+    --fg-muted:  #A09B8E;
+    --fg-subtle: #6E6A5E;
+
+    /* Legacy overrides */
+    --bg-2:        #222926;
+    --bg-3:        #2A312D;
+    --text:        #F5F1E5;
+    --text-2:      #A09B8E;
+    --text-3:      #6E6A5E;
+    --green-light: rgba(31,138,91,.14);
+  }
+}
+
+/* ── TYPE SCALE ── */
+.display  { font: 800 38px/1.10 'Plus Jakarta Sans', sans-serif; letter-spacing: -1.2px; }
+.headline { font: 800 26px/1.20 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.6px; }
+.title    { font: 700 18px/1.30 'Plus Jakarta Sans', sans-serif; letter-spacing: -0.3px; }
+.body     { font: 500 14px/1.55 'Inter Tight', sans-serif; }
+.label-sm { font: 700 11px/1.20 'Inter Tight', sans-serif; text-transform: uppercase; letter-spacing: .5px; }
+.arabic   { font: 400 12px/1.60 'Noto Naskh Arabic', serif; direction: rtl; opacity: .65; }
+
+/* ── BASE RESET ── */
+*, *::before, *::after {
+  margin: 0; padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter Tight', -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+  max-width: 480px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
