@@ -192,81 +192,100 @@
     </div>
 
     <!-- TRAJETS POPULAIRES -->
-    <div class="pop-section">
-      <div class="pop-header">
-        <span class="pop-title">Trajets populaires</span>
-        <button class="pop-see-all" onclick="searchFromHome()">Voir tout</button>
+    <section class="popular-trips">
+      <div class="popular-trips__header">
+        <h2 class="popular-trips__title">Trajets populaires</h2>
+        <button class="popular-trips__see-all" onclick="searchFromHome()">Voir tout</button>
       </div>
 
-      <!-- Nouakchott → Nouadhibou -->
-      <div class="pop-card" onclick="quickSearch('Nouakchott','Nouadhibou')">
-        <div class="ptc-timeline">
-          <div class="ptc-dot-empty"></div>
-          <div class="ptc-line"></div>
-          <div class="ptc-dot-full"></div>
-        </div>
-        <div class="ptc-text">
-          <div class="ptc-route">Nouakchott
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13" class="ptc-arrow-sep"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Nouadhibou
+      <div class="popular-trips__list">
+
+        <a class="trip-row" onclick="quickSearch('Nouakchott','Nouadhibou')">
+          <div class="trip-row__timeline">
+            <span class="trip-row__dot trip-row__dot--start"></span>
+            <span class="trip-row__line"></span>
+            <span class="trip-row__dot trip-row__dot--end"></span>
           </div>
-          <div class="ptc-meta">24 trajets / sem.&nbsp;<span class="ptc-dot">·</span>&nbsp;dès 1&nbsp;500&nbsp;UM</div>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" class="ptc-chevron"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
-
-      <!-- Nouakchott → Atar -->
-      <div class="pop-card" onclick="quickSearch('Nouakchott','Atar')">
-        <div class="ptc-timeline">
-          <div class="ptc-dot-empty"></div>
-          <div class="ptc-line"></div>
-          <div class="ptc-dot-full"></div>
-        </div>
-        <div class="ptc-text">
-          <div class="ptc-route">Nouakchott
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13" class="ptc-arrow-sep"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Atar
+          <div class="trip-row__content">
+            <div class="trip-row__route">
+              <span class="trip-row__city">Nouakchott</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              <span class="trip-row__city">Nouadhibou</span>
+            </div>
+            <div class="trip-row__meta">
+              <span>24 trajets / sem.</span>
+              <span class="trip-row__meta-sep"></span>
+              <span>dès 1&nbsp;500&nbsp;UM</span>
+            </div>
           </div>
-          <div class="ptc-meta">12 trajets / sem.&nbsp;<span class="ptc-dot">·</span>&nbsp;dès 1&nbsp;200&nbsp;UM</div>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" class="ptc-chevron"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
+          <svg class="trip-row__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        </a>
 
-      <!-- Nouakchott → Rosso -->
-      <div class="pop-card" onclick="quickSearch('Nouakchott','Rosso')">
-        <div class="ptc-timeline">
-          <div class="ptc-dot-empty"></div>
-          <div class="ptc-line"></div>
-          <div class="ptc-dot-full"></div>
-        </div>
-        <div class="ptc-text">
-          <div class="ptc-route">Nouakchott
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13" class="ptc-arrow-sep"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Rosso
+        <a class="trip-row" onclick="quickSearch('Nouakchott','Atar')">
+          <div class="trip-row__timeline">
+            <span class="trip-row__dot trip-row__dot--start"></span>
+            <span class="trip-row__line"></span>
+            <span class="trip-row__dot trip-row__dot--end"></span>
           </div>
-          <div class="ptc-meta">38 trajets / sem.&nbsp;<span class="ptc-dot">·</span>&nbsp;dès 600&nbsp;UM</div>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" class="ptc-chevron"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
-
-      <!-- Nouakchott → Kiffa -->
-      <div class="pop-card" onclick="quickSearch('Nouakchott','Kiffa')">
-        <div class="ptc-timeline">
-          <div class="ptc-dot-empty"></div>
-          <div class="ptc-line"></div>
-          <div class="ptc-dot-full"></div>
-        </div>
-        <div class="ptc-text">
-          <div class="ptc-route">Nouakchott
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="13" height="13" class="ptc-arrow-sep"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            Kiffa
+          <div class="trip-row__content">
+            <div class="trip-row__route">
+              <span class="trip-row__city">Nouakchott</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              <span class="trip-row__city">Atar</span>
+            </div>
+            <div class="trip-row__meta">
+              <span>12 trajets / sem.</span>
+              <span class="trip-row__meta-sep"></span>
+              <span>dès 1&nbsp;200&nbsp;UM</span>
+            </div>
           </div>
-          <div class="ptc-meta">8 trajets / sem.&nbsp;<span class="ptc-dot">·</span>&nbsp;dès 2&nbsp;200&nbsp;UM</div>
-        </div>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" class="ptc-chevron"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </div>
+          <svg class="trip-row__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        </a>
 
-    </div>
+        <a class="trip-row" onclick="quickSearch('Nouakchott','Rosso')">
+          <div class="trip-row__timeline">
+            <span class="trip-row__dot trip-row__dot--start"></span>
+            <span class="trip-row__line"></span>
+            <span class="trip-row__dot trip-row__dot--end"></span>
+          </div>
+          <div class="trip-row__content">
+            <div class="trip-row__route">
+              <span class="trip-row__city">Nouakchott</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              <span class="trip-row__city">Rosso</span>
+            </div>
+            <div class="trip-row__meta">
+              <span>38 trajets / sem.</span>
+              <span class="trip-row__meta-sep"></span>
+              <span>dès 600&nbsp;UM</span>
+            </div>
+          </div>
+          <svg class="trip-row__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        </a>
+
+        <a class="trip-row" onclick="quickSearch('Nouakchott','Kiffa')">
+          <div class="trip-row__timeline">
+            <span class="trip-row__dot trip-row__dot--start"></span>
+            <span class="trip-row__line"></span>
+            <span class="trip-row__dot trip-row__dot--end"></span>
+          </div>
+          <div class="trip-row__content">
+            <div class="trip-row__route">
+              <span class="trip-row__city">Nouakchott</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+              <span class="trip-row__city">Kiffa</span>
+            </div>
+            <div class="trip-row__meta">
+              <span>8 trajets / sem.</span>
+              <span class="trip-row__meta-sep"></span>
+              <span>dès 2&nbsp;200&nbsp;UM</span>
+            </div>
+          </div>
+          <svg class="trip-row__arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-6-6 6 6-6 6"/></svg>
+        </a>
+
+      </div>
+    </section>
 
     <!-- Trajets récents (chargés dynamiquement) -->
     <div id="home-trips"></div>
