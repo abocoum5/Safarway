@@ -327,8 +327,38 @@
     <div id="bookings-list"><div class="loading">Chargement...</div></div>
   </div>
   <div id="panel-sms" class="panel" style="display:none">
-    <div class="panel-title">📱 SMS</div>
-    <div id="sms-content"><div class="loading">Chargement...</div></div>
+    <div class="panel-title">📱 WhatsApp</div>
+
+    <div style="margin-bottom:20px;padding:16px;background:#f9fafb;border-radius:12px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:4px">📅 Rappels automatiques J-1</div>
+      <div style="font-size:13px;color:#888;margin-bottom:12px">Envoyés automatiquement chaque jour à 7h UTC.</div>
+      <button class="btn" onclick="sendReminders()">📤 Envoyer les rappels maintenant</button>
+    </div>
+
+    <div style="padding:16px;background:#f9fafb;border-radius:12px">
+      <div style="font-weight:700;font-size:14px;margin-bottom:16px">✉️ Envoyer un message WhatsApp</div>
+      <div class="form-group">
+        <label>Destinataires</label>
+        <select id="sms-cible" onchange="togglePhoneField()">
+          <option value="tous">Tous les utilisateurs</option>
+          <option value="chauffeurs">Chauffeurs uniquement</option>
+          <option value="voyageurs">Voyageurs uniquement</option>
+          <option value="telephone">Un numéro spécifique</option>
+        </select>
+      </div>
+      <div class="form-group" id="sms-phone-field" style="display:none">
+        <label>Numéro avec indicatif (ex: +33601821166 ou +22236000000)</label>
+        <input type="tel" id="sms-phone" placeholder="+33601821166">
+      </div>
+      <div class="form-group">
+        <label>Message <span id="sms-char-count" style="color:#888;font-weight:400">(0 / 300)</span></label>
+        <textarea id="sms-message" rows="4" placeholder="Votre message WhatsApp..." maxlength="300"
+          oninput="document.getElementById('sms-char-count').textContent='('+this.value.length+' / 300)'"
+          style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
+      </div>
+      <div id="sms-broadcast-alert" style="margin-bottom:8px"></div>
+      <button id="sms-send-btn" class="btn" style="background:#25D366" onclick="sendBroadcastSMS()">📨 Envoyer via WhatsApp</button>
+    </div>
   </div>
 </div>
 
@@ -626,39 +656,7 @@ async function loadBookings() {
 }
 
 // ── SMS ────────────────────────────────────────────────────────
-function loadSMS() {
-  document.getElementById("sms-content").innerHTML = `
-    <div style="margin-bottom:24px;padding:16px;background:#f9fafb;border-radius:12px">
-      <div style="font-weight:700;font-size:14px;margin-bottom:4px">📅 Rappels automatiques J-1</div>
-      <div style="font-size:13px;color:#888;margin-bottom:12px">Envoyés automatiquement chaque jour à 7h UTC.</div>
-      <button class="btn" onclick="sendReminders()">📤 Envoyer les rappels maintenant</button>
-    </div>
-
-    <div style="padding:16px;background:#f9fafb;border-radius:12px">
-      <div style="font-weight:700;font-size:14px;margin-bottom:16px">✉️ Envoyer un message personnalisé</div>
-      <div class="form-group">
-        <label>Destinataires</label>
-        <select id="sms-cible" onchange="togglePhoneField()">
-          <option value="tous">Tous les utilisateurs</option>
-          <option value="chauffeurs">Chauffeurs uniquement</option>
-          <option value="voyageurs">Voyageurs uniquement</option>
-          <option value="telephone">Un numéro spécifique</option>
-        </select>
-      </div>
-      <div class="form-group" id="sms-phone-field" style="display:none">
-        <label>Numéro de téléphone (sans +222)</label>
-        <input type="tel" id="sms-phone" placeholder="ex: 36000000" inputmode="numeric">
-      </div>
-      <div class="form-group">
-        <label>Message <span id="sms-char-count" style="color:#888;font-weight:400">(0 / 160)</span></label>
-        <textarea id="sms-message" rows="4" placeholder="Votre message..." maxlength="320"
-          oninput="document.getElementById('sms-char-count').textContent='('+this.value.length+' / 160)'"
-          style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
-      </div>
-      <div id="sms-broadcast-alert" style="margin-bottom:8px"></div>
-      <button id="sms-send-btn" class="btn" onclick="sendBroadcastSMS()">📨 Envoyer le message</button>
-    </div>`;
-}
+function loadSMS() { /* formulaire statique dans le HTML */ }
 
 function togglePhoneField() {
   const cible = document.getElementById("sms-cible").value;

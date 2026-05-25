@@ -209,7 +209,7 @@ def envoyer_sms_broadcast(
     if payload.cible == "telephone":
         if not payload.telephone:
             raise HTTPException(status_code=400, detail="Numéro de téléphone requis")
-        phone = payload.telephone.strip().replace("+222", "").replace(" ", "")
+        phone = payload.telephone.strip().replace(" ", "")
         try:
             _send_whatsapp(phone, payload.message)
         except Exception as e:
