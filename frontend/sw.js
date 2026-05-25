@@ -47,8 +47,8 @@ self.addEventListener("notificationclick", e => {
 self.addEventListener("fetch", e => {
   const url = new URL(e.request.url);
 
-  // API calls → réseau uniquement, pas de cache
-  if (url.hostname.includes("onrender.com")) return;
+  // API calls → réseau uniquement, jamais de cache
+  if (url.pathname.startsWith("/api/")) return;
 
   // Ressources externes (CDN) → réseau d'abord
   if (!url.hostname.includes("vercel.app") && url.hostname !== self.location.hostname && url.hostname !== "localhost") {
