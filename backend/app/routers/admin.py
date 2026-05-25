@@ -201,7 +201,7 @@ def envoyer_sms_broadcast(
     current_user=Depends(get_current_user)
 ):
     check_admin(current_user)
-    from app.sms import _send
+    from app.sms import _send_whatsapp
 
     if not payload.message or len(payload.message.strip()) < 2:
         raise HTTPException(status_code=400, detail="Message trop court")
@@ -211,7 +211,7 @@ def envoyer_sms_broadcast(
             raise HTTPException(status_code=400, detail="Numéro de téléphone requis")
         phone = payload.telephone.strip().replace("+222", "").replace(" ", "")
         try:
-            _send(phone, payload.message)
+            _send_whatsapp(phone, payload.message)
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
         return {"envoyes": 1, "erreurs": 0}
@@ -228,10 +228,10 @@ def envoyer_sms_broadcast(
     envoyes, erreurs = 0, 0
     for u in users:
         try:
-            _send(u.phone, payload.message)
+            _send_whatsapp(u.phone, payload.message)
             envoyes += 1
         except Exception as e:
-            print(f"[SMS broadcast] Erreur {u.phone}: {e}")
+            print(f"[WhatsApp broadcast] Erreur {u.phone}: {e}")
             erreurs += 1
 
     return {"envoyes": envoyes, "erreurs": erreurs, "total": len(users)}

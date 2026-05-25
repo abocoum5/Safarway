@@ -41,28 +41,34 @@ def _send(phone: str, message: str):
         raise Exception(msg["error-text"])
 
 
-def send_whatsapp_otp(phone: str, otp: str):
-    """Envoie un OTP via WhatsApp (UltraMsg). Fallback SMS Vonage si non configuré."""
+def _send_whatsapp(phone: str, message: str):
+    """Envoie un message WhatsApp via UltraMsg. Lève une exception si non configuré ou en erreur."""
     instance_id = os.getenv("ULTRAMSG_INSTANCE_ID")
     token = os.getenv("ULTRAMSG_TOKEN")
-    print(f"[WhatsApp OTP] instance_id={instance_id!r} token={token!r} phone={phone!r}")
+    if not instance_id or not token:
+        raise Exception("ULTRAMSG_INSTANCE_ID ou ULTRAMSG_TOKEN non configuré")
+    to = phone if phone.startswith("+") else f"+222{phone}"
+    result = subprocess.run([
+        "/usr/bin/curl", "-s", "-X", "POST",
+        f"https://api.ultramsg.com/{instance_id}/messages/chat",
+        "-H", "content-type: application/x-www-form-urlencoded",
+        "--data-urlencode", f"token={token}",
+        "--data-urlencode", f"to={to}",
+        "--data-urlencode", f"body={message}",
+    ], capture_output=True, text=True, timeout=15)
+    print(f"[WhatsApp UltraMsg] to={to} — {result.stdout[:120]}")
+    if result.returncode != 0:
+        raise Exception(f"curl error: {result.stderr[:120]}")
 
-    if instance_id and token:
-        to = phone if phone.startswith("+") else f"+222{phone}"
-        body_text = f"Goova - Votre code : {otp}. Valide 10 minutes."
-        try:
-            result = subprocess.run([
-                "/usr/bin/curl", "-s", "-X", "POST",
-                f"https://api.ultramsg.com/{instance_id}/messages/chat",
-                "-H", "content-type: application/x-www-form-urlencoded",
-                "--data-urlencode", f"token={token}",
-                "--data-urlencode", f"to={to}",
-                "--data-urlencode", f"body={body_text}",
-            ], capture_output=True, text=True, timeout=15)
-            print(f"[WhatsApp OTP] Envoyé à {to} — {result.stdout}")
-            return
-        except Exception as e:
-            print(f"[WhatsApp OTP] Erreur UltraMsg: {e} — fallback SMS")
+
+def send_whatsapp_otp(phone: str, otp: str):
+    """Envoie un OTP via WhatsApp (UltraMsg). Fallback SMS Vonage si non configuré."""
+    print(f"[WhatsApp OTP] phone={phone!r}")
+    try:
+        _send_whatsapp(phone, f"Goova - Votre code : {otp}. Valide 10 minutes.")
+        return
+    except Exception as e:
+        print(f"[WhatsApp OTP] Erreur UltraMsg: {e} — fallback SMS")
 
     # Fallback Vonage SMS
     try:
