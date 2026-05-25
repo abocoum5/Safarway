@@ -656,7 +656,7 @@ function loadSMS() {
           style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical"></textarea>
       </div>
       <div id="sms-broadcast-alert" style="margin-bottom:8px"></div>
-      <button class="btn" onclick="sendBroadcastSMS()">📨 Envoyer le message</button>
+      <button id="sms-send-btn" class="btn" onclick="sendBroadcastSMS()">📨 Envoyer le message</button>
     </div>`;
 }
 
@@ -677,20 +677,33 @@ async function sendReminders() {
 }
 
 async function sendBroadcastSMS() {
-  const cible = document.getElementById("sms-cible").value;
-  const message = document.getElementById("sms-message").value.trim();
-  const telephone = document.getElementById("sms-phone")?.value.trim();
-  const alertEl = document.getElementById("sms-broadcast-alert");
+  const cibleEl  = document.getElementById("sms-cible");
+  const messageEl = document.getElementById("sms-message");
+  const phoneEl  = document.getElementById("sms-phone");
+  const alertEl  = document.getElementById("sms-broadcast-alert");
+  const btn      = document.getElementById("sms-send-btn");
 
-  if (!message) { alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Écrivez un message.</div>'; return; }
-  if (cible === "telephone" && !telephone) { alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Entrez un numéro.</div>'; return; }
+  if (!cibleEl || !messageEl || !alertEl || !btn) {
+    alert("Erreur : formulaire SMS introuvable. Recharge la page.");
+    return;
+  }
 
-  const cibleLabel = { tous: "tous les utilisateurs", chauffeurs: "les chauffeurs", voyageurs: "les voyageurs", telephone: "le numéro " + telephone }[cible];
-  if (!confirm(`Envoyer ce message à ${cibleLabel} ?`)) return;
+  const cible     = cibleEl.value;
+  const message   = messageEl.value.trim();
+  const telephone = phoneEl ? phoneEl.value.trim() : "";
 
-  const btn = document.querySelector("#sms-content .btn:last-of-type");
-  btn.textContent = "Envoi..."; btn.disabled = true;
   alertEl.innerHTML = "";
+  if (!message) {
+    alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Écrivez un message.</div>';
+    return;
+  }
+  if (cible === "telephone" && !telephone) {
+    alertEl.innerHTML = '<div style="color:#ef4444;font-size:13px">Entrez un numéro.</div>';
+    return;
+  }
+
+  btn.textContent = "Envoi en cours...";
+  btn.disabled = true;
 
   try {
     const r = await apiFetch("/admin/send-sms", {
@@ -699,14 +712,15 @@ async function sendBroadcastSMS() {
       body: JSON.stringify({ message, cible, telephone: telephone || null })
     });
     const d = await r.json();
-    if (!r.ok) throw new Error(d.detail || "Erreur");
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
     alertEl.innerHTML = `<div style="color:#16a34a;font-size:13px">✅ ${d.envoyes} message(s) envoyé(s), ${d.erreurs} erreur(s).</div>`;
-    document.getElementById("sms-message").value = "";
+    messageEl.value = "";
     document.getElementById("sms-char-count").textContent = "(0 / 160)";
   } catch(e) {
     alertEl.innerHTML = `<div style="color:#ef4444;font-size:13px">Erreur : ${e.message}</div>`;
   } finally {
-    btn.textContent = "📨 Envoyer le message"; btn.disabled = false;
+    btn.textContent = "📨 Envoyer le message";
+    btn.disabled = false;
   }
 }
 
