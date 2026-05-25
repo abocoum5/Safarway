@@ -240,7 +240,8 @@ def login(credentials: schemas.UserLogin, db: Session = Depends(get_db)):
 
 @router.post("/admin/request-otp")
 def admin_request_otp(email: str, db: Session = Depends(get_db)):
-    from app.email_service import generate_otp, send_otp_email
+    from app.email_service import generate_otp
+    from app.sms import _send_whatsapp
 
     user = db.query(models.User).filter(
         models.User.email == email,
@@ -253,18 +254,21 @@ def admin_request_otp(email: str, db: Session = Depends(get_db)):
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Compte désactivé")
 
+    if not user.phone:
+        raise HTTPException(status_code=400, detail="Aucun numéro WhatsApp associé à ce compte admin")
+
     otp = generate_otp()
     user.otp_code = otp
     user.otp_expires = datetime.utcnow() + timedelta(minutes=10)
     db.commit()
 
     try:
-        send_otp_email(email, otp)
-        print(f"[ADMIN OTP] {email} → {otp}")
+        _send_whatsapp(user.phone, f"Goova Admin — Votre code de connexion : *{otp}*. Valide 10 minutes.")
+        print(f"[ADMIN OTP WhatsApp] {user.phone} → {otp}")
     except Exception as e:
-        print(f"[ADMIN OTP FALLBACK] Email non envoyé ({e}). Code pour {email} : {otp}")
+        print(f"[ADMIN OTP] WhatsApp non envoyé ({e}). Code pour {email} : {otp}")
 
-    return {"message": "Code envoyé par email"}
+    return {"message": "Code envoyé par WhatsApp"}
 
 
 # ─────────────────────────────────────────────
@@ -386,6 +390,9 @@ def setup_admin(email: str, phone: str, name: str, password: str, db: Session = 
 
 @router.post("/admin/login")
 def admin_login(email: str, password: str, db: Session = Depends(get_db)):
+    from app.email_service import generate_otp
+    from app.sms import _send_whatsapp
+
     user = db.query(models.User).filter(
         models.User.email == email,
         models.User.role == models.UserRole.admin
@@ -396,8 +403,21 @@ def admin_login(email: str, password: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Email ou mot de passe incorrect")
     if not user.is_active:
         raise HTTPException(status_code=403, detail="Compte désactivé")
-    token = create_access_token({"sub": str(user.id)})
-    return {"access_token": token, "token_type": "bearer", "user": user}
+    if not user.phone:
+        raise HTTPException(status_code=400, detail="Aucun numéro WhatsApp associé à ce compte admin")
+
+    otp = generate_otp()
+    user.otp_code = otp
+    user.otp_expires = datetime.utcnow() + timedelta(minutes=10)
+    db.commit()
+
+    try:
+        _send_whatsapp(user.phone, f"Goova Admin — Votre code de connexion : *{otp}*. Valide 10 minutes.")
+        print(f"[ADMIN 2FA] {email} → OTP envoyé sur {user.phone}")
+    except Exception as e:
+        print(f"[ADMIN 2FA] WhatsApp non envoyé ({e}). Code : {otp}")
+
+    return {"otp_sent": True, "message": "Code de vérification envoyé par WhatsApp"}
 
 
 # ─────────────────────────────────────────────

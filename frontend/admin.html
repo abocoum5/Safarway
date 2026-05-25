@@ -262,15 +262,36 @@
   </div>
   <div class="card">
     <div id="login-alert"></div>
-    <div class="form-group">
-      <label>Adresse email</label>
-      <input type="email" id="inp-email" placeholder="admin@goova.app" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('inp-password').focus()">
+
+    <!-- Étape 1 : email + mot de passe -->
+    <div id="step-credentials">
+      <div class="form-group">
+        <label>Adresse email</label>
+        <input type="email" id="inp-email" placeholder="admin@goova.app" autocomplete="email" onkeydown="if(event.key==='Enter')document.getElementById('inp-password').focus()">
+      </div>
+      <div class="form-group">
+        <label>Mot de passe</label>
+        <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn" id="login-btn" onclick="doLogin()">Se connecter →</button>
     </div>
-    <div class="form-group">
-      <label>Mot de passe</label>
-      <input type="password" id="inp-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+
+    <!-- Étape 2 : code WhatsApp (masqué jusqu'à l'étape 1 réussie) -->
+    <div id="step-otp" style="display:none">
+      <p style="font-size:14px;color:#555;margin-bottom:14px;text-align:center">
+        📲 Un code de vérification a été envoyé sur votre WhatsApp.
+      </p>
+      <div class="form-group">
+        <label>Code WhatsApp</label>
+        <input type="text" id="inp-otp" placeholder="123456" inputmode="numeric" maxlength="6"
+               autocomplete="one-time-code" onkeydown="if(event.key==='Enter')doVerifyOtp()">
+      </div>
+      <button class="btn" id="otp-btn" onclick="doVerifyOtp()">Valider le code →</button>
+      <button class="btn" id="otp-back-btn" onclick="backToCredentials()"
+              style="margin-top:8px;background:#f3f3f3;color:#333;box-shadow:none">
+        ← Recommencer
+      </button>
     </div>
-    <button class="btn" id="login-btn" onclick="doLogin()">Se connecter →</button>
   </div>
   <p class="security-note">🔒 Connexion sécurisée — réservée aux administrateurs Goova</p>
 </div>
@@ -330,6 +351,8 @@ async function apiFetch(path, options = {}) {
 }
 
 // ── LOGIN ──────────────────────────────────────────────────────
+let _pendingOtpEmail = null;
+
 async function doLogin() {
   const email    = document.getElementById("inp-email").value.trim();
   const password = document.getElementById("inp-password").value;
@@ -342,45 +365,89 @@ async function doLogin() {
     return;
   }
 
-  btn.textContent = "Connexion...";
+  btn.textContent = "Vérification...";
   btn.disabled = true;
 
   try {
-    console.log("[Login] Tentative avec email:", email);
     const r = await fetch(
       API + "/users/admin/login?email=" + encodeURIComponent(email) +
             "&password=" + encodeURIComponent(password),
       { method: "POST" }
     );
     const d = await r.json();
-    console.log("[Login] Réponse HTTP:", r.status, "| data:", JSON.stringify(d).slice(0, 200));
-
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Identifiants incorrects");
-    if (d.user?.role !== "admin") throw new Error("Accès refusé — compte non administrateur");
 
-    token = d.access_token;
-    console.log("[Login] Token reçu, longueur:", token?.length, "| rôle:", d.user?.role);
-    localStorage.setItem("admin_token", token);
-    localStorage.setItem("admin_user", JSON.stringify(d.user));
-
-    showDashboard();
+    if (d.otp_sent) {
+      _pendingOtpEmail = email;
+      document.getElementById("step-credentials").style.display = "none";
+      document.getElementById("step-otp").style.display = "block";
+      alertEl.innerHTML = "";
+      document.getElementById("inp-otp").focus();
+    }
   } catch(e) {
-    console.error("[Login] Erreur:", e.message);
     alertEl.innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
     btn.textContent = "Se connecter →";
     btn.disabled = false;
   }
 }
 
+async function doVerifyOtp() {
+  const otp     = document.getElementById("inp-otp").value.trim();
+  const alertEl = document.getElementById("login-alert");
+  const btn     = document.getElementById("otp-btn");
+
+  alertEl.innerHTML = "";
+  if (!otp || otp.length < 4) {
+    alertEl.innerHTML = '<div class="alert alert-error">Entrez le code reçu par WhatsApp.</div>';
+    return;
+  }
+
+  btn.textContent = "Validation...";
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(
+      API + "/users/admin/verify-otp?email=" + encodeURIComponent(_pendingOtpEmail) +
+            "&otp=" + encodeURIComponent(otp),
+      { method: "POST" }
+    );
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
+
+    token = d.access_token;
+    localStorage.setItem("admin_token", token);
+    localStorage.setItem("admin_user", JSON.stringify(d.user));
+    _pendingOtpEmail = null;
+    showDashboard();
+  } catch(e) {
+    alertEl.innerHTML = '<div class="alert alert-error">' + e.message + '</div>';
+    btn.textContent = "Valider le code →";
+    btn.disabled = false;
+  }
+}
+
+function backToCredentials() {
+  _pendingOtpEmail = null;
+  document.getElementById("step-otp").style.display = "none";
+  document.getElementById("step-credentials").style.display = "block";
+  document.getElementById("login-btn").textContent = "Se connecter →";
+  document.getElementById("login-btn").disabled = false;
+  document.getElementById("inp-otp").value = "";
+  document.getElementById("login-alert").innerHTML = "";
+}
+
 function doLogout() {
-  console.log("[Logout] Déconnexion");
   token = null;
+  _pendingOtpEmail = null;
   localStorage.removeItem("admin_token");
   localStorage.removeItem("admin_user");
   document.getElementById("dashboard-section").style.display = "none";
   document.getElementById("login-section").style.display = "block";
   document.body.style.alignItems = "center";
+  document.getElementById("step-otp").style.display = "none";
+  document.getElementById("step-credentials").style.display = "block";
   document.getElementById("inp-password").value = "";
+  document.getElementById("inp-otp").value = "";
   document.getElementById("login-alert").innerHTML = "";
   document.getElementById("login-btn").textContent = "Se connecter →";
   document.getElementById("login-btn").disabled = false;
