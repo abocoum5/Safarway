@@ -568,6 +568,7 @@ async function loadUsers() {
                 ? `<button class="btn-sm" style="background:#f3f4f6;color:#374151" onclick="viewDossier(${u.id},'${u.name.replace(/'/g,"\\'")}')">📋 Dossier</button>`
                 : ""}
               <button class="btn-sm" style="background:#25D366;color:white" onclick="openWhatsApp('${u.phone}','${u.name.replace(/'/g,"\\'")}')">💬 WA</button>
+              <button class="btn-sm" style="background:#6366f1;color:white" onclick="loginAsUser(${u.id})">🔑 Tester</button>
               <button class="btn-delete" onclick="deleteUser(${u.id},'${u.name.replace(/'/g,"\\'")}')">🗑️</button>
             ` : ""}
           </div>
@@ -652,6 +653,20 @@ async function loadBookings() {
   } catch(e) {
     console.error("[Bookings] Exception:", e);
     el.innerHTML = '<div class="empty">Erreur réseau</div>';
+  }
+}
+
+// ── IMPERSONATE ────────────────────────────────────────────────
+async function loginAsUser(userId) {
+  try {
+    const r = await apiFetch("/admin/users/" + userId + "/token", { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || "Erreur");
+    localStorage.setItem("sw_token", d.access_token);
+    localStorage.setItem("sw_user", JSON.stringify(d.user));
+    window.open("/", "_blank");
+  } catch(e) {
+    alert("Erreur : " + e.message);
   }
 }
 

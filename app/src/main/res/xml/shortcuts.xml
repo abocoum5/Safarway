@@ -1,0 +1,6 @@
+<shortcuts xmlns:android='http://schemas.android.com/apk/res/android'>
+    <shortcut android:shortcutId='shortcut0' android:enabled='true' android:icon='@drawable/shortcut_0' android:shortcutShortLabel='@string/shortcut_short_name_0' android:shortcutLongLabel='@string/shortcut_name_0'>
+        <intent android:action='android.intent.action.MAIN' android:targetPackage='app.goova.transport' android:targetClass='app.goova.transport.LauncherActivity' android:data='https://goova.pro/?page=search' />
+        <categories android:name='android.intent.category.LAUNCHER' />
+    </shortcut>
+</shortcuts>

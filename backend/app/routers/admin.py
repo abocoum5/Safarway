@@ -159,6 +159,19 @@ def supprimer_user(user_id: int, db: Session = Depends(get_db), current_user=Dep
     return {"message": f"Utilisateur {name} supprimé"}
 
 
+@router.post("/users/{user_id}/token")
+def get_user_token(user_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    check_admin(current_user)
+    from app.auth import create_access_token
+    user = db.query(models.User).filter(models.User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="Utilisateur introuvable")
+    if user.role == models.UserRole.admin:
+        raise HTTPException(status_code=400, detail="Impossible de se connecter en tant qu'admin")
+    token = create_access_token({"sub": str(user.id)})
+    return {"access_token": token, "user": user}
+
+
 @router.get("/trips", response_model=List[schemas.TripResponse])
 def get_all_trips(db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     check_admin(current_user)

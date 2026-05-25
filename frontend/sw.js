@@ -1,4 +1,4 @@
-const CACHE = "goova-v2";
+const CACHE = "goova-v3";
 const SHELL = [
   "/",
   "/index.html",
