@@ -86,49 +86,66 @@ def send_otp_sms(phone: str, otp: str):
 
 def send_booking_confirmation(phone: str, data: dict):
     message = (
-        f"Goova Reservation confirmee !\n"
-        f"Ref: {data['reference_code']}\n"
-        f"Trajet: {data['from_city']} -> {data['to_city']}\n"
-        f"Date: {data['date']} a {data['time']}\n"
-        f"Places: {data['seats']} | Total: {data['total_price']} MRU\n"
-        f"Chauffeur: {data['driver_name']} - {data['driver_phone']}\n"
-        f"Paiement en especes au depart."
+        f"✅ *Goova — Réservation confirmée !*\n"
+        f"Réf : {data['reference_code']}\n"
+        f"Trajet : {data['from_city']} → {data['to_city']}\n"
+        f"Date : {data['date']} à {data['time']}\n"
+        f"Places : {data['seats']} | Total : {data['total_price']} MRU\n"
+        f"Chauffeur : {data['driver_name']} — {data['driver_phone']}\n"
+        f"Paiement en espèces au départ."
     )
     try:
-        _send(phone, message)
+        _send_whatsapp(phone, message)
     except Exception as e:
-        print(f"SMS confirmation non envoyé: {e}")
+        print(f"[WhatsApp] Confirmation non envoyée: {e} — fallback SMS")
+        try:
+            _send(phone, message)
+        except Exception as e2:
+            print(f"[SMS] Confirmation non envoyée: {e2}")
 
 
 def send_trip_reminder_passenger(phone: str, data: dict):
     message = (
-        f"Goova Rappel trajet demain !\n"
-        f"{data['from_city']} -> {data['to_city']}\n"
-        f"Le {data['date']} a {data['time']}\n"
-        f"Ref: {data['reference']}\n"
-        f"Chauffeur: {data['driver_name']} - {data['driver_phone']}"
+        f"⏰ *Goova — Rappel trajet demain !*\n"
+        f"{data['from_city']} → {data['to_city']}\n"
+        f"Le {data['date']} à {data['time']}\n"
+        f"Réf : {data['reference']}\n"
+        f"Chauffeur : {data['driver_name']} — {data['driver_phone']}"
     )
     try:
-        _send(phone, message)
+        _send_whatsapp(phone, message)
     except Exception as e:
-        print(f"SMS rappel passager non envoyé: {e}")
+        print(f"[WhatsApp] Rappel passager non envoyé: {e} — fallback SMS")
+        try:
+            _send(phone, message)
+        except Exception as e2:
+            print(f"[SMS] Rappel passager non envoyé: {e2}")
 
 
 def send_trip_reminder_driver(phone: str, data: dict):
     message = (
-        f"Goova Rappel chauffeur demain !\n"
-        f"{data['from_city']} -> {data['to_city']}\n"
-        f"Le {data['date']} a {data['time']}\n"
+        f"⏰ *Goova — Rappel chauffeur demain !*\n"
+        f"{data['from_city']} → {data['to_city']}\n"
+        f"Le {data['date']} à {data['time']}\n"
         f"{data['passengers']} passager(s) vous attendent."
     )
     try:
-        _send(phone, message)
+        _send_whatsapp(phone, message)
     except Exception as e:
-        print(f"SMS rappel chauffeur non envoyé: {e}")
+        print(f"[WhatsApp] Rappel chauffeur non envoyé: {e} — fallback SMS")
+        try:
+            _send(phone, message)
+        except Exception as e2:
+            print(f"[SMS] Rappel chauffeur non envoyé: {e2}")
 
 
 def send_cancellation(phone: str, reference: str):
+    message = f"❌ *Goova* — Réservation {reference} annulée. Contactez-nous si besoin."
     try:
-        _send(phone, f"Goova - Reservation {reference} annulee. Contactez-nous au besoin.")
+        _send_whatsapp(phone, message)
     except Exception as e:
-        print(f"SMS annulation non envoyé: {e}")
+        print(f"[WhatsApp] Annulation non envoyée: {e} — fallback SMS")
+        try:
+            _send(phone, message)
+        except Exception as e2:
+            print(f"[SMS] Annulation non envoyée: {e2}")
