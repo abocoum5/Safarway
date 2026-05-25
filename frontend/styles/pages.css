@@ -56,7 +56,7 @@
 .hero-logo-arabic {
   font: 500 10px/1 'Noto Naskh Arabic', serif;
   color: rgba(255,255,255,.55); direction: rtl;
-  text-align: left; margin-top: 1px;
+  text-align: left; margin-top: 6px;
 }
 .hero-topbar-right { display: flex; align-items: center; gap: 8px; }
 .hero-lang-pill {
