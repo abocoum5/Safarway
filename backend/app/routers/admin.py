@@ -187,11 +187,12 @@ def envoyer_rappels(db: Session = Depends(get_db), current_user=Depends(get_curr
 
 
 from pydantic import BaseModel as PydanticBaseModel
+from typing import Optional
 
 class SMSBroadcastRequest(PydanticBaseModel):
     message: str
     cible: str
-    telephone: str = None
+    telephone: Optional[str] = None
 
 
 @router.post("/send-sms")
