@@ -650,13 +650,6 @@
       <div class="form-group"><label>Places</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
       <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
     </div>
-    <div class="form-group"><label>Type de véhicule</label>
-      <select id="pm-vehicle">
-        <option value="">Choisir...</option>
-        <option>Peugeot 504</option><option>Minibus</option>
-        <option>4x4</option><option>Bus climatisé</option><option>Toyota Hilux</option>
-      </select>
-    </div>
     <div id="publish-modal-alert"></div>
     <button class="btn btn-green mt-10" onclick="publishTripFromModal()">Publier ce trajet →</button>
   </div>
@@ -1060,7 +1053,7 @@ function starsDisplay(rating) {
 function renderTripCard(t) {
   tripsCache[t.id] = t;
   const ratingStr = t.driver_rating ? starsDisplay(t.driver_rating) : '';
-  const meta = [t.driver_name || "Chauffeur", ratingStr, t.vehicle_type, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
+  const meta = [t.driver_name || "Chauffeur", ratingStr, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
   return '<div class="trip-row" onclick="showTripDetail(' + t.id + ')">' +
     '<div class="tr-main">' +
       '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
@@ -1099,7 +1092,7 @@ function showTripDetail(tripId) {
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="color:var(--text-3)"><path d="M9 18l6-6-6-6"/></svg>' +
     '</div>' +
     '<div class="td-info-grid">' +
-      '<div class="td-info-row"><span class="td-info-icon">🚗</span><span class="td-info-label">Véhicule</span><span class="td-info-val">' + (trip.vehicle_type || "—") + '</span></div>' +
+ +
       '<div class="td-info-row"><span class="td-info-icon">💺</span><span class="td-info-label">Capacité</span><span class="td-info-val">' + trip.total_seats + ' ' + t("capacity") + '</span></div>' +
       '<div class="td-info-row"><span class="td-info-icon">📅</span><span class="td-info-label">Date</span><span class="td-info-val">' + trip.departure_date + '</span></div>' +
       '<div class="td-info-row"><span class="td-info-icon">🕐</span><span class="td-info-label">Départ</span><span class="td-info-val">' + trip.departure_time + '</span></div>' +
@@ -1145,7 +1138,7 @@ function bookFromDetail() {
 
 function renderHomeTripCard(trip) {
   tripsCache[trip.id] = trip;
-  const meta = [trip.vehicle_type, trip.available_seats + " place" + (trip.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
+  const meta = [trip.available_seats + " place" + (trip.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
   return '<div class="home-trip-card" onclick="showTripDetail(' + trip.id + ')">' +
     '<div class="htc-left">' +
       '<div class="htc-route">' + trip.from_city + ' → ' + trip.to_city + '</div>' +
@@ -1630,18 +1623,16 @@ async function publishTripFromModal() {
   const time = document.getElementById("pm-time").value;
   const seats = document.getElementById("pm-seats").value;
   const price = document.getElementById("pm-price").value;
-  const vehicle = document.getElementById("pm-vehicle").value;
-  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
+  if (!from || !to || !date || !time || !seats || !price) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
   const btn = document.querySelector("#publish-modal .btn-green");
   const origText = btn.textContent; btn.textContent = "Publication..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/trips/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price), vehicle_type: vehicle }) });
+      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price) }) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
     // Reset form
     ["pm-from","pm-to","pm-date","pm-time","pm-seats","pm-price"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-    document.getElementById("pm-vehicle").value = "";
     ["pm-from-label","pm-to-label"].forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = "Choisir une ville..."; el.className = "cib-placeholder"; }});
     tripsCache[d.id] = d;
     // Afficher succès avec boutons partage + voir trajets
