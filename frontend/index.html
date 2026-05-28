@@ -140,15 +140,7 @@
         <div style="font:400 13px/1.4 'Inter Tight',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
       </div>
       <!-- Publier -->
-      <button id="home-publish-btn" onclick="openPublishModal()" class="home-action-btn publish" style="display:none">
-        <span class="home-action-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        </span>
-        <div>
-          <div class="home-action-label">Publier un trajet</div>
-          <div class="home-action-sub">Proposez vos places disponibles</div>
-        </div>
-      </button>
+      <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green" style="display:none;width:calc(100% - 24px);margin:16px 12px 10px;font-size:16px">+ Publier un trajet</button>
       <!-- Trouver -->
       <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
         <span class="home-action-icon">
