@@ -119,8 +119,13 @@
   border: 1.5px solid var(--border); border-radius: var(--radius-sm);
   font: 500 15px/1 'Inter Tight', sans-serif;
   background: var(--surface-2); color: var(--fg);
+  -webkit-text-fill-color: var(--fg);
   outline: none; transition: border .15s, background .15s;
   -webkit-appearance: none;
+}
+.form-group input:-webkit-autofill {
+  -webkit-text-fill-color: var(--fg);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
 }
 .form-group input:focus,
 .form-group select:focus { border-color: var(--primary); background: var(--primary-lo); }
@@ -144,7 +149,9 @@
 .phone-wrap input {
   border: none; padding: 15px 16px; flex: 1;
   font: 500 15px/1 'Inter Tight', sans-serif;
-  background: transparent; color: var(--fg); outline: none;
+  background: transparent; color: var(--fg);
+  -webkit-text-fill-color: var(--fg);
+  outline: none;
 }
 .phone-wrap input::placeholder { color: var(--fg-subtle); }
 
