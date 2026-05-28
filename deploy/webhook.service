@@ -1,0 +1,15 @@
+[Unit]
+Description=Goova GitHub Webhook
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/var/www/goova
+EnvironmentFile=/etc/goova/webhook.env
+ExecStart=/usr/bin/python3 /var/www/goova/deploy/webhook.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
