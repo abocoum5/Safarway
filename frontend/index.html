@@ -139,19 +139,14 @@
         <div style="font:700 15px/1.3 'Plus Jakarta Sans',sans-serif;color:var(--fg)">Compte en attente de validation</div>
         <div style="font:400 13px/1.4 'Inter Tight',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
       </div>
-      <!-- Publier -->
-      <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green" style="display:none;width:calc(100% - 24px);margin:16px 12px 10px;font-size:16px">+ Publier un trajet</button>
-      <!-- Trouver -->
-      <button onclick="toggleSearchForm(this)" id="home-find-btn" class="home-action-btn find">
-        <span class="home-action-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </span>
-        <div>
-          <div class="home-action-label">Trouver un trajet</div>
-          <div class="home-action-sub">Rechercher par ville et date</div>
-        </div>
-        <svg class="home-action-arrow" id="find-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
+      <!-- Boutons chauffeur côte à côte -->
+      <div id="home-driver-btns" style="display:none;gap:10px;margin:16px 12px 4px">
+        <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green" style="flex:1;font-size:15px">+ Publier</button>
+        <button onclick="toggleSearchForm(this)" id="home-find-btn" class="btn" style="flex:1;font-size:15px;background:var(--surface);color:var(--fg);border:1.5px solid var(--border)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="15" height="15"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          Trouver
+        </button>
+      </div>
       <!-- Formulaire chauffeur expandé -->
       <div id="home-search-form" style="display:none" class="home-search-expanded">
         <button class="hsc-row" onclick="openCityPicker('df-from')">
@@ -1975,8 +1970,8 @@ function logout() {
   if (heroIcon && heroInitials) { heroIcon.style.display = ""; heroInitials.style.display = "none"; }
   const bnavLabel = document.getElementById("bnav-compte-label");
   if (bnavLabel) bnavLabel.textContent = "Compte";
-  const homePublishBtn = document.getElementById("home-publish-btn");
-  if (homePublishBtn) homePublishBtn.style.display = "none";
+  const homeDriverBtns = document.getElementById("home-driver-btns");
+  if (homeDriverBtns) homeDriverBtns.style.display = "none";
   updateHomeView();
   showPage("home");
 }
@@ -2008,8 +2003,8 @@ function updateProfileSection() {
     }
     updateHomeView();
     const isApprovedDriver = currentUser.role === "chauffeur" && currentUser.is_approved;
-    const homePublishBtn = document.getElementById("home-publish-btn");
-    if (homePublishBtn) homePublishBtn.style.display = isApprovedDriver ? "flex" : "none";
+    const homeDriverBtns = document.getElementById("home-driver-btns");
+    if (homeDriverBtns) homeDriverBtns.style.display = isApprovedDriver ? "flex" : "none";
     const homePending = document.getElementById("home-driver-pending");
     if (homePending) homePending.style.display = (currentUser.role === "chauffeur" && !currentUser.is_approved) ? "block" : "none";
     if (currentUser.role === "chauffeur") {
