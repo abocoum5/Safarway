@@ -412,7 +412,8 @@ def admin_login(email: str, password: str, db: Session = Depends(get_db)):
     db.commit()
 
     try:
-        _send_whatsapp(user.phone, f"Goova Admin — Votre code de connexion : *{otp}*. Valide 10 minutes.")
+        from app.sms import _send_whatsapp_meta
+        _send_whatsapp_meta(user.phone, f"Goova Admin — Votre code de connexion : {otp}. Valide 10 minutes.")
         print(f"[ADMIN 2FA] {email} → OTP envoyé sur {user.phone}")
     except Exception as e:
         print(f"[ADMIN 2FA] WhatsApp non envoyé ({e}). Code : {otp}")
