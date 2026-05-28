@@ -60,27 +60,6 @@
   --shadow-md-old: 0 4px 20px rgba(0,0,0,.10);
 }
 
-/* ── DARK MODE ── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg:        #0F1311;
-    --surface:   #181D1A;
-    --surface-2: #222926;
-    --border:    #2A312D;
-    --border-hi: #3A4540;
-    --fg:        #F5F1E5;
-    --fg-muted:  #A09B8E;
-    --fg-subtle: #6E6A5E;
-
-    /* Legacy overrides */
-    --bg-2:        #222926;
-    --bg-3:        #2A312D;
-    --text:        #F5F1E5;
-    --text-2:      #A09B8E;
-    --text-3:      #6E6A5E;
-    --green-light: rgba(31,138,91,.14);
-  }
-}
 
 /* ── TYPE SCALE ── */
 .display  { font: 800 38px/1.10 'Plus Jakarta Sans', sans-serif; letter-spacing: -1.2px; }
