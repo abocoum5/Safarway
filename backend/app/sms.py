@@ -70,8 +70,23 @@ def _send(phone: str, message: str):
 
 
 def _send_whatsapp(phone: str, message: str):
-    """Envoie un message WhatsApp via Meta Cloud API."""
-    _send_whatsapp_meta(phone, message)
+    """Envoie un message WhatsApp via UltraMsg."""
+    instance_id = os.getenv("ULTRAMSG_INSTANCE_ID")
+    token = os.getenv("ULTRAMSG_TOKEN")
+    if not instance_id or not token:
+        raise Exception("ULTRAMSG_INSTANCE_ID ou ULTRAMSG_TOKEN non configuré")
+    to = phone if phone.startswith("+") else f"+222{phone}"
+    result = subprocess.run([
+        "/usr/bin/curl", "-s", "-X", "POST",
+        f"https://api.ultramsg.com/{instance_id}/messages/chat",
+        "-H", "content-type: application/x-www-form-urlencoded",
+        "--data-urlencode", f"token={token}",
+        "--data-urlencode", f"to={to}",
+        "--data-urlencode", f"body={message}",
+    ], capture_output=True, text=True, timeout=15)
+    print(f"[WhatsApp UltraMsg] to={to} — {result.stdout[:120]}")
+    if result.returncode != 0:
+        raise Exception(f"curl error: {result.stderr[:120]}")
 
 
 def send_whatsapp_otp(phone: str, otp: str):
