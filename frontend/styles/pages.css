@@ -103,7 +103,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: var(--bg);
   margin-top: -82px;
   border-radius: 24px 24px 0 0;
@@ -303,7 +303,7 @@
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: var(--bg);
   padding: 14px 12px calc(80px + env(safe-area-inset-bottom, 0px));
 }
