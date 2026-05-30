@@ -252,6 +252,35 @@
           <p class="card-desc">Votre plateforme de transport interurbain en Mauritanie.</p>
           <button class="btn btn-green" onclick="showPinLogin()" style="margin-bottom:12px">Se connecter</button>
           <button class="btn btn-ghost" onclick="showRegisterForm()">Créer un compte</button>
+          <p style="text-align:center;margin-top:16px"><button class="btn-text-link" style="font-size:12px;color:var(--fg-subtle)" onclick="showAdminLogin()">Connexion administrateur</button></p>
+        </div>
+      </div>
+
+      <!-- ── CONNEXION ADMIN ── -->
+      <div id="admin-login-form" style="display:none">
+        <div class="card">
+          <button onclick="backToFirstConnect()" class="btn-back-link">← Retour</button>
+          <div class="card-title">Espace administrateur</div>
+          <!-- Étape 1 : email -->
+          <div id="admin-step1">
+            <p class="card-desc">Entrez votre email admin, vous recevrez un code sur WhatsApp.</p>
+            <div class="form-group">
+              <label>Email admin</label>
+              <input type="email" id="admin-email" placeholder="email@exemple.com" inputmode="email" onkeydown="if(event.key==='Enter')adminRequestOtp()">
+            </div>
+            <div id="admin-alert1"></div>
+            <button class="btn btn-green" onclick="adminRequestOtp()">Recevoir le code WhatsApp →</button>
+          </div>
+          <!-- Étape 2 : OTP -->
+          <div id="admin-step2" style="display:none">
+            <p class="card-desc">Entrez le code reçu sur WhatsApp.</p>
+            <div class="form-group">
+              <input type="text" id="admin-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" class="otp-input" onkeydown="if(event.key==='Enter')adminVerifyOtp()">
+            </div>
+            <div id="admin-alert2"></div>
+            <button class="btn btn-green" onclick="adminVerifyOtp()">Valider →</button>
+            <p class="form-link-row"><button class="btn-text-link" onclick="adminRequestOtp()">Renvoyer le code</button></p>
+          </div>
         </div>
       </div>
 
@@ -1714,7 +1743,55 @@ function backToFirstConnect() {
   document.getElementById("login-form").style.display = "none";
   document.getElementById("register-form").style.display = "none";
   document.getElementById("pin-forgot-form").style.display = "none";
+  document.getElementById("admin-login-form").style.display = "none";
   document.getElementById("welcome-form").style.display = "block";
+}
+
+function showAdminLogin() {
+  document.getElementById("welcome-form").style.display = "none";
+  document.getElementById("admin-login-form").style.display = "block";
+  document.getElementById("admin-step1").style.display = "block";
+  document.getElementById("admin-step2").style.display = "none";
+}
+
+async function adminRequestOtp() {
+  const email = document.getElementById("admin-email").value.trim();
+  if (!email) { showAlert("admin-alert1", "Entrez votre email", "error"); return; }
+  const btn = document.querySelector("#admin-step1 .btn-green");
+  const orig = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;
+  try {
+    const r = await fetch(API + "/users/admin/request-otp?email=" + encodeURIComponent(email), { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Erreur");
+    document.getElementById("admin-step1").style.display = "none";
+    document.getElementById("admin-step2").style.display = "block";
+    document.getElementById("admin-otp").value = "";
+    document.getElementById("admin-alert2").innerHTML = "";
+  } catch(e) {
+    showAlert("admin-alert1", e.message, "error");
+    btn.textContent = orig; btn.disabled = false;
+  }
+}
+
+async function adminVerifyOtp() {
+  const email = document.getElementById("admin-email").value.trim();
+  const otp = document.getElementById("admin-otp").value.trim();
+  if (!otp || otp.length < 4) { showAlert("admin-alert2", "Entrez le code reçu", "error"); return; }
+  const btn = document.querySelector("#admin-step2 .btn-green");
+  const orig = btn.textContent; btn.textContent = "Vérification..."; btn.disabled = true;
+  try {
+    const r = await fetch(API + "/users/admin/verify-otp?email=" + encodeURIComponent(email) + "&otp=" + encodeURIComponent(otp), { method: "POST" });
+    const d = await r.json();
+    if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : "Code incorrect");
+    token = d.access_token; currentUser = d.user;
+    localStorage.setItem("sw_token", token); localStorage.setItem("sw_user", JSON.stringify(currentUser));
+    document.getElementById("admin-login-form").style.display = "none";
+    updateProfileSection();
+    showPage("admin");
+  } catch(e) {
+    showAlert("admin-alert2", e.message, "error");
+    btn.textContent = orig; btn.disabled = false;
+  }
 }
 
 function backToPinLogin() {
