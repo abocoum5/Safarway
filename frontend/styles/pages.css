@@ -12,7 +12,6 @@
   overflow: hidden;
   padding-bottom: 0;
   min-height: unset;
-  touch-action: none;
 }
 
 /* ── HERO ── */
@@ -102,7 +101,10 @@
 /* ── HOME SCROLLABLE BODY ── */
 .home-body {
   flex: 1;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: var(--bg);
   margin-top: -82px;
   border-radius: 24px 24px 0 0;

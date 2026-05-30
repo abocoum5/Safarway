@@ -875,13 +875,6 @@ async function loadUserBookedTripIds() {
 }
 
 window.onload = () => {
-  // Bloquer tout scroll/swipe sur la page home
-  const homeEl = document.getElementById("page-home");
-  if (homeEl) {
-    homeEl.addEventListener("touchmove", function(e) { e.preventDefault(); }, { passive: false });
-    homeEl.addEventListener("wheel", function(e) { e.preventDefault(); }, { passive: false });
-  }
-
   token = localStorage.getItem("sw_token");
   const s = localStorage.getItem("sw_user");
   if (token && s) { currentUser = JSON.parse(s); }

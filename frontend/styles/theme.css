@@ -76,11 +76,6 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-html {
-  height: 100%;
-  overflow: hidden;
-}
-
 body {
   font-family: 'Inter Tight', -apple-system, 'Segoe UI', system-ui, sans-serif;
   font-size: 14px;
@@ -88,11 +83,9 @@ body {
   line-height: 1.5;
   background: var(--bg);
   color: var(--fg);
-  height: 100%;
-  overflow: hidden;
+  min-height: 100vh;
   max-width: 480px;
   margin: 0 auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overscroll-behavior: none;
 }
