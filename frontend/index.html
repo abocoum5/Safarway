@@ -276,7 +276,16 @@
             <div class="form-group">
               <label>Numéro WhatsApp</label>
               <div class="phone-wrap">
-                <span class="phone-prefix">🇲🇷 +222</span>
+                <select class="phone-prefix" id="reg-country">
+                  <option value="+222">🇲🇷 +222</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+212">🇲🇦 +212</option>
+                  <option value="+221">🇸🇳 +221</option>
+                  <option value="+223">🇲🇱 +223</option>
+                  <option value="+225">🇨🇮 +225</option>
+                  <option value="+213">🇩🇿 +213</option>
+                  <option value="+1">🇺🇸 +1</option>
+                </select>
                 <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep1()">
               </div>
             </div>
@@ -330,7 +339,16 @@
           <div class="form-group">
             <label>Numéro WhatsApp</label>
             <div class="phone-wrap">
-              <span class="phone-prefix">🇲🇷 +222</span>
+              <select class="phone-prefix" id="auth-country">
+                <option value="+222">🇲🇷 +222</option>
+                <option value="+33">🇫🇷 +33</option>
+                <option value="+212">🇲🇦 +212</option>
+                <option value="+221">🇸🇳 +221</option>
+                <option value="+223">🇲🇱 +223</option>
+                <option value="+225">🇨🇮 +225</option>
+                <option value="+213">🇩🇿 +213</option>
+                <option value="+1">🇺🇸 +1</option>
+              </select>
               <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
             </div>
           </div>
@@ -355,7 +373,16 @@
             <p class="card-desc">Entrez votre numéro WhatsApp, vous recevrez un code de vérification.</p>
             <div class="form-group">
               <div class="phone-wrap">
-                <span class="phone-prefix">🇲🇷 +222</span>
+                <select class="phone-prefix" id="pf-country">
+                  <option value="+222">🇲🇷 +222</option>
+                  <option value="+33">🇫🇷 +33</option>
+                  <option value="+212">🇲🇦 +212</option>
+                  <option value="+221">🇸🇳 +221</option>
+                  <option value="+223">🇲🇱 +223</option>
+                  <option value="+225">🇨🇮 +225</option>
+                  <option value="+213">🇩🇿 +213</option>
+                  <option value="+1">🇺🇸 +1</option>
+                </select>
                 <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
               </div>
             </div>
@@ -1708,8 +1735,14 @@ function showPinForgotForm() {
   if (phone) document.getElementById("pf-phone").value = phone;
 }
 
+function buildPhone(countryId, phoneId) {
+  const code = document.getElementById(countryId).value;
+  const digits = document.getElementById(phoneId).value.trim().replace(/\s/g, "");
+  return code === "+222" ? digits : (code + digits);
+}
+
 async function loginWithPin() {
-  const phone = document.getElementById("auth-phone").value.trim().replace(/\s/g, "");
+  const phone = buildPhone("auth-country", "auth-phone");
   const pin = document.getElementById("auth-pin").value.trim();
   if (!phone || phone.length < 8) { showAlert("auth-alert", "Entrez un numéro valide", "error"); return; }
   if (!pin || pin.length !== 4) { showAlert("auth-alert", "Le code PIN doit faire 4 chiffres", "error"); return; }
@@ -1736,7 +1769,7 @@ async function loginWithPin() {
 }
 
 async function registerStep1() {
-  const phone = document.getElementById("reg-phone").value.trim().replace(/\s/g, "");
+  const phone = buildPhone("reg-country", "reg-phone");
   const name = document.getElementById("reg-name").value.trim();
   if (!phone || phone.length < 8) { showAlert("reg-alert", "Entrez un numéro WhatsApp valide", "error"); return; }
   if (!name) { showAlert("reg-alert", "Nom complet requis", "error"); return; }
@@ -2037,7 +2070,7 @@ function backToLogin() {
 }
 
 async function requestPinForgotOtp() {
-  const phone = document.getElementById("pf-phone").value.trim().replace(/\s/g, "");
+  const phone = buildPhone("pf-country", "pf-phone");
   if (!phone || phone.length < 8) { showAlert("pf-alert1", "Entrez un numéro valide", "error"); return; }
   const btn = document.querySelector("#pin-forgot-step1 .btn-green");
   const origText = btn.textContent; btn.textContent = "Envoi..."; btn.disabled = true;

@@ -147,6 +147,12 @@
   border-right: 1px solid var(--border); background: var(--bg-3);
   white-space: nowrap; flex-shrink: 0;
 }
+select.phone-prefix {
+  -webkit-appearance: none; appearance: none;
+  cursor: pointer; outline: none; border: none;
+  border-right: 1px solid var(--border);
+  padding: 0 10px; min-width: 110px;
+}
 .phone-wrap input {
   border: none; padding: 15px 16px; flex: 1;
   font: 500 15px/1 'Inter Tight', sans-serif;

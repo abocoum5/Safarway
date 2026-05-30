@@ -57,7 +57,7 @@ sms = vonage.Sms(client)
 
 
 def _send(phone: str, message: str):
-    to = f"222{phone}"
+    to = phone.lstrip("+") if phone.startswith("+") else f"222{phone}"
     response = sms.send_message({
         "from": "Goova",
         "to": to,
