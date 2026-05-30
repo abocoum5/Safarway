@@ -147,25 +147,9 @@
   border-right: 1px solid var(--border); background: var(--bg-3);
   white-space: nowrap; flex-shrink: 0;
 }
-.phone-row {
-  display: flex; gap: 8px; align-items: stretch;
-}
-.phone-row { display: flex; flex-direction: row; gap: 8px; align-items: stretch; }
-.phone-country-select,
-.form-group .phone-country-select {
-  width: 120px !important; flex-shrink: 0;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--bg-3);
-  padding: 14px 8px;
-  font: 600 14px/1 'Inter Tight', sans-serif;
-  color: var(--fg-muted);
-  cursor: pointer; outline: none;
-  -webkit-appearance: auto; appearance: auto;
-}
-.phone-country-select:focus,
-.form-group .phone-country-select:focus { border-color: var(--primary); }
-.phone-wrap.phone-input-only { flex: 1; }
+.phone-row { display: flex !important; flex-direction: row !important; gap: 8px; align-items: stretch; }
+.phone-country-select { width: 120px !important; flex-shrink: 0 !important; flex-grow: 0 !important; }
+.phone-wrap.phone-input-only { flex: 1 !important; }
 .phone-wrap input {
   border: none; padding: 15px 16px; flex: 1;
   font: 500 15px/1 'Inter Tight', sans-serif;
