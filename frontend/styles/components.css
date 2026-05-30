@@ -148,10 +148,17 @@
   white-space: nowrap; flex-shrink: 0;
 }
 select.phone-prefix {
+  display: block;
   -webkit-appearance: none; appearance: none;
   cursor: pointer; outline: none; border: none;
   border-right: 1px solid var(--border);
-  padding: 0 10px; min-width: 110px;
+  background: var(--bg-3);
+  padding: 0 10px;
+  width: 105px;
+  height: 100%;
+  font: 600 14px/1 'Inter Tight', sans-serif;
+  color: var(--fg-muted);
+  flex-shrink: 0;
 }
 .phone-wrap input {
   border: none; padding: 15px 16px; flex: 1;
