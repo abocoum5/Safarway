@@ -147,19 +147,22 @@
   border-right: 1px solid var(--border); background: var(--bg-3);
   white-space: nowrap; flex-shrink: 0;
 }
-select.phone-prefix {
-  display: block;
-  -webkit-appearance: none; appearance: none;
-  cursor: pointer; outline: none; border: none;
-  border-right: 1px solid var(--border);
+.phone-row {
+  display: flex; gap: 8px; align-items: stretch;
+}
+.phone-country-select {
+  width: 120px; flex-shrink: 0;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
   background: var(--bg-3);
-  padding: 0 10px;
-  width: 105px;
-  height: 100%;
+  padding: 0 8px;
   font: 600 14px/1 'Inter Tight', sans-serif;
   color: var(--fg-muted);
-  flex-shrink: 0;
+  cursor: pointer; outline: none;
+  -webkit-appearance: auto; appearance: auto;
 }
+.phone-country-select:focus { border-color: var(--primary); }
+.phone-wrap.phone-input-only { flex: 1; }
 .phone-wrap input {
   border: none; padding: 15px 16px; flex: 1;
   font: 500 15px/1 'Inter Tight', sans-serif;
