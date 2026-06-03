@@ -91,19 +91,23 @@ def _send_whatsapp(phone: str, message: str):
 
 
 def send_whatsapp_otp(phone: str, otp: str):
-    """Envoie un OTP via WhatsApp (UltraMsg). Fallback SMS Vonage si non configuré."""
+    """Envoie un OTP via WhatsApp (Green API). Fallback SMS Vonage. Lève une exception si les deux échouent."""
     print(f"[WhatsApp OTP] phone={phone!r}")
+    whatsapp_error = None
     try:
         _send_whatsapp(phone, f"Goova - Votre code : {otp}. Valide 10 minutes.")
         return
     except Exception as e:
-        print(f"[WhatsApp OTP] Erreur UltraMsg: {e} — fallback SMS")
+        whatsapp_error = e
+        print(f"[WhatsApp OTP] Green API échoué: {e} — tentative SMS")
 
-    # Fallback Vonage SMS
     try:
         _send(phone, f"Goova - Votre code : {otp}. Valide 10 minutes.")
+        return
     except Exception as e:
-        print(f"[OTP] SMS fallback non envoyé: {e}")
+        print(f"[OTP] SMS fallback échoué: {e}")
+
+    raise Exception(f"Impossible d'envoyer le code. Vérifiez que WhatsApp est installé sur ce numéro. (détail: {whatsapp_error})")
 
 
 def send_otp_sms(phone: str, otp: str):
