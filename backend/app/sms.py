@@ -78,6 +78,25 @@ def _send_whatsapp(phone: str, message: str):
         raise Exception("GREENAPI_INSTANCE_ID ou GREENAPI_TOKEN non configuré")
     to = phone.lstrip("+") if phone.startswith("+") else f"222{phone}"
     chat_id = f"{to}@c.us"
+
+    # Vérifier que le numéro a WhatsApp
+    check_data = json.dumps({"phoneNumber": to}).encode()
+    check_req = urllib.request.Request(
+        f"{api_url}/waInstance{instance_id}/checkWhatsapp/{token}",
+        data=check_data,
+        headers={"Content-Type": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(check_req, timeout=10) as r:
+            check_result = json.loads(r.read())
+            print(f"[Green API] checkWhatsapp {to} → {check_result}")
+            if not check_result.get("existsWhatsapp", True):
+                raise Exception(f"Le numéro {phone} n'a pas WhatsApp")
+    except Exception as e:
+        if "n'a pas WhatsApp" in str(e):
+            raise
+        print(f"[Green API] checkWhatsapp ignoré: {e}")
+
     data = json.dumps({"chatId": chat_id, "message": message}).encode()
     req = urllib.request.Request(
         f"{api_url}/waInstance{instance_id}/sendMessage/{token}",
@@ -86,7 +105,9 @@ def _send_whatsapp(phone: str, message: str):
     )
     with urllib.request.urlopen(req, timeout=15) as resp:
         result = json.loads(resp.read())
-        print(f"[Green API] to={chat_id} — {result}")
+        print(f"[Green API] sendMessage to={chat_id} — {result}")
+        if "error" in result or result.get("type") == "error":
+            raise Exception(f"Green API erreur: {result}")
         return result
 
 
