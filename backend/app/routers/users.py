@@ -27,12 +27,18 @@ def inscription_wa_demande(data: schemas.UserRegisterWA, db: Session = Depends(g
     otp = generate_otp()
     expires = datetime.utcnow() + timedelta(minutes=10)
 
+    # Envoyer le code AVANT de sauvegarder en base
+    try:
+        send_whatsapp_otp(phone, otp)
+    except Exception as e:
+        raise HTTPException(status_code=503, detail=str(e))
+
+    # Sauvegarder seulement si l'envoi a réussi
     if existing:
         existing.name = data.name.strip()
         existing.role = data.role
         existing.otp_code = otp
         existing.otp_expires = expires
-        user = existing
     else:
         user = models.User(
             name=data.name.strip(),
@@ -47,7 +53,6 @@ def inscription_wa_demande(data: schemas.UserRegisterWA, db: Session = Depends(g
         db.add(user)
 
     db.commit()
-    send_whatsapp_otp(phone, otp)
     return {"message": "Code envoyé sur WhatsApp"}
 
 
