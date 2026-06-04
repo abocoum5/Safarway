@@ -277,6 +277,7 @@
           </div>
           <!-- Étape 2 : OTP -->
           <div id="admin-step2" style="display:none">
+            <button class="btn-back-link" onclick="document.getElementById('admin-step2').style.display='none';document.getElementById('admin-step1').style.display='block'">← Retour</button>
             <p class="card-desc">Entrez le code reçu sur WhatsApp.</p>
             <div class="form-group">
               <input type="text" id="admin-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" class="otp-input" onkeydown="if(event.key==='Enter')adminVerifyOtp()">
@@ -430,6 +431,7 @@
             <button class="btn btn-green" onclick="requestPinForgotOtp()">Recevoir le code WhatsApp →</button>
           </div>
           <div id="pin-forgot-step2" style="display:none">
+            <button class="btn-back-link" onclick="document.getElementById('pin-forgot-step2').style.display='none';document.getElementById('pin-forgot-step1').style.display='block'">← Retour</button>
             <p class="card-desc">Entrez le code reçu sur WhatsApp.</p>
             <div class="form-group">
               <label>Code WhatsApp</label>
