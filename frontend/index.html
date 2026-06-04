@@ -266,11 +266,11 @@
             <p class="card-desc">Entrez vos identifiants admin, vous recevrez un code sur WhatsApp.</p>
             <div class="form-group">
               <label>Email admin</label>
-              <input type="email" id="admin-email" placeholder="email@exemple.com" inputmode="email" onkeydown="if(event.key==='Enter')adminRequestOtp()">
+              <input type="email" id="admin-email" placeholder="email@exemple.com" inputmode="email" autocomplete="off" onkeydown="if(event.key==='Enter')adminRequestOtp()">
             </div>
             <div class="form-group">
               <label>Mot de passe</label>
-              <input type="password" id="admin-password" placeholder="••••••••" onkeydown="if(event.key==='Enter')adminRequestOtp()">
+              <input type="password" id="admin-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminRequestOtp()">
             </div>
             <div id="admin-alert1"></div>
             <button class="btn btn-green" onclick="adminRequestOtp()">Recevoir le code WhatsApp →</button>
@@ -305,7 +305,7 @@
             </div>
             <div class="form-group">
               <label>Nom complet</label>
-              <input type="text" id="reg-name" placeholder="">
+              <input type="text" id="reg-name" placeholder="" autocomplete="off">
             </div>
             <div class="form-group">
               <label>Numéro WhatsApp</label>
@@ -321,7 +321,7 @@
                   <option value="+1">🇺🇸 +1</option>
                 </select>
                 <div class="phone-wrap phone-input-only">
-                  <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')registerStep1()">
+                  <input type="tel" id="reg-phone" placeholder="XX XX XX XX" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')registerStep1()">
                 </div>
               </div>
             </div>
@@ -340,7 +340,7 @@
             <p class="card-desc">Un code a été envoyé sur votre WhatsApp. Entrez-le ci-dessous.</p>
             <div class="form-group">
               <label>Code WhatsApp</label>
-              <input type="text" id="reg-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')registerStep2()">
+              <input type="text" id="reg-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" autocomplete="one-time-code" onkeydown="if(event.key==='Enter')registerStep2()">
             </div>
             <div id="reg-otp-alert"></div>
             <button class="btn btn-green" onclick="registerStep2()">Vérifier →</button>
@@ -387,13 +387,13 @@
                 <option value="+1">🇺🇸 +1</option>
               </select>
               <div class="phone-wrap phone-input-only">
-                <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric">
+                <input type="tel" id="auth-phone" placeholder="XX XX XX XX" inputmode="numeric" autocomplete="off">
               </div>
             </div>
           </div>
           <div class="form-group">
             <label>Code PIN (4 chiffres)</label>
-            <input type="password" id="auth-pin" placeholder="••••" maxlength="4" inputmode="numeric" onkeydown="if(event.key==='Enter')loginWithPin()">
+            <input type="password" id="auth-pin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="current-password" onkeydown="if(event.key==='Enter')loginWithPin()">
           </div>
           <div id="auth-alert"></div>
           <button class="btn btn-green" onclick="loginWithPin()">Se connecter →</button>
@@ -423,7 +423,7 @@
                   <option value="+1">🇺🇸 +1</option>
                 </select>
                 <div class="phone-wrap phone-input-only">
-                  <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
+                  <input type="tel" id="pf-phone" placeholder="XX XX XX XX" inputmode="numeric" autocomplete="off" onkeydown="if(event.key==='Enter')requestPinForgotOtp()">
                 </div>
               </div>
             </div>
@@ -435,7 +435,7 @@
             <p class="card-desc">Entrez le code reçu sur WhatsApp.</p>
             <div class="form-group">
               <label>Code WhatsApp</label>
-              <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" onkeydown="if(event.key==='Enter')verifyPinForgotOtp()">
+              <input type="text" id="pf-otp" placeholder="Code à 6 chiffres" inputmode="numeric" maxlength="6" autocomplete="one-time-code" onkeydown="if(event.key==='Enter')verifyPinForgotOtp()">
             </div>
             <div id="pf-alert2"></div>
             <button class="btn btn-green" onclick="verifyPinForgotOtp()">Vérifier →</button>
