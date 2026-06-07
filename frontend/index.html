@@ -705,7 +705,7 @@
       <div class="form-group"><label>Heure</label><input type="time" id="pm-time"></div>
     </div>
     <div class="form-grid-2">
-      <div class="form-group"><label>Places disponibles</label><input type="number" id="pm-seats" min="1" max="50" value="7"></div>
+      <div class="form-group"><label>Places disponibles</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
       <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
     </div>
     <div id="publish-modal-alert"></div>
@@ -1665,10 +1665,6 @@ function toggleSearchForm(btn) {
 
 function openPublishModal() {
   document.getElementById("publish-modal-alert").innerHTML = "";
-  // Pré-remplir la date avec demain
-  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
-  const dateEl = document.getElementById("pm-date");
-  if (dateEl && !dateEl.value) dateEl.value = tomorrow.toISOString().split("T")[0];
   document.getElementById("publish-modal").style.display = "flex";
   document.getElementById("bottom-nav").style.display = "none";
 }
@@ -1695,7 +1691,6 @@ async function publishTripFromModal() {
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
     // Reset form
     ["pm-from","pm-to","pm-time","pm-price"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
-    document.getElementById("pm-seats").value = "7";
     ["pm-from-label","pm-to-label"].forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = "Choisir une ville..."; el.className = "cib-placeholder"; }});
     tripsCache[d.id] = d;
     // Afficher succès avec boutons partage + voir trajets
