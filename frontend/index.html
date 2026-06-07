@@ -705,18 +705,8 @@
       <div class="form-group"><label>Heure</label><input type="time" id="pm-time"></div>
     </div>
     <div class="form-grid-2">
-      <div class="form-group"><label>Places</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
+      <div class="form-group"><label>Places disponibles</label><input type="number" id="pm-seats" min="1" max="50" value="7"></div>
       <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
-    </div>
-    <div class="form-group">
-      <label>Type de véhicule</label>
-      <select id="pm-vehicle">
-        <option value="">Choisir...</option>
-        <option value="Voiture">🚗 Voiture</option>
-        <option value="4x4">🚙 4x4</option>
-        <option value="Minibus">🚐 Minibus</option>
-        <option value="Bus">🚌 Bus</option>
-      </select>
     </div>
     <div id="publish-modal-alert"></div>
     <button class="btn btn-green mt-10" onclick="publishTripFromModal()">Publier ce trajet →</button>
@@ -1675,6 +1665,10 @@ function toggleSearchForm(btn) {
 
 function openPublishModal() {
   document.getElementById("publish-modal-alert").innerHTML = "";
+  // Pré-remplir la date avec demain
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 1);
+  const dateEl = document.getElementById("pm-date");
+  if (dateEl && !dateEl.value) dateEl.value = tomorrow.toISOString().split("T")[0];
   document.getElementById("publish-modal").style.display = "flex";
   document.getElementById("bottom-nav").style.display = "none";
 }
@@ -1691,17 +1685,17 @@ async function publishTripFromModal() {
   const time = document.getElementById("pm-time").value;
   const seats = document.getElementById("pm-seats").value;
   const price = document.getElementById("pm-price").value;
-  const vehicle = document.getElementById("pm-vehicle").value;
-  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
+  if (!from || !to || !date || !time || !seats || !price) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
   const btn = document.querySelector("#publish-modal .btn-green");
   const origText = btn.textContent; btn.textContent = "Publication..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/trips/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price), vehicle_type: vehicle }) });
+      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price) }) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
     // Reset form
-    ["pm-from","pm-to","pm-date","pm-time","pm-seats","pm-price","pm-vehicle"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    ["pm-from","pm-to","pm-time","pm-price"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    document.getElementById("pm-seats").value = "7";
     ["pm-from-label","pm-to-label"].forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = "Choisir une ville..."; el.className = "cib-placeholder"; }});
     tripsCache[d.id] = d;
     // Afficher succès avec boutons partage + voir trajets

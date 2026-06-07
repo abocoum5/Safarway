@@ -101,7 +101,7 @@ class TripCreate(BaseModel):
     departure_time: str
     total_seats: int
     price_per_seat: float
-    vehicle_type: str
+    vehicle_type: Optional[str] = "Non spécifié"
 
 
 class TripResponse(BaseModel):
