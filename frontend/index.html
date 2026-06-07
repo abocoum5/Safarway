@@ -708,6 +708,16 @@
       <div class="form-group"><label>Places</label><input type="number" id="pm-seats" min="1" max="50" placeholder="7"></div>
       <div class="form-group"><label>Prix / place (MRU)</label><input type="number" id="pm-price" min="1" placeholder="800"></div>
     </div>
+    <div class="form-group">
+      <label>Type de véhicule</label>
+      <select id="pm-vehicle">
+        <option value="">Choisir...</option>
+        <option value="Voiture">🚗 Voiture</option>
+        <option value="4x4">🚙 4x4</option>
+        <option value="Minibus">🚐 Minibus</option>
+        <option value="Bus">🚌 Bus</option>
+      </select>
+    </div>
     <div id="publish-modal-alert"></div>
     <button class="btn btn-green mt-10" onclick="publishTripFromModal()">Publier ce trajet →</button>
   </div>
@@ -1681,16 +1691,17 @@ async function publishTripFromModal() {
   const time = document.getElementById("pm-time").value;
   const seats = document.getElementById("pm-seats").value;
   const price = document.getElementById("pm-price").value;
-  if (!from || !to || !date || !time || !seats || !price) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
+  const vehicle = document.getElementById("pm-vehicle").value;
+  if (!from || !to || !date || !time || !seats || !price || !vehicle) { showAlert("publish-modal-alert", "Veuillez remplir tous les champs", "error"); return; }
   const btn = document.querySelector("#publish-modal .btn-green");
   const origText = btn.textContent; btn.textContent = "Publication..."; btn.disabled = true;
   try {
     const r = await fetch(API + "/trips/", { method: "POST", headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
-      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price) }) });
+      body: JSON.stringify({ from_city: from, to_city: to, departure_date: date, departure_time: time, total_seats: parseInt(seats), price_per_seat: parseFloat(price), vehicle_type: vehicle }) });
     const d = await r.json();
     if (!r.ok) throw new Error(typeof d.detail === "string" ? d.detail : JSON.stringify(d.detail));
     // Reset form
-    ["pm-from","pm-to","pm-date","pm-time","pm-seats","pm-price"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
+    ["pm-from","pm-to","pm-date","pm-time","pm-seats","pm-price","pm-vehicle"].forEach(id => { const el = document.getElementById(id); if (el) el.value = ""; });
     ["pm-from-label","pm-to-label"].forEach(id => { const el = document.getElementById(id); if (el) { el.textContent = "Choisir une ville..."; el.className = "cib-placeholder"; }});
     tripsCache[d.id] = d;
     // Afficher succès avec boutons partage + voir trajets
