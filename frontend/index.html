@@ -73,7 +73,21 @@
     <div class="hero-content">
       <div class="hero-greeting" id="hero-greeting">Marhaba 👋</div>
       <h1 class="hero-headline" id="hero-title">Où allez-vous<br>aujourd'hui ?</h1>
-      <span class="hero-sub-arabic">سافروا معاً عبر موريتانيا</span>
+      <div class="hero-rotator" id="hero-rotator">Voyagez ensemble</div>
+
+      <!-- Route animée avec voiture -->
+      <div class="hero-road" aria-hidden="true">
+        <svg viewBox="0 0 320 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <line class="road-line" x1="0" y1="26" x2="320" y2="26" stroke="rgba(255,255,255,.45)" stroke-width="3" stroke-linecap="round" stroke-dasharray="12 10"/>
+          <g class="hero-car" transform="translate(150,0)">
+            <rect x="-20" y="8" width="40" height="12" rx="5" fill="#fff"/>
+            <path d="M-12 8 q3 -7 9 -7 h8 q6 0 9 7 z" fill="rgba(255,255,255,.85)"/>
+            <circle cx="-9" cy="21" r="4" fill="#0F172A"/><circle cx="-9" cy="21" r="1.6" fill="#fff"/>
+            <circle cx="11" cy="21" r="4" fill="#0F172A"/><circle cx="11" cy="21" r="1.6" fill="#fff"/>
+            <circle cx="17" cy="13" r="1.6" fill="#FDE68A"/>
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
 
@@ -857,6 +871,7 @@ function applyLang() {
   });
   // RTL : barre nav toujours LTR pour les icônes
   const hnav = document.getElementById("bottom-nav"); if (hnav) hnav.style.direction = "ltr";
+  if (typeof startHeroRotator === "function") startHeroRotator();
   if (currentUser) updateProfileSection();
 }
 
@@ -910,6 +925,33 @@ async function loadUserBookedTripIds() {
   } catch(e) {}
 }
 
+// ── SOUS-TITRE ROTATIF DU HÉROS ──
+const HERO_PHRASES = {
+  fr: ["Voyagez ensemble", "Rapide et fiable", "Partout en Mauritanie"],
+  ar: ["سافروا معاً", "سريع وموثوق", "في كل موريتانيا"],
+};
+let _heroRotatorTimer = null;
+function startHeroRotator() {
+  const el = document.getElementById("hero-rotator");
+  if (!el) return;
+  if (_heroRotatorTimer) clearInterval(_heroRotatorTimer);
+  let i = 0;
+  const phrases = () => HERO_PHRASES[currentLang] || HERO_PHRASES.fr;
+  el.textContent = phrases()[0];
+  el.style.opacity = "1";
+  _heroRotatorTimer = setInterval(() => {
+    el.style.opacity = "0";
+    el.style.transform = "translateY(4px)";
+    setTimeout(() => {
+      const p = phrases();
+      i = (i + 1) % p.length;
+      el.textContent = p[i];
+      el.style.opacity = "1";
+      el.style.transform = "translateY(0)";
+    }, 350);
+  }, 2800);
+}
+
 window.onload = () => {
   token = localStorage.getItem("sw_token");
   const s = localStorage.getItem("sw_user");
@@ -920,6 +962,7 @@ window.onload = () => {
   setTodayDate();
   checkDeepLink();
   loadHomeTrips();
+  startHeroRotator();
   if (token && currentUser) loadUserBookedTripIds();
   if (token && currentUser && currentUser.role === "admin" && window.location.search.includes("goto=admin")) {
     window.history.replaceState({}, "", window.location.pathname);
@@ -1095,11 +1138,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ── TRIP CARD RENDERING ──
+const AVATAR_COLORS = ["#22C55E","#16A34A","#F97316","#8B5CF6","#F59E0B","#3B82F6","#EC4899"];
+function avatarMeta(name) {
+  const n = name || "?";
+  const initials = (n.split(" ").filter(Boolean).map(w => w[0]).join("").substring(0, 2).toUpperCase()) || "?";
+  const color = AVATAR_COLORS[(n.charCodeAt(0) || 0) % AVATAR_COLORS.length];
+  return { initials, color };
+}
 function driverAvatar(name) {
-  const initials = (name || "?").split(" ").map(w => w[0]).join("").substring(0, 2).toUpperCase();
-  const colors = ["#00C853","#00A843","#FF6B35","#9B59B6","#FF9500","#0078D4","#E91E63"];
-  const color = colors[(name || "").charCodeAt(0) % colors.length];
+  const { initials, color } = avatarMeta(name);
   return '<div class="tc-avatar" style="background:' + color + '">' + initials + '</div>';
+}
+function seatsLabel(n) {
+  return n + " place" + (n > 1 ? "s" : "");
 }
 
 function starsDisplay(rating) {
@@ -1110,15 +1161,20 @@ function starsDisplay(rating) {
 
 function renderTripCard(t) {
   tripsCache[t.id] = t;
+  const av = avatarMeta(t.driver_name || "Chauffeur");
   const ratingStr = t.driver_rating ? starsDisplay(t.driver_rating) : '';
-  const meta = [t.driver_name || "Chauffeur", ratingStr, t.available_seats + " place" + (t.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
-  return '<div class="trip-row" onclick="showTripDetail(' + t.id + ')">' +
+  const meta = [t.driver_name || "Chauffeur", ratingStr].filter(Boolean).join("  ·  ");
+  return '<div class="trip-row fade-in" onclick="showTripDetail(' + t.id + ')">' +
     '<div class="tr-main">' +
+      '<div class="tr-avatar" style="background:' + av.color + '">' + av.initials + '</div>' +
       '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
       '<div class="tr-route">' + t.from_city + ' → ' + t.to_city + '</div>' +
       '<div class="tr-price">' + t.price_per_seat.toLocaleString() + ' MRU</div>' +
     '</div>' +
-    '<div class="tr-meta">' + meta + '</div>' +
+    '<div class="tr-meta">' +
+      '<span>' + meta + '</span>' +
+      '<span class="tr-seats">' + seatsLabel(t.available_seats) + '</span>' +
+    '</div>' +
   '</div>';
 }
 
@@ -1196,15 +1252,17 @@ function bookFromDetail() {
 
 function renderHomeTripCard(trip) {
   tripsCache[trip.id] = trip;
-  const meta = [trip.available_seats + " place" + (trip.available_seats > 1 ? "s" : "")].filter(Boolean).join("  ·  ");
-  return '<div class="home-trip-card" onclick="showTripDetail(' + trip.id + ')">' +
+  const av = avatarMeta(trip.driver_name || "Chauffeur");
+  return '<div class="home-trip-card fade-in" onclick="showTripDetail(' + trip.id + ')">' +
+    '<div class="htc-avatar" style="background:' + av.color + '">' + av.initials + '</div>' +
     '<div class="htc-left">' +
       '<div class="htc-route">' + trip.from_city + ' → ' + trip.to_city + '</div>' +
-      '<div class="htc-meta">' + (trip.driver_name || "Chauffeur") + (meta ? '  ·  ' + meta : '') + '</div>' +
+      '<div class="htc-meta">' + (trip.driver_name || "Chauffeur") + '</div>' +
+      '<span class="htc-seats">' + seatsLabel(trip.available_seats) + '</span>' +
     '</div>' +
     '<div class="htc-right">' +
-      '<div class="htc-price">' + trip.price_per_seat.toLocaleString() + ' MRU</div>' +
       '<div class="htc-time">' + (trip.departure_time || "") + '</div>' +
+      '<div class="htc-price">' + trip.price_per_seat.toLocaleString() + ' MRU</div>' +
     '</div>' +
   '</div>';
 }
