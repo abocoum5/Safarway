@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light dark">
   <title>Goova</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1F8A5B">
+  <meta name="theme-color" content="#1DBF73">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,12 +17,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Naskh+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Leaflet (carte interactive gratuite) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
   <!-- Goova Design System -->
   <link rel="stylesheet" href="styles/theme.css">
@@ -40,71 +34,29 @@
 <!-- ─── PAGE : ACCUEIL ─── -->
 <div class="page active" id="page-home">
 
-  <!-- Carte interactive Leaflet (plein écran) -->
-  <div id="home-map"></div>
-
-  <!-- Header minimal flottant -->
-  <div class="bolt-header">
-    <div class="bolt-logo">Goova</div>
-    <div class="bolt-header-actions">
-      <button class="bolt-lang lang-toggle" id="lang-toggle-home" onclick="toggleLang()">FR · عر</button>
-      <button class="bolt-profile" onclick="showPage('compte')" id="hero-avatar-btn" aria-label="Profil">
-        <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-        <span id="hero-avatar-initials" style="display:none"></span>
-      </button>
+  <!-- Header vert -->
+  <div class="home-header">
+    <div class="hh-top">
+      <div class="hh-logo">Goova</div>
+      <div class="hh-actions">
+        <button class="hh-lang lang-toggle" id="lang-toggle-home" onclick="toggleLang()">FR · عر</button>
+        <button class="hh-profile" onclick="showPage('compte')" id="hero-avatar-btn" aria-label="Profil">
+          <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span id="hero-avatar-initials" style="display:none"></span>
+        </button>
+      </div>
     </div>
-    <!-- Éléments conservés pour la logique JS (masqués visuellement) -->
+    <div class="hh-subtitle">Voyagez ensemble en Mauritanie</div>
+    <!-- Conservés pour la logique JS (masqués) -->
     <span id="hero-greeting" hidden></span>
     <span id="hero-title" hidden></span>
   </div>
 
-  <!-- Bottom sheet -->
-  <div class="bolt-sheet">
-    <div class="bolt-sheet-handle"></div>
+  <!-- Corps scrollable -->
+  <div class="home-content">
 
-    <!-- VUE VOYAGEUR : déclencheur de recherche -->
-    <div id="home-voyageur-view">
-      <button class="bolt-search-trigger" onclick="openSearchSheet()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="20" height="20"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        <span>Où allez-vous ?</span>
-      </button>
-    </div>
-
-    <!-- VUE CHAUFFEUR -->
-    <div id="home-driver-view" style="display:none">
-      <div id="home-driver-pending" style="display:none" class="driver-pending-notice">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--accent-deep);margin-bottom:8px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <div style="font:700 15px/1.3 'Inter',sans-serif;color:var(--fg)">Compte en attente de validation</div>
-        <div style="font:400 13px/1.4 'Inter',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
-      </div>
-      <div id="home-driver-btns" class="bolt-driver-actions" style="display:none">
-        <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green">+ Publier un trajet</button>
-        <button onclick="openSearchSheet()" id="home-find-btn" class="btn btn-ghost">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Trouver un trajet
-        </button>
-      </div>
-    </div>
-
-    <!-- Liste des trajets -->
-    <div class="bolt-sheet-scroll">
-      <div class="bolt-sheet-title">Trajets disponibles</div>
-      <div id="home-trips"></div>
-    </div>
-  </div>
-</div><!-- /#page-home -->
-
-<!-- ─── FEUILLE DE RECHERCHE PLEIN ÉCRAN ─── -->
-<div id="search-sheet" class="search-sheet-overlay">
-  <div class="search-sheet-panel">
-    <div class="ss-header">
-      <button class="ss-close" onclick="closeSearchSheet()" aria-label="Fermer">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="22" height="22"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      </button>
-      <div class="ss-title">Votre trajet</div>
-    </div>
-
-    <div class="ss-fields">
+    <!-- Card recherche flottante (visible pour tous) -->
+    <div class="search-card">
       <button class="hsc-row" onclick="openCityPicker('hf-from')">
         <div class="hsc-dot hsc-dot-from"></div>
         <span class="hsc-code" id="hf-from-code">DE</span>
@@ -127,14 +79,33 @@
         <input type="date" id="hf-date" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;z-index:1;border:none;background:transparent;color:transparent;-webkit-appearance:none;appearance:none;font-size:16px;outline:none" onchange="updateHomeDateDisplay()">
         <button id="hf-date-clear" onclick="event.stopPropagation();clearHomeDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--fg-subtle);font-size:18px;line-height:1;position:relative;z-index:2">✕</button>
       </div>
+      <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:12px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Rechercher
+      </button>
     </div>
 
-    <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:8px">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="18" height="18"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-      Rechercher
-    </button>
-  </div>
-</div>
+    <!-- Wrapper voyageur conservé pour la logique JS -->
+    <div id="home-voyageur-view"></div>
+
+    <!-- VUE CHAUFFEUR : publication -->
+    <div id="home-driver-view" style="display:none">
+      <div id="home-driver-pending" style="display:none" class="driver-pending-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--accent-deep);margin-bottom:8px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <div style="font:700 15px/1.3 'Inter',sans-serif;color:var(--fg)">Compte en attente de validation</div>
+        <div style="font:400 13px/1.4 'Inter',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
+      </div>
+      <div id="home-driver-btns" style="display:none">
+        <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green">+ Publier un trajet</button>
+      </div>
+    </div>
+
+    <!-- Section trajets -->
+    <div class="home-section-title">Trajets disponibles</div>
+    <div id="home-trips"></div>
+
+  </div><!-- /.home-content -->
+</div><!-- /#page-home -->
 
 <!-- ─── PAGE : RECHERCHE ─── -->
 <div class="page" id="page-search">
@@ -888,38 +859,6 @@ function startHeroRotator() {
   }, 2800);
 }
 
-// ── CARTE LEAFLET (accueil) ──
-let _homeMap = null;
-function initHomeMap() {
-  if (typeof L === "undefined") return;
-  const el = document.getElementById("home-map");
-  if (!el) return;
-  if (_homeMap) { setTimeout(() => _homeMap.invalidateSize(), 120); return; }
-  _homeMap = L.map(el, { zoomControl: false, attributionControl: true }).setView([18.0735, -15.9582], 12);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19,
-    attribution: '&copy; OpenStreetMap',
-  }).addTo(_homeMap);
-  // Marqueur Nouakchott
-  L.circleMarker([18.0735, -15.9582], {
-    radius: 9, color: "#FFFFFF", weight: 3,
-    fillColor: "#1DBF73", fillOpacity: 1,
-  }).addTo(_homeMap);
-  setTimeout(() => _homeMap.invalidateSize(), 250);
-}
-
-// ── FEUILLE DE RECHERCHE PLEIN ÉCRAN ──
-function openSearchSheet() {
-  const s = document.getElementById("search-sheet");
-  if (s) s.classList.add("open");
-  document.getElementById("bottom-nav").style.display = "none";
-}
-function closeSearchSheet() {
-  const s = document.getElementById("search-sheet");
-  if (s) s.classList.remove("open");
-  document.getElementById("bottom-nav").style.display = "flex";
-}
-
 window.onload = () => {
   token = localStorage.getItem("sw_token");
   const s = localStorage.getItem("sw_user");
@@ -930,7 +869,6 @@ window.onload = () => {
   setTodayDate();
   checkDeepLink();
   loadHomeTrips();
-  initHomeMap();
   if (token && currentUser) loadUserBookedTripIds();
   if (token && currentUser && currentUser.role === "admin" && window.location.search.includes("goto=admin")) {
     window.history.replaceState({}, "", window.location.pathname);
@@ -954,7 +892,7 @@ function showPage(p) {
   document.getElementById("page-" + p).classList.add("active");
   const nav = document.getElementById("bnav-" + p);
   if (nav) nav.classList.add("active");
-  if (p === "home") { loadHomeTrips(); initHomeMap(); }
+  if (p === "home") loadHomeTrips();
   if (p === "trajets") loadTrajetsPage();
   if (p === "compte") { refreshCurrentUser().then(() => { updateProfileSection(); loadProfileBookings(); }); }
   if (p === "admin") loadAdminDashboard();
@@ -1127,32 +1065,19 @@ function starsDisplay(rating) {
   return '<span class="sf">' + '★'.repeat(full) + '</span>' + '☆'.repeat(5 - full) + ' ' + rating.toFixed(1);
 }
 
-// Type de véhicule d'après la capacité (heuristique)
-function vehicleInfo(trip) {
-  const s = trip.total_seats || trip.available_seats || 0;
-  if (s >= 14) return { icon: "🚐", label: "Minibus" };
-  if (s >= 8)  return { icon: "🚙", label: "4x4" };
-  return { icon: "🚗", label: "Peugeot 504" };
-}
-
-// Carte de trajet style Bolt (partagée accueil + résultats)
+// Carte de trajet compacte (partagée accueil + résultats)
 function rideCardHTML(trip) {
   tripsCache[trip.id] = trip;
-  const av = avatarMeta(trip.driver_name || "Chauffeur");
-  const veh = vehicleInfo(trip);
   const time = trip.departure_time || "—";
-  return '<div class="ride-card fade-in">' +
-    '<div class="ride-top" onclick="showTripDetail(' + trip.id + ')">' +
-      '<div class="ride-veh"><span class="ride-veh-ic">' + veh.icon + '</span><span class="ride-veh-lbl">' + veh.label + '</span></div>' +
-      '<div class="ride-info">' +
-        '<div class="ride-driver"><span class="ride-av" style="background:' + av.color + '">' + av.initials + '</span>' + (trip.driver_name || "Chauffeur") + '</div>' +
-        '<div class="ride-sub">🕐 ' + time + '&nbsp;&nbsp;·&nbsp;&nbsp;' + trip.from_city + ' → ' + trip.to_city + '</div>' +
-      '</div>' +
-      '<div class="ride-price">' + trip.price_per_seat.toLocaleString() + '<span>MRU</span></div>' +
+  return '<div class="trip-line fade-in" onclick="showTripDetail(' + trip.id + ')">' +
+    '<div class="tl-time">' + time + '</div>' +
+    '<div class="tl-mid">' +
+      '<div class="tl-route">' + trip.from_city + ' → ' + trip.to_city + '</div>' +
+      '<div class="tl-sub">' + (trip.driver_name || "Chauffeur") + '</div>' +
     '</div>' +
-    '<div class="ride-bottom">' +
-      '<span class="ride-seats">' + seatsLabel(trip.available_seats) + '</span>' +
-      '<button class="ride-book" onclick="showTripDetail(' + trip.id + ')">Réserver</button>' +
+    '<div class="tl-right">' +
+      '<div class="tl-price">' + trip.price_per_seat.toLocaleString() + ' MRU</div>' +
+      '<span class="tl-seats">' + seatsLabel(trip.available_seats) + '</span>' +
     '</div>' +
   '</div>';
 }
@@ -1277,7 +1202,6 @@ function quickSearch(from, to) {
 
 // ── SEARCH FROM HOME (voyageur) ──
 function searchFromHome() {
-  closeSearchSheet();
   const from = document.getElementById("hf-from").value;
   const to   = document.getElementById("hf-to").value;
   const date = document.getElementById("hf-date").value;

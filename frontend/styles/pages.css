@@ -7,121 +7,66 @@
 
 #page-home.active {
   display: block;
-  position: relative;
-  height: 100svh;
-  overflow: hidden;
-  padding-bottom: 0;
-  min-height: unset;
-  background: #eef1f3;
+  min-height: 100vh;
+  padding-bottom: 80px;
+  background: var(--bg);
 }
 
-/* ═══════════ ACCUEIL BOLT (carte + sheet) ═══════════ */
+/* ═══════════ ACCUEIL (header vert + card + trajets) ═══════════ */
 
-/* Carte Leaflet plein écran */
-#home-map { position: absolute; inset: 0; z-index: 1; background: #e8eef0; }
-.leaflet-container { font-family: 'Inter', sans-serif; }
-
-/* Header minimal flottant */
-.bolt-header {
-  position: absolute; top: 0; left: 0; right: 0; z-index: 30;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: max(16px, calc(10px + env(safe-area-inset-top, 0px))) 16px 12px;
-  pointer-events: none;
+/* Header vert */
+.home-header {
+  background: linear-gradient(160deg, var(--primary) 0%, var(--primary-hi) 100%);
+  padding: max(20px, calc(14px + env(safe-area-inset-top, 0px))) 20px 46px;
+  border-radius: 0 0 26px 26px;
 }
-.bolt-logo {
-  font: 800 24px/1 'Inter', sans-serif; letter-spacing: -0.8px;
-  color: var(--fg);
-  background: #fff; padding: 9px 16px; border-radius: 30px;
-  box-shadow: var(--shadow); pointer-events: auto;
+.hh-top { display: flex; align-items: center; justify-content: space-between; }
+.hh-logo { font: 800 26px/1 'Inter', sans-serif; letter-spacing: -1px; color: #fff; }
+.hh-actions { display: flex; align-items: center; gap: 8px; }
+.hh-lang {
+  background: rgba(255,255,255,.20); border: 1px solid rgba(255,255,255,.30);
+  border-radius: 30px; padding: 6px 12px;
+  font: 700 12px/1 'Inter', sans-serif; color: #fff; cursor: pointer;
+  white-space: nowrap; transition: background .15s;
 }
-.bolt-header-actions { display: flex; align-items: center; gap: 8px; pointer-events: auto; }
-.bolt-lang {
-  background: #fff; border: none; border-radius: 30px;
-  padding: 9px 13px; font: 700 12px/1 'Inter', sans-serif;
-  color: var(--fg-muted); cursor: pointer; box-shadow: var(--shadow);
-  white-space: nowrap; transition: transform .12s;
-}
-.bolt-lang:active { transform: scale(.94); }
-.bolt-profile {
-  width: 42px; height: 42px; border-radius: 50%;
-  background: #fff; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow); color: var(--fg); transition: transform .12s;
-}
-.bolt-profile:active { transform: scale(.94); }
-.bolt-profile svg { width: 20px; height: 20px; }
-#hero-avatar-initials { font: 800 14px/1 'Inter', sans-serif; color: var(--primary); }
-
-/* Bottom sheet */
-.bolt-sheet {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 20;
-  height: 60%;
-  background: #fff;
-  border-radius: 24px 24px 0 0;
-  box-shadow: var(--shadow-lg);
-  display: flex; flex-direction: column;
-  padding: 8px 16px 0;
-  animation: sheetSlideUp .45s cubic-bezier(.22,.61,.36,1) both;
-}
-.bolt-sheet-handle {
-  width: 42px; height: 5px; border-radius: 3px;
-  background: #E0E0E0; margin: 4px auto 14px; flex-shrink: 0;
-}
-
-/* Déclencheur de recherche "Où allez-vous ?" */
-.bolt-search-trigger {
-  display: flex; align-items: center; gap: 12px;
-  width: 100%; text-align: left;
-  background: var(--surface-2);
-  border: 1.5px solid var(--border);
-  border-radius: 16px; padding: 16px 18px;
-  font: 600 16px/1 'Inter', sans-serif; color: var(--fg);
-  cursor: pointer; transition: border-color .15s, transform .12s, box-shadow .15s;
-  font-family: 'Inter', sans-serif;
-}
-.bolt-search-trigger:hover { border-color: var(--primary); box-shadow: var(--shadow-sm); }
-.bolt-search-trigger:active { transform: scale(.99); }
-.bolt-search-trigger svg { color: var(--primary); flex-shrink: 0; }
-.bolt-search-trigger span { color: var(--fg-muted); }
-
-/* Actions chauffeur */
-.bolt-driver-actions { display: flex; flex-direction: column; gap: 10px; }
-
-/* Zone scrollable des trajets */
-.bolt-sheet-scroll {
-  flex: 1; overflow-y: auto; overflow-x: hidden;
-  -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
-  scroll-behavior: smooth;
-  margin: 0 -16px; padding: 14px 16px calc(80px + env(safe-area-inset-bottom, 0px));
-}
-.bolt-sheet-title {
-  font: 800 16px/1.2 'Inter', sans-serif; color: var(--fg);
-  margin: 14px 0 12px;
-}
-
-/* ── FEUILLE DE RECHERCHE PLEIN ÉCRAN ── */
-.search-sheet-overlay {
-  display: none; position: fixed; inset: 0; z-index: 400;
-  background: var(--bg); max-width: 480px; margin: 0 auto;
-  flex-direction: column;
-}
-.search-sheet-overlay.open { display: flex; animation: sheetSlideUp .4s cubic-bezier(.22,.61,.36,1) both; }
-.search-sheet-panel { padding: max(20px, calc(14px + env(safe-area-inset-top, 0px))) 18px 24px; }
-.ss-header { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
-.ss-close {
+.hh-lang:hover { background: rgba(255,255,255,.30); }
+.hh-profile {
   width: 40px; height: 40px; border-radius: 50%;
-  background: var(--surface-2); border: none; cursor: pointer;
+  background: rgba(255,255,255,.20); border: 1px solid rgba(255,255,255,.30);
   display: flex; align-items: center; justify-content: center;
-  color: var(--fg); flex-shrink: 0; transition: transform .12s;
+  cursor: pointer; color: #fff; transition: background .15s;
 }
-.ss-close:active { transform: scale(.92); }
-.ss-title { font: 800 20px/1.2 'Inter', sans-serif; color: var(--fg); }
-.ss-fields {
-  background: var(--surface-2);
-  border: 1.5px solid var(--border);
-  border-radius: 18px; padding: 6px 16px 12px; margin-bottom: 16px;
+.hh-profile:hover { background: rgba(255,255,255,.30); }
+.hh-profile svg { width: 20px; height: 20px; }
+#hero-avatar-initials { font: 800 14px/1 'Inter', sans-serif; color: #fff; }
+.hh-subtitle {
+  margin-top: 10px;
+  font: 500 15px/1.4 'Inter', sans-serif; color: rgba(255,255,255,.92);
+}
+
+/* Corps */
+.home-content { padding: 0 16px; }
+
+/* Card recherche flottante (chevauche le header) */
+.search-card {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: var(--shadow-md);
+  padding: 14px 16px;
+  margin-top: -30px;
+  position: relative; z-index: 5;
+  animation: fadeInUp .45s cubic-bezier(.22,.61,.36,1) both;
 }
 .hsc-connector-wrap { display: flex; align-items: center; }
+
+/* Titre de section */
+.home-section-title {
+  font: 800 17px/1.2 'Inter', sans-serif; color: var(--fg);
+  margin: 24px 2px 12px;
+}
+
+/* Ancien hero (non utilisé, conservé inoffensif) */
+.home-hero { display: none; }
 
 /* ── HERO ── */
 .home-hero {
@@ -493,73 +438,42 @@
   border: 1px solid var(--border);
 }
 
-/* ═══════════════════ CARTE TRAJET (style Bolt) ═══════════════════ */
-.ride-card {
+/* ═══════════════════ LIGNE DE TRAJET (compacte) ═══════════════════ */
+.trip-line {
+  display: flex; align-items: center; gap: 12px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 18px;
+  border-radius: 14px;
   box-shadow: var(--shadow-sm);
-  margin-bottom: 12px;
-  overflow: hidden;
-  transition: box-shadow .18s, transform .18s;
+  padding: 13px 15px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: box-shadow .18s, transform .12s;
 }
-.ride-card:hover { box-shadow: var(--shadow-md); }
-.ride-top {
-  display: flex; align-items: center; gap: 12px;
-  padding: 14px 16px; cursor: pointer;
+.trip-line:hover { box-shadow: var(--shadow-md); }
+.trip-line:active { transform: scale(.99); }
+.tl-time {
+  font: 800 16px/1 'Inter', sans-serif; color: var(--primary);
+  background: var(--primary-lo);
+  padding: 8px 10px; border-radius: 10px;
+  flex-shrink: 0; white-space: nowrap; letter-spacing: -0.3px;
 }
-.ride-top:active { background: var(--surface-2); }
-.ride-veh {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  flex-shrink: 0; width: 58px;
-}
-.ride-veh-ic {
-  width: 46px; height: 46px; border-radius: 14px;
-  background: var(--surface-2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 24px;
-}
-.ride-veh-lbl {
-  font: 600 9px/1.1 'Inter', sans-serif; color: var(--fg-subtle);
-  text-align: center; text-transform: uppercase; letter-spacing: .2px;
-}
-.ride-info { flex: 1; min-width: 0; }
-.ride-driver {
-  display: flex; align-items: center; gap: 8px;
+.tl-mid { flex: 1; min-width: 0; }
+.tl-route {
   font: 700 15px/1.2 'Inter', sans-serif; color: var(--fg);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.ride-av {
-  width: 24px; height: 24px; border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font: 800 10px/1 'Inter', sans-serif; color: #fff;
-}
-.ride-sub {
+.tl-sub {
   font: 500 12.5px/1.3 'Inter', sans-serif; color: var(--fg-muted);
-  margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin-top: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.ride-price {
-  font: 800 18px/1 'Inter', sans-serif; color: var(--fg);
-  white-space: nowrap; flex-shrink: 0; text-align: right; letter-spacing: -0.5px;
-}
-.ride-price span { display: block; font: 600 10px/1.2 'Inter', sans-serif; color: var(--fg-subtle); margin-top: 3px; }
-.ride-bottom {
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding: 0 16px 14px;
-}
-.ride-seats {
+.tl-right { text-align: right; flex-shrink: 0; }
+.tl-price { font: 800 15px/1 'Inter', sans-serif; color: var(--fg); white-space: nowrap; letter-spacing: -0.3px; }
+.tl-seats {
+  display: inline-block; margin-top: 6px;
   background: var(--primary-lo); color: var(--primary-deep);
-  font: 700 12px/1 'Inter', sans-serif;
-  padding: 6px 12px; border-radius: 20px;
+  font: 700 11px/1 'Inter', sans-serif;
+  padding: 4px 9px; border-radius: 20px; white-space: nowrap;
 }
-.ride-book {
-  background: var(--primary); color: #fff; border: none;
-  padding: 10px 22px; border-radius: 22px;
-  font: 700 14px/1 'Inter', sans-serif; cursor: pointer;
-  box-shadow: 0 4px 12px rgba(29,191,115,.30);
-  transition: transform .12s, filter .15s;
-}
-.ride-book:hover { filter: brightness(1.04); }
-.ride-book:active { transform: scale(.95); }
 
-[dir="rtl"] .ride-price { text-align: left; }
+[dir="rtl"] .tl-right { text-align: left; }
