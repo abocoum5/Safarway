@@ -25,7 +25,67 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
   <style>
-    /* Styles dans styles/theme.css · components.css · pages.css */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Noto+Naskh+Arabic:wght@500;600&display=swap');
+:root{--g:#1F8A5B;--gh:#156B45;--gl:#E6F4EC;--bg:#FFF8EF;--s:#fff;--b:#F0E4D3;--fg:#2A1C14;--fm:#8C7B6B;--fs:#B9AA98}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Plus Jakarta Sans',sans-serif;color:var(--fg);background:var(--bg)}
+a{color:inherit;text-decoration:none}
+.app{max-width:480px;margin:0 auto;min-height:100vh;position:relative;padding-bottom:96px;overflow-x:hidden}
+.dunes{position:absolute;left:0;right:0;top:0;height:420px;z-index:0;pointer-events:none}
+.dunes svg{width:100%;height:100%;display:block}
+.dunes.small{height:176px;overflow:hidden}
+.dunes.small svg{height:420px;transform:translateY(-244px)}
+.dunes.small .road{display:none}
+.dunes.small::after{content:"";position:absolute;left:0;right:0;bottom:0;height:70px;background:linear-gradient(180deg,rgba(255,248,239,0),var(--bg))}
+.top{position:relative;z-index:1;padding:16px 22px 0;display:flex;justify-content:space-between;align-items:center}
+.logo{font-weight:800;font-size:24px;letter-spacing:-1.1px}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:var(--g);flex-shrink:0}
+.av.lg{width:42px;height:42px;font-size:16px;box-shadow:0 0 0 3px rgba(255,255,255,.6)}
+.av.sm{width:34px;height:34px;font-size:13px}
+.hello{position:relative;z-index:1;padding:26px 22px 0}
+.hello small{font-size:15px;font-weight:600;color:var(--fm)}
+.hello h1{margin:4px 0 0;font-weight:800;font-size:36px;letter-spacing:-1.4px;line-height:1.05}
+.ar{font-family:'Noto Naskh Arabic';direction:rtl;font-size:15px;color:var(--fm);margin-top:6px;text-align:left}
+.search{position:relative;z-index:1;margin:90px 16px 0;background:var(--s);border-radius:26px;padding:8px 16px 16px;box-shadow:0 30px 60px -24px rgba(90,40,10,.45)}
+.row{display:flex;align-items:center;gap:14px;padding:14px 4px}
+.dot{width:12px;height:12px;border-radius:6px;flex-shrink:0}
+.dot.from{border:3px solid var(--g)}.dot.to{background:var(--fg)}
+.row label{display:block;font-size:11px;font-weight:700;color:var(--fm);letter-spacing:.6px}
+.row input,.row select{border:none;outline:none;background:none;font:inherit;font-weight:700;font-size:17px;color:var(--fg);width:100%;padding:0}
+.sep{position:relative;height:1px;background:var(--b);margin-left:30px}
+.swap{position:absolute;right:0;top:-20px;width:40px;height:40px;border-radius:20px;border:none;background:var(--gl);color:var(--g);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.pills{display:flex;gap:8px;margin:2px 0 14px}
+.pill{flex:1;height:48px;border-radius:14px;background:#FBF3E8;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:700;font-size:14.5px;color:var(--g)}
+.pill input,.pill select{border:none;background:none;font:inherit;color:var(--fg);outline:none;width:100%}
+.pill.narrow{flex:0 0 112px}
+.app .btn{height:58px;border-radius:18px;border:none;background:var(--g);color:#fff;font:inherit;font-weight:700;font-size:17px;width:100%;cursor:pointer;box-shadow:0 10px 24px -10px rgba(31,138,91,.7)}
+.app .section{padding:28px 22px 0}
+.app .section h2{font-weight:800;font-size:16px;letter-spacing:-.3px;margin:0 0 12px}
+.popular{display:flex;gap:10px}
+.popular a{flex:1;height:56px;border-radius:16px;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px}
+.rides{position:relative;z-index:1;padding:24px 16px 0;display:flex;flex-direction:column;gap:12px}
+.ride{display:block;background:var(--s);border-radius:22px;padding:18px;box-shadow:0 14px 34px -18px rgba(90,40,10,.35);cursor:pointer}
+.ride.best{outline:2px solid var(--g)}
+.ride-top{display:flex;justify-content:space-between;align-items:center}
+.times{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px}
+.times i{width:34px;height:2px;background:var(--b)}
+.price{font-weight:800;font-size:19px;white-space:nowrap}
+.ride.best .price{color:var(--g)}
+.ride-bot{display:flex;align-items:center;gap:10px;margin-top:14px}
+.driver{flex:1;font-weight:700;font-size:14px}
+.driver b{color:#E8A93A;font-weight:700}
+.tag{background:var(--gl);color:var(--gh);font-size:12px;font-weight:700;padding:6px 10px;border-radius:100px;white-space:nowrap}
+.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:480px;height:80px;background:var(--s);border-top:1px solid var(--b);display:flex;justify-content:space-around;padding-top:12px;z-index:10}
+.nav a{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:var(--fs);cursor:pointer}
+.nav a.on,.nav a.active{color:var(--g)}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* ── liaison avec la logique existante ── */
+#page-home.active{display:block;height:auto;min-height:100vh;overflow:visible;padding:0;background:var(--bg)}
+.rowbody{flex:1;min-width:0}
+#hf-from-label,#hf-to-label{font-weight:700;font-size:17px;color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#hf-from-label.ph,#hf-to-label.ph{color:var(--fs);font-weight:600}
+.times .dest{font-size:15px;font-weight:700;color:var(--fm)}
+.app .btn:active{transform:scale(.97)}
   </style>
 </head>
 <body>
@@ -34,170 +94,115 @@
 <!-- ─── PAGE : ACCUEIL ─── -->
 <div class="page active" id="page-home">
 
-  <!-- ── HERO GRADIENT + DUNES ── -->
-  <div class="home-hero">
+  <div class="app">
 
-    <!-- Motif dunes SVG inline -->
-    <div class="hero-dunes" aria-hidden="true">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 140" preserveAspectRatio="xMidYMax slice" style="width:100%;height:140px;display:block">
-        <path d="M0,70 Q40,30 80,55 Q120,80 160,50 Q200,20 240,55 Q280,90 320,55 Q360,20 400,55 Q440,90 480,60 L480,140 L0,140Z" fill="rgba(255,255,255,0.07)"/>
-        <path d="M0,95 Q50,60 100,80 Q150,100 200,75 Q250,50 300,80 Q350,110 400,80 Q440,55 480,85 L480,140 L0,140Z" fill="rgba(255,255,255,0.045)"/>
-        <path d="M0,115 Q60,85 120,100 Q180,115 240,98 Q300,80 360,100 Q420,120 480,105 L480,140 L0,140Z" fill="rgba(255,255,255,0.025)"/>
+    <!-- Paysage de dunes -->
+    <div class="dunes" aria-hidden="true">
+      <svg viewBox="0 0 390 420" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6EFE4"/><stop offset=".55" stop-color="#F9F4EC"/><stop offset="1" stop-color="#FFF8EF"/></linearGradient>
+          <radialGradient id="sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#FBF3E6"/><stop offset="1" stop-color="#FBF3E6" stop-opacity="0"/></radialGradient>
+          <linearGradient id="d1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFE3D0"/><stop offset="1" stop-color="#E9DAC3"/></linearGradient>
+          <linearGradient id="d2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4D3BA"/><stop offset="1" stop-color="#DCC8AC"/></linearGradient>
+          <linearGradient id="d3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4BE9E"/><stop offset="1" stop-color="#C9B08D"/></linearGradient>
+        </defs>
+        <rect width="390" height="420" fill="url(#sky)"/>
+        <circle cx="290" cy="190" r="90" fill="url(#sun)"/>
+        <circle cx="290" cy="190" r="34" fill="#fff"/>
+        <path d="M0 250 C70 215 130 225 190 245 S300 215 390 232 V420 H0Z" fill="url(#d1)"/>
+        <path d="M0 292 C60 262 140 270 210 292 S330 268 390 285 V420 H0Z" fill="url(#d2)"/>
+        <path d="M0 340 C90 305 170 318 250 338 S350 320 390 330 V420 H0Z" fill="url(#d3)"/>
+        <g class="road">
+          <path d="M150 420 C185 380 205 350 222 298 L226 298 C218 350 208 385 205 420Z" fill="#8A7458" opacity=".35"/>
+          <path d="M176 420 C198 385 212 352 224 300" stroke="#fff" stroke-width="1.6" stroke-dasharray="6 7" fill="none" opacity=".8"/>
+        </g>
       </svg>
     </div>
 
-    <!-- Top bar -->
-    <div class="hero-topbar">
-      <!-- Logo goova -->
-      <div class="hero-logo">
-        <span class="hero-logo-text">go<span class="hero-logo-dot">o</span>va</span>
-        <span class="hero-logo-arabic">گـوڤا</span>
-      </div>
-
-      <!-- Actions droite -->
-      <div class="hero-topbar-right">
-        <button class="hero-lang-pill lang-toggle" id="lang-toggle-home" onclick="toggleLang()">FR · عر</button>
-        <!-- Cloche notifications -->
-        <button class="hero-bell-btn" aria-label="Notifications">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        </button>
-        <!-- Avatar / compte -->
-        <button class="hero-avatar-btn" onclick="showPage('compte')" id="hero-avatar-btn">
-          <svg id="hero-avatar-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <!-- Top bar : logo + langue + profil -->
+    <div class="top">
+      <div class="logo">Goova</div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button class="lang-toggle" id="lang-toggle-home" onclick="toggleLang()" style="background:var(--s);border:1px solid var(--b);border-radius:100px;padding:7px 12px;font-family:inherit;font-weight:700;font-size:12px;color:var(--fm);cursor:pointer">FR · عر</button>
+        <button class="av lg" id="hero-avatar-btn" onclick="showPage('compte')" style="border:none;cursor:pointer">
+          <svg id="hero-avatar-icon" class="ic" viewBox="0 0 24 24" style="stroke:#fff;width:20px;height:20px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
           <span id="hero-avatar-initials" style="display:none"></span>
         </button>
       </div>
     </div>
 
-    <!-- Greeting + Headline -->
-    <div class="hero-content">
-      <div class="hero-greeting" id="hero-greeting">Marhaba 👋</div>
-      <h1 class="hero-headline" id="hero-title">Où allez-vous<br>aujourd'hui ?</h1>
-      <div class="hero-rotator" id="hero-rotator">Voyagez ensemble</div>
-
-      <!-- Route animée avec voiture -->
-      <div class="hero-road" aria-hidden="true">
-        <svg viewBox="0 0 320 34" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <line class="road-line" x1="0" y1="26" x2="320" y2="26" stroke="rgba(255,255,255,.45)" stroke-width="3" stroke-linecap="round" stroke-dasharray="12 10"/>
-          <g class="hero-car" transform="translate(150,0)">
-            <rect x="-20" y="8" width="40" height="12" rx="5" fill="#fff"/>
-            <path d="M-12 8 q3 -7 9 -7 h8 q6 0 9 7 z" fill="rgba(255,255,255,.85)"/>
-            <circle cx="-9" cy="21" r="4" fill="#0F172A"/><circle cx="-9" cy="21" r="1.6" fill="#fff"/>
-            <circle cx="11" cy="21" r="4" fill="#0F172A"/><circle cx="11" cy="21" r="1.6" fill="#fff"/>
-            <circle cx="17" cy="13" r="1.6" fill="#FDE68A"/>
-          </g>
-        </svg>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── CORPS SCROLLABLE ── -->
-  <div class="home-body">
-
-    <!-- VUE VOYAGEUR : carte recherche flottante -->
-    <div id="home-voyageur-view">
-
-      <!-- Search card flottante -->
-      <div class="home-search-card">
-        <!-- Départ -->
-        <button class="hsc-row" onclick="openCityPicker('hf-from')">
-          <div class="hsc-dot hsc-dot-from"></div>
-          <span class="hsc-code" id="hf-from-code">DE</span>
-          <span id="hf-from-label" class="hsc-placeholder">Ville de départ</span>
-          <input type="hidden" id="hf-from">
-        </button>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-        </div>
-        <!-- Arrivée -->
-        <button class="hsc-row" onclick="openCityPicker('hf-to')">
-          <div class="hsc-dot hsc-dot-to"></div>
-          <span class="hsc-code" id="hf-to-code">À</span>
-          <span id="hf-to-label" class="hsc-placeholder">Ville d'arrivée</span>
-          <input type="hidden" id="hf-to">
-        </button>
-        <div class="hsc-divider"></div>
-        <!-- Date -->
-        <div class="hsc-date-row" style="cursor:pointer;position:relative">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span id="hf-date-display" class="hsc-placeholder">Toutes les dates</span>
-          <input type="date" id="hf-date" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;z-index:1;border:none;background:transparent;color:transparent;-webkit-appearance:none;appearance:none;font-size:16px;outline:none" onchange="updateHomeDateDisplay()">
-          <button id="hf-date-clear" onclick="event.stopPropagation();clearHomeDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--fg-subtle);font-size:18px;line-height:1;position:relative;z-index:2">✕</button>
-        </div>
-        <!-- CTA Rechercher -->
-        <button class="btn btn-green" onclick="searchFromHome()" style="margin-top:12px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Rechercher
-        </button>
-      </div>
-
-      <!-- Toggle Je cherche / Je propose -->
-      <div class="home-toggle-row">
-        <button class="home-toggle-btn active">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Je cherche
-        </button>
-        <button class="home-toggle-btn" onclick="showPage('compte')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="13" height="13"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-          Je propose
-        </button>
-      </div>
+    <!-- Hero -->
+    <div class="hello">
+      <small id="hero-greeting">Marhaba 👋</small>
+      <h1 id="hero-title">Où allez-vous<br>aujourd'hui ?</h1>
+      <div class="ar">إلى أين اليوم؟</div>
     </div>
 
-    <!-- VUE CHAUFFEUR -->
-    <div id="home-driver-view" style="display:none">
-      <!-- Notice en attente -->
-      <div id="home-driver-pending" style="display:none" class="driver-pending-notice">
+    <!-- Carte de recherche (VUE VOYAGEUR) -->
+    <div class="search" id="home-voyageur-view">
+      <div class="row" onclick="openCityPicker('hf-from')">
+        <div class="dot from"></div>
+        <div class="rowbody">
+          <label>Départ</label>
+          <div id="hf-from-label" class="ph">Ville de départ</div>
+        </div>
+        <input type="hidden" id="hf-from">
+      </div>
+      <div class="sep">
+        <button class="swap" onclick="event.stopPropagation();swapCities()" aria-label="Inverser">
+          <svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px"><path d="M7 20V5M7 5 4 8M7 5l3 3"/><path d="M17 4v15M17 19l3-3M17 19l-3-3"/></svg>
+        </button>
+      </div>
+      <div class="row" onclick="openCityPicker('hf-to')">
+        <div class="dot to"></div>
+        <div class="rowbody">
+          <label>Arrivée</label>
+          <div id="hf-to-label" class="ph">Ville d'arrivée</div>
+        </div>
+        <input type="hidden" id="hf-to">
+      </div>
+      <div class="pills">
+        <label class="pill" style="position:relative;cursor:pointer">
+          <svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="hf-date-display">Date</span>
+          <input type="date" id="hf-date" onchange="updateHomeDateDisplay()" style="position:absolute;inset:0;opacity:0;cursor:pointer">
+          <button id="hf-date-clear" onclick="event.preventDefault();event.stopPropagation();clearHomeDate()" style="display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--fs);font-size:16px;line-height:1;cursor:pointer;z-index:3">✕</button>
+        </label>
+        <div class="pill narrow">
+          <svg class="ic" viewBox="0 0 24 24" style="width:18px;height:18px;flex-shrink:0"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <select id="hf-pax" aria-label="Passagers"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+        </div>
+      </div>
+      <button class="btn" onclick="searchFromHome()">Rechercher un trajet</button>
+    </div>
+
+    <!-- VUE CHAUFFEUR : publication -->
+    <div id="home-driver-view" style="display:none;padding:0 16px">
+      <div id="home-driver-pending" style="display:none;margin-top:16px" class="driver-pending-notice">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28" style="color:var(--accent-deep);margin-bottom:8px"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <div style="font:700 15px/1.3 'Plus Jakarta Sans',sans-serif;color:var(--fg)">Compte en attente de validation</div>
-        <div style="font:400 13px/1.4 'Inter Tight',sans-serif;color:var(--fg-muted);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
+        <div style="font-weight:700;font-size:15px;color:var(--fg)">Compte en attente de validation</div>
+        <div style="font-size:13px;color:var(--fm);margin-top:4px">Un administrateur va approuver votre compte. Vous pourrez publier des trajets ensuite.</div>
       </div>
-      <!-- Carte principale chauffeur (même style que voyageur) -->
-      <div id="home-driver-btns" class="home-search-card" style="display:none">
-        <button id="home-publish-btn" onclick="openPublishModal()" class="btn btn-green" style="width:100%">+ Publier un trajet</button>
-        <div class="hsc-divider"></div>
-        <button onclick="toggleSearchForm(this)" id="home-find-btn" class="btn" style="width:100%;background:var(--surface-2);color:var(--fg);border:1.5px solid var(--border)">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Trouver un trajet
-        </button>
-      </div>
-      <!-- Formulaire chauffeur expandé -->
-      <div id="home-search-form" style="display:none" class="home-search-expanded">
-        <button class="hsc-row" onclick="openCityPicker('df-from')">
-          <div class="hsc-dot hsc-dot-from"></div>
-          <span class="hsc-code" id="df-from-code">DE</span>
-          <span id="df-from-label" class="hsc-placeholder">Ville de départ</span>
-          <input type="hidden" id="df-from">
-        </button>
-        <div style="display:flex;align-items:center;gap:12px">
-          <div class="hsc-connector"><div class="hsc-connector-line"></div></div>
-          <div style="flex:1;height:1px;background:var(--border)"></div>
-        </div>
-        <button class="hsc-row" onclick="openCityPicker('df-to')">
-          <div class="hsc-dot hsc-dot-to"></div>
-          <span class="hsc-code" id="df-to-code">À</span>
-          <span id="df-to-label" class="hsc-placeholder">Ville d'arrivée</span>
-          <input type="hidden" id="df-to">
-        </button>
-        <div class="hsc-divider"></div>
-        <div class="hsc-date-row" style="cursor:pointer;position:relative">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span id="df-date-display" class="hsc-placeholder">Toutes les dates</span>
-          <input type="date" id="df-date" style="position:absolute;top:0;left:0;width:100%;height:100%;cursor:pointer;z-index:1;border:none;background:transparent;color:transparent;-webkit-appearance:none;appearance:none;font-size:16px;outline:none" onchange="updateDriverDateDisplay()">
-          <button id="df-date-clear" onclick="event.stopPropagation();clearDriverDate()" style="display:none;background:none;border:none;cursor:pointer;padding:2px 6px;color:var(--fg-subtle);font-size:18px;line-height:1;position:relative;z-index:2">✕</button>
-        </div>
-        <button class="btn btn-green" onclick="searchFromDriver()" style="margin-top:10px">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-          Rechercher
-        </button>
+      <div id="home-driver-btns" style="display:none">
+        <button id="home-publish-btn" onclick="openPublishModal()" class="btn" style="margin-top:16px">+ Publier un trajet</button>
       </div>
     </div>
 
-    <!-- Trajets récents (chargés dynamiquement) -->
-    <div id="home-trips"></div>
+    <!-- Populaires -->
+    <div class="section">
+      <h2>Populaires</h2>
+      <div class="popular">
+        <a onclick="popularSearch('Nouadhibou')">Nouadhibou</a>
+        <a onclick="popularSearch('Atar')">Atar</a>
+        <a onclick="popularSearch('Rosso')">Rosso</a>
+      </div>
+    </div>
 
-  </div><!-- /.home-body -->
+    <!-- Trajets disponibles (chargés depuis le backend) -->
+    <div class="section"><h2>Trajets disponibles</h2></div>
+    <div class="rides" id="home-trips"></div>
+
+  </div><!-- /.app -->
 </div><!-- /#page-home -->
 
 <!-- ─── PAGE : RECHERCHE ─── -->
@@ -742,19 +747,19 @@
 </div>
 
 <!-- ─── BOTTOM NAV ─── -->
-<div class="bottom-nav" id="bottom-nav">
-  <div class="bnav-item active" id="bnav-home" onclick="showPage('home')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
-    <span data-i18n="nav.home">Accueil</span>
-  </div>
-  <div class="bnav-item" id="bnav-trajets" onclick="showPage('trajets')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
-    <span data-i18n="nav.trajets">Trajets</span>
-  </div>
-  <div class="bnav-item" id="bnav-compte" onclick="showPage('compte')">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    <span id="bnav-compte-label" data-i18n="nav.compte">Compte</span>
-  </div>
+<div class="nav" id="bottom-nav">
+  <a class="active" id="bnav-home" onclick="showPage('home')">
+    <svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+    Rechercher
+  </a>
+  <a id="bnav-publish" onclick="openPublishModal()">
+    <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg>
+    Publier
+  </a>
+  <a id="bnav-compte" onclick="showPage('compte')">
+    <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    <span id="bnav-compte-label">Profil</span>
+  </a>
 </div>
 
 <script>
@@ -842,7 +847,7 @@ function applyLang() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll(".lang-toggle").forEach(el => { el.textContent = isAr ? "FR" : "عر"; });
   const ht = document.getElementById("hero-title");
-  if (ht) ht.innerHTML = isAr ? "إلى أين<br>تريد الذهاب ؟" : "Où voulez-vous<br>aller ?";
+  if (ht) ht.innerHTML = isAr ? "إلى أين<br>اليوم ؟" : "Où allez-vous<br>aujourd'hui ?";
   // Labels champs ville (si non sélectionnés)
   [["sf-from","search.from"],["sf-to","search.to"],["pm-from","publish.from"],["pm-to","publish.to"]].forEach(([id, key]) => {
     const lbl = document.getElementById(id + "-label");
@@ -1159,23 +1164,24 @@ function starsDisplay(rating) {
   return '<span class="sf">' + '★'.repeat(full) + '</span>' + '☆'.repeat(5 - full) + ' ' + rating.toFixed(1);
 }
 
+// Carte de trajet style maquette (.ride) — partagée accueil + résultats
+function rideCardHTML(trip, best) {
+  tripsCache[trip.id] = trip;
+  const rating = trip.driver_rating ? ' <b>★' + trip.driver_rating.toFixed(1) + '</b>' : '';
+  return '<a class="ride' + (best ? ' best' : '') + '" onclick="showTripDetail(' + trip.id + ')">' +
+    '<div class="ride-top">' +
+      '<div class="times">' + (trip.departure_time || "—") + '<i></i><span class="dest">' + trip.to_city + '</span></div>' +
+      '<div class="price">' + trip.price_per_seat.toLocaleString() + ' MRU</div>' +
+    '</div>' +
+    '<div class="ride-bot">' +
+      '<div class="driver">' + trip.from_city + ' → ' + trip.to_city + '<br><span style="color:var(--fm);font-weight:600">' + (trip.driver_name || "Chauffeur") + rating + '</span></div>' +
+      '<div class="tag">' + seatsLabel(trip.available_seats) + '</div>' +
+    '</div>' +
+  '</a>';
+}
+
 function renderTripCard(t) {
-  tripsCache[t.id] = t;
-  const av = avatarMeta(t.driver_name || "Chauffeur");
-  const ratingStr = t.driver_rating ? starsDisplay(t.driver_rating) : '';
-  const meta = [t.driver_name || "Chauffeur", ratingStr].filter(Boolean).join("  ·  ");
-  return '<div class="trip-row fade-in" onclick="showTripDetail(' + t.id + ')">' +
-    '<div class="tr-main">' +
-      '<div class="tr-avatar" style="background:' + av.color + '">' + av.initials + '</div>' +
-      '<div class="tr-time">' + (t.departure_time || "—") + '</div>' +
-      '<div class="tr-route">' + t.from_city + ' → ' + t.to_city + '</div>' +
-      '<div class="tr-price">' + t.price_per_seat.toLocaleString() + ' MRU</div>' +
-    '</div>' +
-    '<div class="tr-meta">' +
-      '<span>' + meta + '</span>' +
-      '<span class="tr-seats">' + seatsLabel(t.available_seats) + '</span>' +
-    '</div>' +
-  '</div>';
+  return rideCardHTML(t);
 }
 
 function showTripDetail(tripId) {
@@ -1251,20 +1257,7 @@ function bookFromDetail() {
 }
 
 function renderHomeTripCard(trip) {
-  tripsCache[trip.id] = trip;
-  const av = avatarMeta(trip.driver_name || "Chauffeur");
-  return '<div class="home-trip-card fade-in" onclick="showTripDetail(' + trip.id + ')">' +
-    '<div class="htc-avatar" style="background:' + av.color + '">' + av.initials + '</div>' +
-    '<div class="htc-left">' +
-      '<div class="htc-route">' + trip.from_city + ' → ' + trip.to_city + '</div>' +
-      '<div class="htc-meta">' + (trip.driver_name || "Chauffeur") + '</div>' +
-      '<span class="htc-seats">' + seatsLabel(trip.available_seats) + '</span>' +
-    '</div>' +
-    '<div class="htc-right">' +
-      '<div class="htc-time">' + (trip.departure_time || "") + '</div>' +
-      '<div class="htc-price">' + trip.price_per_seat.toLocaleString() + ' MRU</div>' +
-    '</div>' +
-  '</div>';
+  return rideCardHTML(trip);
 }
 
 // ── DATE DISPLAY HOME ──
@@ -1302,6 +1295,26 @@ function quickSearch(from, to) {
   if (toInp)   toInp.value = to;
   if (toLbl)   { toLbl.textContent = to; toLbl.className = 'hsc-val'; }
   if (toCode)  toCode.textContent = to.slice(0,3).toUpperCase();
+  searchFromHome();
+}
+
+// ── INVERSER DÉPART / ARRIVÉE ──
+function swapCities() {
+  const fi = document.getElementById('hf-from'), ti = document.getElementById('hf-to');
+  const fl = document.getElementById('hf-from-label'), tl = document.getElementById('hf-to-label');
+  if (!fi || !ti) return;
+  const v = fi.value; fi.value = ti.value; ti.value = v;
+  const txt = fl.textContent, cls = fl.className;
+  fl.textContent = tl.textContent; fl.className = tl.className;
+  tl.textContent = txt; tl.className = cls;
+}
+
+// ── PASTILLE "POPULAIRES" (destination) ──
+function popularSearch(to) {
+  const ti = document.getElementById('hf-to');
+  const tl = document.getElementById('hf-to-label');
+  if (ti) ti.value = to;
+  if (tl) { tl.textContent = to; tl.className = 'cib-val'; }
   searchFromHome();
 }
 
