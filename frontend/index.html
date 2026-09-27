@@ -88,6 +88,12 @@ a{color:inherit;text-decoration:none}
 #hf-from-label.ph,#hf-to-label.ph{color:var(--fs);font-weight:600}
 .times .dest{font-size:15px;font-weight:700;color:var(--fm)}
 .app .btn:active{transform:scale(.97)}
+/* ── page Résultats ── */
+.sp-head{position:relative;flex-shrink:0;height:176px}
+.back-round{width:40px;height:40px;border-radius:50%;background:var(--s);border:1px solid var(--b);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0}
+.res-title{flex:1;text-align:center;font-weight:800;font-size:18px;letter-spacing:-.5px;color:var(--fg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px}
+.app>.rides{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding-bottom:96px}
+.rescount{font-size:13px;font-weight:600;color:var(--fm);padding:0 2px 2px}
   </style>
 </head>
 <body>
@@ -203,41 +209,47 @@ a{color:inherit;text-decoration:none}
   </div><!-- /.app -->
 </div><!-- /#page-home -->
 
-<!-- ─── PAGE : RECHERCHE ─── -->
+<!-- ─── PAGE : RECHERCHE (RÉSULTATS) ─── -->
 <div class="page" id="page-search">
+  <div class="app">
 
-  <!-- ── HERO COMPACT ── -->
-  <div class="sp-hero">
-    <div class="sp-topbar">
-      <button class="sp-back" onclick="showPage('home')" aria-label="Retour">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="20" height="20">
-          <path d="M19 12H5M12 5l-7 7 7 7"/>
+    <!-- En-tête dunes compactes -->
+    <div class="sp-head">
+      <div class="dunes small" aria-hidden="true">
+        <svg viewBox="0 0 390 420" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6EFE4"/><stop offset=".55" stop-color="#F9F4EC"/><stop offset="1" stop-color="#FFF8EF"/></linearGradient>
+            <radialGradient id="sun2" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".6" stop-color="#FBF3E6"/><stop offset="1" stop-color="#FBF3E6" stop-opacity="0"/></radialGradient>
+            <linearGradient id="e1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EFE3D0"/><stop offset="1" stop-color="#E9DAC3"/></linearGradient>
+            <linearGradient id="e2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E4D3BA"/><stop offset="1" stop-color="#DCC8AC"/></linearGradient>
+            <linearGradient id="e3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#D4BE9E"/><stop offset="1" stop-color="#C9B08D"/></linearGradient>
+          </defs>
+          <rect width="390" height="420" fill="url(#sky2)"/>
+          <circle cx="290" cy="190" r="90" fill="url(#sun2)"/>
+          <circle cx="290" cy="190" r="34" fill="#fff"/>
+          <path d="M0 250 C70 215 130 225 190 245 S300 215 390 232 V420 H0Z" fill="url(#e1)"/>
+          <path d="M0 292 C60 262 140 270 210 292 S330 268 390 285 V420 H0Z" fill="url(#e2)"/>
+          <path d="M0 340 C90 305 170 318 250 338 S350 320 390 330 V420 H0Z" fill="url(#e3)"/>
         </svg>
-      </button>
-      <div class="sp-title" id="search-page-title">Trajets disponibles</div>
-      <div class="sp-topbar-spacer"></div>
+      </div>
+      <div class="top">
+        <button class="back-round" onclick="showPage('home')" aria-label="Retour">
+          <svg class="ic" viewBox="0 0 24 24" style="width:20px;height:20px;stroke:var(--fg)"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="res-title" id="search-page-title">Trajets disponibles</div>
+        <span style="width:40px;flex-shrink:0"></span>
+      </div>
     </div>
-    <button class="sp-edit-pill" onclick="showPage('home')" aria-label="Modifier la recherche">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
-        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-      </svg>
-      <span>Modifier la recherche</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" style="margin-left:auto">
-        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-      </svg>
-    </button>
-  </div>
 
-  <!-- ── INPUTS CACHÉS ── -->
-  <input type="hidden" id="sf-from">
-  <input type="hidden" id="sf-to">
-  <input type="hidden" id="sf-date">
+    <!-- Inputs cachés (remplis depuis l'accueil) -->
+    <input type="hidden" id="sf-from">
+    <input type="hidden" id="sf-to">
+    <input type="hidden" id="sf-date">
 
-  <!-- ── RÉSULTATS ── -->
-  <div class="sp-body">
-    <div id="search-results"></div>
-  </div>
+    <!-- Résultats (cartes .ride depuis le backend) -->
+    <div class="rides" id="search-results"></div>
 
+  </div><!-- /.app -->
 </div>
 
 <!-- ─── PAGE : TRAJETS ─── -->
@@ -1412,7 +1424,9 @@ async function searchTrips() {
     const r = await fetch(url);
     const trips = await r.json();
     if (!trips.length) { c.innerHTML = '<div class="empty"><div class="empty-icon">' + BUS_SVG + '</div><p>' + t("empty.nosearch") + '</p></div>'; return; }
-    c.innerHTML = '<p style="font-size:13px;color:var(--text-3);margin-bottom:4px">' + trips.length + ' trajet(s) trouvé(s)</p><div class="trip-list">' + trips.map(trip => renderTripCard(trip)).join("") + '</div>';
+    const cheapest = Math.min.apply(null, trips.map(x => x.price_per_seat));
+    c.innerHTML = '<div class="rescount">' + trips.length + ' trajet(s) trouvé(s)</div>' +
+      trips.map(trip => rideCardHTML(trip, trip.price_per_seat === cheapest)).join("");
   } catch(e) { c.innerHTML = '<div class="empty"><div class="empty-icon">' + BUS_SVG + '</div><p>' + t("empty.nosearch") + '</p></div>'; }
 }
 
